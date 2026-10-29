@@ -1,0 +1,385 @@
+<div class="page">
+  <header class="page-header">
+    <div class="page-heading">
+      <a class="back-link" routerLink="/support/tickets">
+        <mat-icon>arrow_back</mat-icon>
+        Back to tickets
+      </a>
+      <h1 class="page-title">{{ ticket()?.subject || 'Ticket' }}</h1>
+      @if (ticket(); as current) {
+        <p class="page-subtitle">
+          Opened {{ current.createdAt | date: 'dd MMM yyyy, HH:mm' }} · Supply point
+          <span class="mono">{{ current.meterId }}</span>
+        </p>
+      }
+    </div>
+    <div class="header-actions">
+      @if (ticket(); as current) {
+        <span
+          class="chip"
+          [class.chip-green]="current.status === 'RESOLVED' || current.status === 'CLOSED'"
+          [class.chip-blue]="current.status === 'VISIT_REQUESTED'"
+          [class.chip-amber]="current.status === 'OPEN'"
+        >
+          {{ statusLabel(current.status) }}
+        </span>
+      }
+    </div>
+  </header>
+
+  @if (success(); as message) {
+    <div class="alert alert-success">{{ message }}</div>
+  }
+  @if (error(); as message) {
+    <div class="alert alert-error">{{ message }}</div>
+  }
+
+  @if (loading() && !ticket()) {
+    <div class="loading-row"><span class="spinner"></span>Loading ticket...</div>
+  } @else if (ticket(); as current) {
+    <div class="split">
+      <div class="thread">
+        <section class="card">
+          <h2 class="card-title">Reported issue</h2>
+          <p class="ticket-description">{{ current.message }}</p>
+          <div class="thread-meta">
+            <span class="cell-muted">Created {{ current.createdAt | date: 'dd MMM yyyy, HH:mm' }}</span>
+            @if (current.resolvedAt) {
+              <span class="cell-muted">Resolved {{ current.resolvedAt | date: 'dd MMM yyyy, HH:mm' }}</span>
+            }
+            @if (current.closedAt) {
+              <span class="cell-muted">Closed {{ current.closedAt | date: 'dd MMM yyyy, HH:mm' }}</span>
+            }
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="section-title">
+            <h2>Conversation</h2>
+            <span class="chip">{{ replies().length }} replies</span>
+          </div>
+
+          @if (replies().length === 0) {
+            <p class="cell-muted">No replies yet. Add the first message below.</p>
+          } @else {
+            <ul class="message-list">
+              @for (reply of replies(); track reply.id) {
+                <li class="message">
+                  <div class="message-head">
+                    <span class="message-author">{{ authorLabel(reply) }}</span>
+                    <span class="cell-muted">{{ reply.postedAt | date: 'dd MMM yyyy, HH:mm' }}</span>
+                  </div>
+                  <p class="message-body">{{ reply.body }}</p>
+                  <span class="cell-muted mono">{{ reply.authorAccountId }}</span>
+                </li>
+              }
+            </ul>
+          }
+
+          <form class="message-form" [formGroup]="replyForm" (ngSubmit)="sendReply()">
+            <div class="field">
+              <label for="ticket-message">Add a message</label>
+              <textarea
+                id="ticket-message"
+                formControlName="body"
+                placeholder="Share new details or answer the support team."
+              ></textarea>
+              @if (replyForm.controls.body.touched && replyForm.controls.body.invalid) {
+                <span class="field-error">Write a message before sending.</span>
+              }
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit" [disabled]="saving()">
+                <mat-icon>send</mat-icon>
+                {{ saving() ? 'Sending...' : 'Send reply' }}
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="card">
+          <div class="section-title">
+            <h2>Photos</h2>
+            <span class="chip">{{ photos().length }} attached</span>
+          </div>
+          <p class="card-subtitle">
+            The support service stores an object reference (a storage key or URL), not the
+            binary file.
+          </p>
+
+          @if (photos().length === 0) {
+            <p class="cell-muted">No photos attached to this ticket.</p>
+          } @else {
+            <ul class="photo-list">
+              @for (photo of photos(); track photo.id) {
+                <li>
+                  <mat-icon>image</mat-icon>
+                  @if (photo.isUrl) {
+                    <a [href]="photo.objectReference" target="_blank" rel="noopener">
+                      {{ photo.objectReference }}
+                    </a>
+                  } @else {
+                    <span class="mono">{{ photo.objectReference }}</span>
+                  }
+                  <span class="cell-muted">{{ photo.uploadedAt | date: 'dd MMM yyyy, HH:mm' }}</span>
+                </li>
+              }
+            </ul>
+          }
+
+          <form class="message-form" [formGroup]="photoForm" (ngSubmit)="addPhoto()">
+            <div class="field">
+              <label for="ticket-photo">Photo reference</label>
+              <input
+                id="ticket-photo"
+                formControlName="objectReference"
+                placeholder="https://storage.smartgn.pe/tickets/led-red.jpg"
+              />
+              @if (photoForm.controls.objectReference.touched && photoForm.controls.objectReference.invalid) {
+                <span class="field-error">Enter a storage key or URL.</span>
+              }
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-secondary" type="submit" [disabled]="saving()">
+                <mat-icon>add_photo_alternate</mat-icon>
+                Attach photo
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
+
+      <aside class="side-stack">
+        <section class="card">
+          <h2 class="card-title">Ticket details</h2>
+          <dl class="fact-list">
+            <div>
+              <dt>Ticket</dt>
+              <dd class="mono">{{ current.id }}</dd>
+            </div>
+            <div>
+              <dt>Principal account</dt>
+              <dd class="mono">{{ current.principalAccountId }}</dd>
+            </div>
+            <div>
+              <dt>Supply point</dt>
+              <dd class="mono">{{ current.meterId }}</dd>
+            </div>
+            <div>
+              <dt>Status</dt>
+              <dd>{{ statusLabel(current.status) }}</dd>
+            </div>
+          </dl>
+
+          @if (!current.isClosed) {
+            <div class="divider"></div>
+            <button class="btn btn-secondary" type="button" (click)="closeTicket()" [disabled]="saving()">
+              <mat-icon>lock</mat-icon>
+              Close ticket
+            </button>
+          } @else {
+            <div class="divider"></div>
+            <a class="btn btn-secondary" routerLink="/support/tickets">
+              <mat-icon>arrow_back</mat-icon>
+              Back to queue
+            </a>
+          }
+        </section>
+
+        <section class="card">
+          <div class="section-title">
+            <h2>Technician visits</h2>
+            <span class="chip">{{ visits().length }}</span>
+          </div>
+
+          @if (visits().length === 0) {
+            <p class="cell-muted">No visits requested for this ticket.</p>
+          } @else {
+            <ul class="visit-list">
+              @for (visit of visits(); track visit.id) {
+                <li class="visit-item">
+                  <div class="visit-head">
+                    <span
+                      class="chip"
+                      [class.chip-green]="visit.status === 'COMPLETED'"
+                      [class.chip-blue]="visit.status === 'ASSIGNED'"
+                      [class.chip-amber]="visit.status === 'REQUESTED'"
+                    >
+                      {{ statusLabel(visit.status) }}
+                    </span>
+                    @if (visit.completedAt) {
+                      <span class="cell-muted">{{ visit.completedAt | date: 'dd MMM yyyy, HH:mm' }}</span>
+                    }
+                  </div>
+                  <div class="cell-muted">
+                    Window:
+                    @if (visit.requestedWindowStart) {
+                      {{ visit.requestedWindowStart | date: 'dd MMM yyyy, HH:mm' }}
+                    } @else {
+                      —
+                    }
+                    @if (visit.requestedWindowEnd) {
+                      → {{ visit.requestedWindowEnd | date: 'dd MMM yyyy, HH:mm' }}
+                    }
+                  </div>
+
+                  @if (technicianName(visit)) {
+                    <div class="cell-muted">Technician: {{ technicianName(visit) }}</div>
+                  }
+
+                  @if (diagnosisFor(visit); as diagnosis) {
+                    <div class="diagnosis">
+                      <span class="diagnosis-title">Diagnosis</span>
+                      <p>{{ diagnosis.summary }}</p>
+                      <span class="cell-muted">
+                        Final cost {{ diagnosis.finalCost | currency: 'PEN' : 'symbol-narrow' : '1.2-2' }}
+                        @if (diagnosis.billingReferenceId) {
+                          · Billing ref <span class="mono">{{ diagnosis.billingReferenceId }}</span>
+                        }
+                      </span>
+                    </div>
+                  }
+
+                  @if (isSuperAdmin()) {
+                    @if (visit.status === 'REQUESTED') {
+                      <div class="inline-form">
+                        <select
+                          [value]="technicianSelection()[visit.id] || ''"
+                          (change)="setTechnician(visit.id, $any($event.target).value)"
+                        >
+                          <option value="">Select a technician</option>
+                          @for (technician of technicians(); track technician.id) {
+                            <option [value]="technician.id">
+                              {{ technician.fullName }} · {{ technician.accreditationCode }}
+                            </option>
+                          }
+                        </select>
+                        <button
+                          class="btn btn-primary btn-sm"
+                          type="button"
+                          [disabled]="saving() || !technicianSelection()[visit.id]"
+                          (click)="assignTechnician(visit)"
+                        >
+                          Assign
+                        </button>
+                      </div>
+                      @if (technicians().length === 0) {
+                        <span class="cell-muted">No available technicians.</span>
+                      }
+                    }
+
+                    @if (visit.status === 'ASSIGNED' || visit.status === 'REQUESTED') {
+                      @if (diagnosingVisitId() === visit.id) {
+                        <form class="inline-form column" [formGroup]="diagnosisForm" (ngSubmit)="completeVisit(visit)">
+                          <div class="field">
+                            <label [for]="'diagnosis-summary-' + visit.id">Diagnosis summary</label>
+                            <textarea
+                              [id]="'diagnosis-summary-' + visit.id"
+                              formControlName="summary"
+                              placeholder="What was found and what was fixed."
+                            ></textarea>
+                            @if (diagnosisForm.controls.summary.touched && diagnosisForm.controls.summary.invalid) {
+                              <span class="field-error">A summary is required.</span>
+                            }
+                          </div>
+                          <div class="field">
+                            <label [for]="'diagnosis-cost-' + visit.id">Final cost (PEN)</label>
+                            <input
+                              [id]="'diagnosis-cost-' + visit.id"
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              formControlName="finalCost"
+                            />
+                          </div>
+                          <div class="form-actions">
+                            <button class="btn btn-secondary btn-sm" type="button" (click)="cancelDiagnosis()">
+                              Cancel
+                            </button>
+                            <button class="btn btn-primary btn-sm" type="submit" [disabled]="saving()">
+                              Complete visit
+                            </button>
+                          </div>
+                        </form>
+                      } @else {
+                        <button class="btn btn-secondary btn-sm" type="button" (click)="startDiagnosis(visit.id)">
+                          <mat-icon>fact_check</mat-icon>
+                          Complete visit
+                        </button>
+                      }
+                    }
+                  }
+                </li>
+              }
+            </ul>
+          }
+
+          @if (!current.isClosed && !hasOpenVisit()) {
+            <div class="divider"></div>
+            <h3 class="card-title">Request a visit</h3>
+            <form [formGroup]="visitForm" (ngSubmit)="requestVisit()">
+              <div class="field">
+                <label for="visit-start">Window start</label>
+                <input id="visit-start" type="datetime-local" formControlName="requestedWindowStart" />
+                @if (visitForm.controls.requestedWindowStart.touched && visitForm.controls.requestedWindowStart.invalid) {
+                  <span class="field-error">Choose the start of the window.</span>
+                }
+              </div>
+              <div class="field">
+                <label for="visit-end">Window end</label>
+                <input id="visit-end" type="datetime-local" formControlName="requestedWindowEnd" />
+                @if (visitForm.controls.requestedWindowEnd.touched && visitForm.controls.requestedWindowEnd.invalid) {
+                  <span class="field-error">Choose the end of the window.</span>
+                }
+              </div>
+              <div class="form-actions">
+                <button class="btn btn-primary" type="submit" [disabled]="saving()">
+                  <mat-icon>event</mat-icon>
+                  Request visit
+                </button>
+              </div>
+            </form>
+          }
+        </section>
+
+        @if (rating(); as currentRating) {
+          <section class="card">
+            <h2 class="card-title">Service rating</h2>
+            <div class="rating-stars">{{ ratingStars(currentRating.score) }}</div>
+            <p class="cell-muted">
+              {{ currentRating.score }} / 5 · {{ currentRating.ratedAt | date: 'dd MMM yyyy' }}
+            </p>
+            @if (currentRating.comment) {
+              <p class="message-body">{{ currentRating.comment }}</p>
+            }
+          </section>
+        } @else if (!isSuperAdmin() && current.canBeRated) {
+          <section class="card">
+            <h2 class="card-title">Rate the service</h2>
+            <p class="card-subtitle">Rating the ticket also closes it.</p>
+            <form [formGroup]="ratingForm" (ngSubmit)="submitRating()">
+              <div class="field">
+                <label for="rating-score">Score</label>
+                <select id="rating-score" formControlName="score">
+                  @for (score of [5, 4, 3, 2, 1]; track score) {
+                    <option [value]="score">{{ score }} / 5</option>
+                  }
+                </select>
+              </div>
+              <div class="field">
+                <label for="rating-comment">Comment</label>
+                <textarea id="rating-comment" formControlName="comment" placeholder="Optional feedback"></textarea>
+              </div>
+              <div class="form-actions">
+                <button class="btn btn-primary" type="submit" [disabled]="saving()">
+                  <mat-icon>star</mat-icon>
+                  Submit rating
+                </button>
+              </div>
+            </form>
+          </section>
+        }
+      </aside>
+    </div>
+  }
+</div>

@@ -1,0 +1,45 @@
+<mat-toolbar class="toolbar">
+  <mat-toolbar-row class="toolbar-row">
+    <a class="brand" routerLink="/home" aria-label="SmartGN home">
+      <img src="assets/smartgn-logo.png" alt="SmartGN logo" class="logo-image" />
+      <span class="brand-name">SmartGN</span>
+    </a>
+
+    <div class="toolbar-actions">
+      <span class="role-chip">{{ roleLabel() }}</span>
+
+      <button
+        mat-icon-button
+        class="icon-button"
+        type="button"
+        [attr.aria-label]="'toolbar.account' | translate"
+        [matMenuTriggerFor]="accountMenu"
+      >
+        <span class="avatar">{{ initials() }}</span>
+      </button>
+
+      <mat-menu #accountMenu="matMenu">
+        <div class="account-menu-header">
+          <span class="account-menu-name">{{ displayName() }}</span>
+          <span class="account-menu-email">{{ currentUser()?.email }}</span>
+          <span class="account-menu-role">{{ roleLabel() }}</span>
+        </div>
+
+        <button mat-menu-item routerLink="/account/profile">
+          <mat-icon>person</mat-icon>
+          <span>{{ 'toolbar.profile' | translate }}</span>
+        </button>
+
+        <button mat-menu-item (click)="openChangePassword()">
+          <mat-icon>lock_reset</mat-icon>
+          <span>{{ 'toolbar.change-password' | translate }}</span>
+        </button>
+
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          <span>{{ 'toolbar.logout' | translate }}</span>
+        </button>
+      </mat-menu>
+    </div>
+  </mat-toolbar-row>
+</mat-toolbar>

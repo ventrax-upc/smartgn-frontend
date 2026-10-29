@@ -1,0 +1,187 @@
+<div class="page">
+  <header class="page-header">
+    <div class="page-heading">
+      <span class="eyebrow">{{ isSuperAdmin() ? 'Operations · SuperAdmin' : 'Your account' }}</span>
+      <h1 class="page-title">Devices</h1>
+      <p class="page-subtitle">
+        @if (isSuperAdmin()) {
+          Register installed hardware, provision one-time credentials and follow broker
+          and telemetry confirmations before trusting a device as active.
+        } @else {
+          Devices installed on your supply points and their current connection status.
+        }
+      </p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" type="button" (click)="reload()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  @if (error(); as message) {
+    <div class="alert alert-error">{{ message }}</div>
+  }
+
+  @if (isSuperAdmin()) {
+    @if (receipt(); as current) {
+    <section class="card receipt-card">
+      <div class="section-title">
+        <h2>Provisioning receipt</h2>
+        <button class="btn btn-ghost btn-sm" type="button" (click)="clearReceipt()">Dismiss</button>
+      </div>
+      <p class="card-subtitle">
+        This credential is shown only once. Configure it on the physical device before
+        leaving this page.
+      </p>
+      <div class="credential-grid">
+        <div>
+          <span class="fact-label">Device</span>
+          <span class="mono">{{ current.device.serialNumber }}</span>
+        </div>
+        <div>
+          <span class="fact-label">Client ID</span>
+          <span class="mono">{{ current.credential.clientId }}</span>
+        </div>
+        <div>
+          <span class="fact-label">Username</span>
+          <span class="mono">{{ current.credential.username }}</span>
+        </div>
+        <div>
+          <span class="fact-label">Password</span>
+          <span class="mono">{{ current.credential.password }}</span>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-secondary" type="button" (click)="copyCredential()">
+          <mat-icon>content_copy</mat-icon>
+          Copy credential
+        </button>
+      </div>
+    </section>
+    }
+  }
+
+  <div class="split" [class.single]="!isSuperAdmin()">
+    <section class="card">
+      <div class="section-title">
+        <h2>Fleet</h2>
+        <span class="chip">{{ items().length }} devices</span>
+      </div>
+
+      @if (loading()) {
+        <div class="loading-row"><span class="spinner"></span>Loading devices...</div>
+      } @else if (items().length === 0) {
+        <div class="empty">
+          <mat-icon>developer_board</mat-icon>
+          <span class="empty-title">No devices registered</span>
+          <span class="empty-text">Register hardware from a completed installation.</span>
+        </div>
+      } @else {
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Device</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Confirmations</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (device of items(); track device.id) {
+                <tr>
+                  <td>
+                    <span class="cell-title mono">{{ device.serialNumber }}</span>
+                    <div class="cell-muted">assoc. v{{ device.associationVersion }}</div>
+                  </td>
+                  <td>
+                    <span>{{ device.location }}</span>
+                    <div class="cell-muted">{{ device.propertyName }} · {{ device.pointName }}</div>
+                  </td>
+                  <td>
+                    <span
+                      class="chip"
+                      [class.chip-green]="device.status === 'ACTIVE'"
+                      [class.chip-amber]="device.status === 'PENDING'"
+                      [class.chip-red]="device.status === 'REVOKED' || device.status === 'FAILED'"
+                    >
+                      {{ device.status }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="confirmation-list">
+                      <span class="chip" [class.chip-green]="device.brokerConfirmed">Broker</span>
+                      <span class="chip" [class.chip-green]="device.telemetryConfirmed">Telemetry</span>
+                    </div>
+                  </td>
+                  <td>
+                    @if (isSuperAdmin()) {
+                      <div class="row-actions">
+                        <button class="btn btn-ghost btn-sm" type="button" (click)="rotate(device)">
+                          Rotate
+                        </button>
+                        @if (device.status !== 'REVOKED') {
+                          <button class="btn btn-danger btn-sm" type="button" (click)="revoke(device)">
+                            Revoke
+                          </button>
+                        }
+                      </div>
+                    } @else {
+                      <span class="cell-muted">—</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    @if (isSuperAdmin()) {
+    <aside class="card">
+      <h2 class="card-title">Register a device</h2>
+      <p class="card-subtitle">
+        Registration returns a credential once and leaves the device in PENDING until
+        broker and telemetry confirm.
+      </p>
+
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="field">
+          <label for="device-installation">Installation</label>
+          <select id="device-installation" formControlName="installationId">
+            <option value="">Select an installation</option>
+            @for (installation of installations(); track installation.id) {
+              <option [value]="installation.id">
+                {{ installation.pointName }} · {{ installation.installerName }}
+              </option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label for="device-serial">Serial number</label>
+          <input id="device-serial" formControlName="serialNumber" placeholder="GN-DEV-0003" />
+        </div>
+        <div class="field">
+          <label for="device-location">Location</label>
+          <input id="device-location" formControlName="location" placeholder="Main kitchen" />
+        </div>
+        <div class="field">
+          <label for="device-date">Installed at</label>
+          <input id="device-date" type="datetime-local" formControlName="installedAt" />
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit" [disabled]="saving()">
+            <mat-icon>add_link</mat-icon>
+            {{ saving() ? 'Registering...' : 'Register device' }}
+          </button>
+        </div>
+      </form>
+    </aside>
+    }
+  </div>
+</div>

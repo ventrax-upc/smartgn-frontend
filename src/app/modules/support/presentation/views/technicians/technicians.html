@@ -1,0 +1,149 @@
+<div class="page">
+  <header class="page-header">
+    <div class="page-heading">
+      <span class="eyebrow">Support · SuperAdmin</span>
+      <h1 class="page-title">Technicians</h1>
+      <p class="page-subtitle">
+        Register technicians and review the assignment pool. GET /support/technicians only
+        returns available, active technicians.
+      </p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" type="button" (click)="reload()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+      <button class="btn btn-primary" type="button" (click)="startCreate()">
+        <mat-icon>person_add</mat-icon>
+        New technician
+      </button>
+    </div>
+  </header>
+
+  @if (success(); as message) {
+    <div class="alert alert-success">{{ message }}</div>
+  }
+  @if (error(); as message) {
+    <div class="alert alert-error">{{ message }}</div>
+  }
+
+  <div class="grid grid-2">
+    <article class="stat-card">
+      <span class="stat-icon"><mat-icon>support_agent</mat-icon></span>
+      <span class="stat-value">{{ count() }}</span>
+      <span class="stat-label">In the assignment pool</span>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon"><mat-icon>check_circle</mat-icon></span>
+      <span class="stat-value">{{ availableCount() }}</span>
+      <span class="stat-label">Available now</span>
+    </article>
+  </div>
+
+  <div class="split" [class.single]="!showForm()">
+    <section class="card">
+      <div class="section-title">
+        <h2>Available technicians</h2>
+        <span class="chip">{{ count() }} records</span>
+      </div>
+
+      @if (loading()) {
+        <div class="loading-row"><span class="spinner"></span>Loading technicians...</div>
+      } @else if (items().length === 0) {
+        <div class="empty">
+          <mat-icon>support_agent</mat-icon>
+          <span class="empty-title">No available technicians</span>
+          <span class="empty-text">Register a technician so visits can be assigned.</span>
+        </div>
+      } @else {
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Technician</th>
+                <th>Accreditation</th>
+                <th>Contact</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (technician of items(); track technician.id) {
+                <tr>
+                  <td>
+                    <span class="cell-title">{{ technician.fullName }}</span>
+                    <div class="cell-muted mono">{{ technician.id }}</div>
+                  </td>
+                  <td class="mono">{{ technician.accreditationCode }}</td>
+                  <td>
+                    <span>{{ technician.email }}</span>
+                    <div class="cell-muted">{{ technician.phone }}</div>
+                  </td>
+                  <td>
+                    <span
+                      class="chip"
+                      [class.chip-green]="technician.available && technician.active"
+                      [class.chip-red]="!technician.available || !technician.active"
+                    >
+                      {{ technician.available && technician.active ? 'Available' : 'Unavailable' }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    @if (showForm()) {
+      <aside class="card">
+        <div class="section-title">
+          <h2>Register a technician</h2>
+          <button class="btn btn-ghost btn-sm" type="button" (click)="cancelForm()">Close</button>
+        </div>
+        <p class="card-subtitle">
+          The backend creates the technician as available and active. Assignments make them
+          unavailable until the operation is reset.
+        </p>
+
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <div class="field">
+            <label for="tech-full-name">Full name</label>
+            <input id="tech-full-name" formControlName="fullName" placeholder="Diego Salazar" />
+            @if (form.controls.fullName.touched && form.controls.fullName.invalid) {
+              <span class="field-error">The full name is required.</span>
+            }
+          </div>
+          <div class="field">
+            <label for="tech-accreditation">Accreditation code</label>
+            <input id="tech-accreditation" formControlName="accreditationCode" placeholder="TEC-2026-001" />
+            @if (form.controls.accreditationCode.touched && form.controls.accreditationCode.invalid) {
+              <span class="field-error">The accreditation code is required.</span>
+            }
+          </div>
+          <div class="field">
+            <label for="tech-phone">Phone</label>
+            <input id="tech-phone" formControlName="phone" placeholder="+51 944 111 000" />
+            @if (form.controls.phone.touched && form.controls.phone.invalid) {
+              <span class="field-error">The phone is required.</span>
+            }
+          </div>
+          <div class="field">
+            <label for="tech-email">Email</label>
+            <input id="tech-email" type="email" formControlName="email" placeholder="technician@smartgn.pe" />
+            @if (form.controls.email.touched && form.controls.email.invalid) {
+              <span class="field-error">Enter a valid email.</span>
+            }
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-secondary" type="button" (click)="cancelForm()">Cancel</button>
+            <button class="btn btn-primary" type="submit" [disabled]="saving()">
+              {{ saving() ? 'Saving...' : 'Register technician' }}
+            </button>
+          </div>
+        </form>
+      </aside>
+    }
+  </div>
+</div>

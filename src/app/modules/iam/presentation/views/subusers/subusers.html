@@ -1,0 +1,206 @@
+<div class="page">
+  <header class="page-header">
+    <div class="page-heading">
+      <span class="eyebrow">Account</span>
+      <h1 class="page-title">Subusers</h1>
+      <p class="page-subtitle">
+        Invite family members or staff with their own credentials. They only see the supply
+        points and actions you grant here.
+      </p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" type="button" (click)="reload()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  @if (success(); as message) {
+    <div class="alert alert-success">{{ message }}</div>
+  }
+  @if (error(); as message) {
+    <div class="alert alert-error">{{ message }}</div>
+  }
+
+  @if (activationLink(); as link) {
+    <div class="alert alert-info activation">
+      <div>
+        <strong>Activation link</strong>
+        <div class="mono">{{ link }}</div>
+      </div>
+      <button class="btn btn-secondary btn-sm" type="button" (click)="copyActivation()">
+        <mat-icon>content_copy</mat-icon>
+        Copy
+      </button>
+    </div>
+  }
+
+  <div class="grid grid-3">
+    <article class="stat-card">
+      <span class="stat-icon"><mat-icon>group</mat-icon></span>
+      <span class="stat-value">{{ count() }}</span>
+      <span class="stat-label">Subusers</span>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon"><mat-icon>verified_user</mat-icon></span>
+      <span class="stat-value">{{ activeCount() }}</span>
+      <span class="stat-label">Active</span>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon"><mat-icon>hourglass_top</mat-icon></span>
+      <span class="stat-value">{{ pendingCount() }}</span>
+      <span class="stat-label">Pending activation</span>
+    </article>
+  </div>
+
+  <div class="split">
+    <section class="card">
+      <div class="section-title">
+        <h2>Delegated accounts</h2>
+        <span class="chip">{{ count() }} records</span>
+      </div>
+
+      @if (loading()) {
+        <div class="loading-row"><span class="spinner"></span>Loading subusers...</div>
+      } @else if (items().length === 0) {
+        <div class="empty">
+          <mat-icon>group_off</mat-icon>
+          <span class="empty-title">No subusers yet</span>
+          <span class="empty-text">Invite a subuser from the form to delegate read or support access.</span>
+        </div>
+      } @else {
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Subuser</th>
+                <th>Status</th>
+                <th>Granted points</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (subuser of items(); track subuser.id) {
+                <tr>
+                  <td>
+                    <span class="cell-title">{{ subuser.fullName }}</span>
+                    <div class="cell-muted">{{ subuser.email }}</div>
+                  </td>
+                  <td>
+                    <span class="chip" [class.chip-green]="subuser.status === 'ACTIVE'" [class.chip-amber]="subuser.status === 'PENDING_ACTIVATION'" [class.chip-red]="subuser.status === 'SUSPENDED'">
+                      {{ subuser.status }}
+                    </span>
+                  </td>
+                  <td>{{ subuser.grantedMeters }} meters</td>
+                  <td>
+                    <button class="btn btn-ghost btn-sm" type="button" (click)="selectSubuser(subuser.id)">
+                      Manage access
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    <aside class="side-stack">
+      <section class="card">
+        <h2 class="card-title">Invite a subuser</h2>
+        <p class="card-subtitle">
+          The invited person activates their own password. You never share your credentials.
+        </p>
+
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <div class="field">
+            <label for="subuser-email">Email</label>
+            <input id="subuser-email" type="email" formControlName="email" placeholder="name@example.com" />
+            @if (form.controls.email.touched && form.controls.email.invalid) {
+              <span class="field-error">A valid email is required.</span>
+            }
+          </div>
+          <div class="form-grid">
+            <div class="field">
+              <label for="subuser-first-name">First name</label>
+              <input id="subuser-first-name" formControlName="firstName" />
+            </div>
+            <div class="field">
+              <label for="subuser-last-name">Last name</label>
+              <input id="subuser-last-name" formControlName="lastName" />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit" [disabled]="saving()">
+              <mat-icon>person_add</mat-icon>
+              {{ saving() ? 'Inviting...' : 'Invite subuser' }}
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2 class="card-title">Grant access</h2>
+        <p class="card-subtitle">
+          Select a subuser and a supply point, then choose the actions they can perform.
+        </p>
+
+        <div class="field">
+          <label for="grant-subuser">Subuser</label>
+          <select
+            id="grant-subuser"
+            [value]="selectedSubuserId()"
+            (change)="selectSubuser($any($event.target).value)"
+          >
+            <option value="">Select a subuser</option>
+            @for (subuser of items(); track subuser.id) {
+              <option [value]="subuser.id">{{ subuser.fullName }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="grant-meter">Supply point</label>
+          <select
+            id="grant-meter"
+            [value]="selectedMeterId()"
+            (change)="selectMeter($any($event.target).value)"
+          >
+            <option value="">Select a supply point</option>
+            @for (meter of meters(); track meter.id) {
+              <option [value]="meter.id">{{ meter.displayName }} · {{ meter.propertyName }}</option>
+            }
+          </select>
+        </div>
+
+        @if (selectedMeterId()) {
+          <div class="permission-list">
+            @for (permission of permissions; track permission.value) {
+              <label class="check-field" [for]="'perm-' + permission.value">
+                <input
+                  [id]="'perm-' + permission.value"
+                  type="checkbox"
+                  [checked]="hasPermission(permission.value)"
+                  (change)="togglePermission(permission.value, $any($event.target).checked)"
+                />
+                <span>{{ permission.label }}</span>
+              </label>
+            }
+          </div>
+        }
+
+        <div class="form-actions">
+          <button
+            class="btn btn-primary"
+            type="button"
+            [disabled]="saving() || !selectedSubuserId() || !selectedMeterId()"
+            (click)="saveGrants()"
+          >
+            Save access
+          </button>
+        </div>
+      </section>
+    </aside>
+  </div>
+</div>

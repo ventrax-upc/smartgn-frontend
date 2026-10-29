@@ -1,0 +1,33 @@
+@import '../../../../../shared/presentation/styles/page.css';
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-row label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--smartgn-muted);
+}
+
+.filter-row select,
+.assign-row select {
+  min-height: 34px;
+  border: 1px solid var(--smartgn-border);
+  border-radius: 8px;
+  padding: 5px 9px;
+  font-size: 12.5px;
+  font-family: inherit;
+  background: var(--smartgn-input);
+  color: var(--smartgn-ink);
+  max-width: 210px;
+}
+
+.assign-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
