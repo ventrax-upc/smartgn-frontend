@@ -1,0 +1,21 @@
+@import '../../../../../shared/presentation/styles/page.css';
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--smartgn-primary);
+  text-decoration: none;
+}
+
+.back-link mat-icon {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+}
+
+.field + .field {
+  margin-top: 12px;
+}

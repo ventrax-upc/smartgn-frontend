@@ -1,0 +1,132 @@
+<div class="page">
+  <header class="page-header">
+    <div class="page-heading">
+      <span class="eyebrow">Support</span>
+      <h1 class="page-title">Help center</h1>
+      <p class="page-subtitle">
+        Knowledge articles for devices, consumption, installation and account management.
+        Most questions are answered here before opening a ticket.
+      </p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" type="button" (click)="reload()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+      @if (isSuperAdmin()) {
+        <button class="btn btn-primary" type="button" (click)="startCreate()">
+          <mat-icon>post_add</mat-icon>
+          New article
+        </button>
+      }
+    </div>
+  </header>
+
+  @if (success(); as message) {
+    <div class="alert alert-success">{{ message }}</div>
+  }
+  @if (error(); as message) {
+    <div class="alert alert-error">{{ message }}</div>
+  }
+
+  <div class="filter-chips">
+    @for (category of categories(); track category) {
+      <button
+        class="filter-chip"
+        type="button"
+        [class.active]="activeFilter() === category"
+        (click)="filter(category)"
+      >
+        {{ category === 'ALL' ? 'All articles' : categoryLabel(category) }}
+      </button>
+    }
+  </div>
+
+  <div class="split" [class.single]="!showForm()">
+    <section>
+      @if (loading()) {
+        <div class="loading-row"><span class="spinner"></span>Loading articles...</div>
+      } @else if (items().length === 0) {
+        <div class="card">
+          <div class="empty">
+            <mat-icon>menu_book</mat-icon>
+            <span class="empty-title">No articles in this category</span>
+            <span class="empty-text">Try another category or contact support.</span>
+          </div>
+        </div>
+      } @else {
+        <div class="grid grid-2">
+          @for (article of items(); track article.id) {
+            <article class="card guide-card">
+              <div class="guide-meta">
+                <span class="chip chip-green">{{ categoryLabel(article.category) }}</span>
+                @if (article.publishedAt) {
+                  <span class="cell-muted">Published {{ article.publishedAt | date: 'dd MMM yyyy' }}</span>
+                }
+              </div>
+              <h2 class="card-title">{{ article.title }}</h2>
+              <div class="article-reference">
+                <mat-icon>link</mat-icon>
+                @if (article.isUrl) {
+                  <a [href]="article.contentReference" target="_blank" rel="noopener">
+                    Open article
+                  </a>
+                } @else {
+                  <span class="mono">{{ article.contentReference }}</span>
+                }
+              </div>
+              <span class="cell-muted mono">Article {{ article.id }}</span>
+            </article>
+          }
+        </div>
+      }
+    </section>
+
+    @if (showForm()) {
+      <aside class="card">
+        <div class="section-title">
+          <h2>Publish an article</h2>
+          <button class="btn btn-ghost btn-sm" type="button" (click)="cancelForm()">Close</button>
+        </div>
+        <p class="card-subtitle">
+          The backend stores a content reference (URL or document key), not the article body.
+        </p>
+
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <div class="field">
+            <label for="article-title">Title</label>
+            <input id="article-title" formControlName="title" placeholder="Understanding the LED indicators" />
+            @if (form.controls.title.touched && form.controls.title.invalid) {
+              <span class="field-error">The title is required.</span>
+            }
+          </div>
+          <div class="field">
+            <label for="article-category">Category</label>
+            <input id="article-category" formControlName="category" placeholder="Devices" />
+            @if (form.controls.category.touched && form.controls.category.invalid) {
+              <span class="field-error">The category is required.</span>
+            }
+          </div>
+          <div class="field">
+            <label for="article-reference">Content reference</label>
+            <input
+              id="article-reference"
+              formControlName="contentReference"
+              placeholder="https://help.smartgn.pe/articles/led-indicators"
+            />
+            @if (form.controls.contentReference.touched && form.controls.contentReference.invalid) {
+              <span class="field-error">A URL or document key is required.</span>
+            }
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-secondary" type="button" (click)="cancelForm()">Cancel</button>
+            <button class="btn btn-primary" type="submit" [disabled]="saving()">
+              {{ saving() ? 'Publishing...' : 'Publish article' }}
+            </button>
+          </div>
+        </form>
+      </aside>
+    }
+  </div>
+</div>

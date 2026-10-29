@@ -1,0 +1,117 @@
+<div class="page">
+  <a class="back-link" routerLink="/properties">
+    <mat-icon>arrow_back</mat-icon>
+    Back to properties
+  </a>
+
+  @if (propertyError(); as message) {
+    <div class="alert alert-error">{{ message }}</div>
+  } @else if (property(); as current) {
+    <header class="page-header">
+      <div class="page-heading">
+        <span class="eyebrow">{{ current.typeLabel }}</span>
+        <h1 class="page-title">{{ current.name }}</h1>
+        <p class="page-subtitle">{{ current.address }}</p>
+      </div>
+      <div class="header-actions">
+        <span class="chip chip-green">Active</span>
+        <span class="chip mono">v{{ current.version }}</span>
+      </div>
+    </header>
+  }
+
+  @if (success(); as message) {
+    <div class="alert alert-success">{{ message }}</div>
+  }
+  @if (error(); as message) {
+    <div class="alert alert-error">{{ message }}</div>
+  }
+
+  <div class="split">
+    <section class="card">
+      <div class="section-title">
+        <h2>Supply points</h2>
+        <span class="chip">{{ points().length }} registered</span>
+      </div>
+      <p class="card-subtitle">
+        The serial number identifies the physical meter and cannot be changed after
+        registration. The location name is descriptive and can be updated.
+      </p>
+
+      @if (loading()) {
+        <div class="loading-row"><span class="spinner"></span>Loading supply points...</div>
+      } @else if (points().length === 0) {
+        <div class="empty">
+          <mat-icon>bolt</mat-icon>
+          <span class="empty-title">No supply points yet</span>
+          <span class="empty-text">
+            Add the meter serial number and the room or area where it is installed.
+          </span>
+        </div>
+      } @else {
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Serial number</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (point of points(); track point.id) {
+                <tr>
+                  <td class="mono cell-title">{{ point.serialNumber }}</td>
+                  <td>{{ point.locationName }}</td>
+                  <td>
+                    <span class="chip" [class.chip-green]="point.active" [class.chip-red]="!point.active">
+                      {{ point.active ? 'Active' : 'Inactive' }}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn btn-ghost btn-sm" type="button" (click)="startEdit(point)">
+                      Edit location
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    <aside class="card">
+      <h2 class="card-title">{{ editing() ? 'Edit supply point' : 'Add a supply point' }}</h2>
+      <p class="card-subtitle">
+        @if (editing()) {
+          Only the descriptive location can change. The meter identity stays intact.
+        } @else {
+          Register the meter exactly as it appears on the device label.
+        }
+      </p>
+
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="field">
+          <label for="point-serial">Serial number</label>
+          <input id="point-serial" formControlName="serialNumber" placeholder="MTR-0005" />
+        </div>
+        <div class="field">
+          <label for="point-location">Location</label>
+          <input id="point-location" formControlName="locationName" placeholder="Main kitchen" />
+        </div>
+
+        <div class="form-actions">
+          @if (editing()) {
+            <button class="btn btn-secondary" type="button" (click)="cancelEdit()">Cancel</button>
+          }
+          <button class="btn btn-primary" type="submit" [disabled]="saving() || !property()">
+            <mat-icon>{{ editing() ? 'save' : 'add' }}</mat-icon>
+            {{ saving() ? 'Saving...' : editing() ? 'Save changes' : 'Add point' }}
+          </button>
+        </div>
+      </form>
+    </aside>
+  </div>
+</div>

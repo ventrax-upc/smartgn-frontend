@@ -1,0 +1,184 @@
+<div class="page">
+  <header class="page-header">
+    <div class="page-heading">
+      <span class="eyebrow">Billing</span>
+      <h1 class="page-title">Subscription</h1>
+      <p class="page-subtitle">
+        Manage your SmartGN plan, review what is included and control automatic renewal.
+      </p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" type="button" (click)="reload()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+      <a class="btn btn-secondary" routerLink="/payments/methods">
+        <mat-icon>credit_card</mat-icon>
+        Payment methods
+      </a>
+    </div>
+  </header>
+
+  @if (success(); as message) {
+    <div class="alert alert-success">{{ message }}</div>
+  }
+  @if (error(); as message) {
+    <div class="alert alert-error">{{ message }}</div>
+  }
+
+  @if (loading() && !subscription()) {
+    <div class="loading-row"><span class="spinner"></span>Loading subscription...</div>
+  } @else if (subscription(); as current) {
+    <div class="split">
+      <section class="card plan-card">
+        <div class="plan-head">
+          <div>
+            <span class="eyebrow">Current plan</span>
+            <h2 class="plan-name">{{ current.plan }}</h2>
+          </div>
+          <span class="chip" [class.chip-green]="current.proActive" [class.chip-amber]="!current.proActive">
+            {{ current.proActive ? 'Active' : 'Basic' }}
+          </span>
+        </div>
+
+        <div class="price-row">
+          <span class="price">
+            {{ current.monthlyProPrice | currency: current.currency : 'symbol-narrow' : '1.2-2' }}
+          </span>
+          <span class="muted">/ month</span>
+        </div>
+        <p class="card-subtitle">
+          Reference technical support price:
+          <strong>{{ current.technicalBasePriceReference | currency: current.currency : 'symbol-narrow' : '1.2-2' }}</strong>.
+          Pro customers save
+          <strong>{{ current.savings | currency: current.currency : 'symbol-narrow' : '1.2-2' }}</strong>
+          per month.
+        </p>
+
+        <div class="divider"></div>
+
+        <dl class="fact-list">
+          <div>
+            <dt>Billing period</dt>
+            <dd>
+              {{ current.periodStartsAt | date: 'dd MMM yyyy' }} —
+              {{ current.periodEndsAt | date: 'dd MMM yyyy' }}
+            </dd>
+          </div>
+          <div>
+            <dt>Technical coverage</dt>
+            <dd>{{ current.technicalCoveragePercent }}% of visit labor</dd>
+          </div>
+          <div>
+            <dt>Installation</dt>
+            <dd>{{ current.installationCompleted ? 'Completed' : 'Pending' }}</dd>
+          </div>
+        </dl>
+
+        <div class="divider"></div>
+
+        <ul class="benefit-list">
+          <li><mat-icon>check_circle</mat-icon> Pro monitoring features for every supply point</li>
+          <li><mat-icon>check_circle</mat-icon> Priority support and technician visits</li>
+          <li><mat-icon>check_circle</mat-icon> Monthly invoices and receipts in your account</li>
+        </ul>
+      </section>
+
+      <aside class="side-stack">
+        @if (!current.proActive) {
+          <section class="card">
+            <h2 class="card-title">Activate Pro</h2>
+            <p class="card-subtitle">
+              @if (!current.installationCompleted) {
+                A completed installation is required before activating Pro.
+              } @else {
+                Choose the card used for the first monthly charge.
+              }
+            </p>
+
+            @if (current.installationCompleted) {
+              <div class="field">
+                <label for="plan-method">Payment method</label>
+                <select id="plan-method" (change)="chooseMethod($event)">
+                  <option value="">Use default card</option>
+                  @for (method of methods(); track method.id) {
+                    <option [value]="method.id">
+                      {{ method.label }}{{ method.isDefault ? ' (default)' : '' }}
+                    </option>
+                  }
+                </select>
+              </div>
+
+              <label class="check-field" for="plan-auto-renew">
+                <input
+                  id="plan-auto-renew"
+                  type="checkbox"
+                  [checked]="autoRenew()"
+                  (change)="toggleAutoRenew($event)"
+                />
+                <span>Renew automatically every month</span>
+              </label>
+
+              @if (methods().length === 0) {
+                <div class="alert alert-warning">
+                  Add a payment method before activating Pro.
+                </div>
+                <a class="btn btn-secondary" routerLink="/payments/methods">Add a card</a>
+              } @else {
+                <div class="form-actions">
+                  <button class="btn btn-primary" type="button" [disabled]="saving()" (click)="activate()">
+                    <mat-icon>workspace_premium</mat-icon>
+                    {{ saving() ? 'Activating...' : 'Activate Pro' }}
+                  </button>
+                </div>
+              }
+            }
+          </section>
+        } @else {
+          <section class="card">
+            <h2 class="card-title">Auto-renewal</h2>
+            <p class="card-subtitle">
+              Keep Pro active without manual payments. Renewal requires an authorized
+              recurring card.
+            </p>
+            <label class="check-field" for="plan-auto-renew">
+              <input
+                id="plan-auto-renew"
+                type="checkbox"
+                [checked]="current.autoRenew"
+                (change)="toggleAutoRenew($event)"
+              />
+              <span>Renew automatically every month</span>
+            </label>
+            @if (!current.autoRenew) {
+              <div class="alert alert-warning auto-renew-warning">
+                Pro will expire on {{ current.periodEndsAt | date: 'dd MMM yyyy' }} unless you
+                renew manually.
+              </div>
+            }
+          </section>
+        }
+
+        <section class="card">
+          <h2 class="card-title">Billing activity</h2>
+          <p class="card-subtitle">
+            Invoices, receipts and pending technical visit charges live in your payment
+            history.
+          </p>
+          <a class="btn btn-secondary" routerLink="/payments/history">
+            <mat-icon>receipt_long</mat-icon>
+            View payments
+          </a>
+        </section>
+      </aside>
+    </div>
+  } @else {
+    <div class="card">
+      <div class="empty">
+        <mat-icon>workspace_premium</mat-icon>
+        <span class="empty-title">No subscription found</span>
+        <span class="empty-text">Your account subscription is initialized after purchase.</span>
+      </div>
+    </div>
+  }
+</div>

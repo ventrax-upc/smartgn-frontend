@@ -1,0 +1,10 @@
+@import '../../../../../shared/presentation/styles/page.css';
+
+.property-link {
+  color: var(--smartgn-primary);
+  text-decoration: none;
+}
+
+.property-link:hover {
+  text-decoration: underline;
+}

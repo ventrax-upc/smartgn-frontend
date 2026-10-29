@@ -1,0 +1,195 @@
+<div class="page">
+  <header class="page-header">
+    <div class="page-heading">
+      <span class="eyebrow">Operations · SuperAdmin</span>
+      <h1 class="page-title">Installers</h1>
+      <p class="page-subtitle">
+        Keep the accredited technician directory current. Only enabled installers can
+        receive new installation assignments.
+      </p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" type="button" (click)="reload()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+      <button class="btn btn-primary" type="button" (click)="startCreate()">
+        <mat-icon>person_add</mat-icon>
+        New installer
+      </button>
+    </div>
+  </header>
+
+  @if (success(); as message) {
+    <div class="alert alert-success">{{ message }}</div>
+  }
+  @if (error(); as message) {
+    <div class="alert alert-error">{{ message }}</div>
+  }
+
+  <div class="grid grid-3">
+    <article class="stat-card">
+      <span class="stat-icon"><mat-icon>engineering</mat-icon></span>
+      <span class="stat-value">{{ count() }}</span>
+      <span class="stat-label">Accredited installers</span>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon"><mat-icon>check_circle</mat-icon></span>
+      <span class="stat-value">{{ availableCount() }}</span>
+      <span class="stat-label">Available now</span>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon"><mat-icon>badge</mat-icon></span>
+      <span class="stat-value">{{ count() - availableCount() }}</span>
+      <span class="stat-label">Busy or disabled</span>
+    </article>
+  </div>
+
+  <div class="split">
+    <section class="card">
+      <div class="section-title">
+        <h2>Installer directory</h2>
+        <span class="chip">{{ count() }} records</span>
+      </div>
+
+      @if (loading()) {
+        <div class="loading-row"><span class="spinner"></span>Loading installers...</div>
+      } @else if (items().length === 0) {
+        <div class="empty">
+          <mat-icon>engineering</mat-icon>
+          <span class="empty-title">No installers registered</span>
+          <span class="empty-text">Register accredited personnel to assign installation work.</span>
+        </div>
+      } @else {
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Installer</th>
+                <th>Contact</th>
+                <th>Accreditation</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (installer of items(); track installer.id) {
+                <tr>
+                  <td>
+                    <span class="cell-title">{{ installer.fullName }}</span>
+                    <div class="cell-muted">{{ installer.identification }}</div>
+                  </td>
+                  <td>
+                    <span>{{ installer.email }}</span>
+                    <div class="cell-muted">{{ installer.phone }}</div>
+                  </td>
+                  <td class="mono">{{ installer.accreditationCode }}</td>
+                  <td>
+                    <div class="status-stack">
+                      <span class="chip" [class.chip-green]="installer.enabled" [class.chip-red]="!installer.enabled">
+                        {{ installer.enabled ? 'Enabled' : 'Disabled' }}
+                      </span>
+                      @if (installer.enabled) {
+                        <span class="chip" [class.chip-blue]="installer.available" [class.chip-amber]="!installer.available">
+                          {{ installer.available ? 'Available' : 'Busy' }}
+                        </span>
+                      }
+                    </div>
+                  </td>
+                  <td>
+                    <div class="row-actions">
+                      <button class="btn btn-ghost btn-sm" type="button" (click)="startEdit(installer)">
+                        Edit
+                      </button>
+                      <button
+                        class="btn btn-sm"
+                        [class.btn-secondary]="installer.enabled"
+                        [class.btn-primary]="!installer.enabled"
+                        type="button"
+                        [disabled]="saving()"
+                        (click)="toggleStatus(installer)"
+                      >
+                        {{ installer.enabled ? 'Disable' : 'Enable' }}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    @if (showForm()) {
+      <aside class="card">
+        <div class="section-title">
+          <h2>{{ formTitle() }}</h2>
+          <button class="btn btn-ghost btn-sm" type="button" (click)="cancelForm()">Close</button>
+        </div>
+        <p class="card-subtitle">
+          Accreditation codes are validated by operations before a technician can be
+          assigned to a visit.
+        </p>
+
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <div class="form-grid">
+            <div class="field">
+              <label for="installer-first-name">First name</label>
+              <input id="installer-first-name" formControlName="firstName" />
+              @if (form.controls.firstName.touched && form.controls.firstName.invalid) {
+                <span class="field-error">First name is required.</span>
+              }
+            </div>
+            <div class="field">
+              <label for="installer-last-name">Last name</label>
+              <input id="installer-last-name" formControlName="lastName" />
+              @if (form.controls.lastName.touched && form.controls.lastName.invalid) {
+                <span class="field-error">Last name is required.</span>
+              }
+            </div>
+            <div class="field">
+              <label for="installer-identification">Identification</label>
+              <input id="installer-identification" formControlName="identification" />
+              @if (form.controls.identification.touched && form.controls.identification.invalid) {
+                <span class="field-error">Identification is required.</span>
+              }
+            </div>
+            <div class="field">
+              <label for="installer-phone">Phone</label>
+              <input id="installer-phone" formControlName="phone" />
+              @if (form.controls.phone.touched && form.controls.phone.invalid) {
+                <span class="field-error">Phone is required.</span>
+              }
+            </div>
+            <div class="field full">
+              <label for="installer-email">Email</label>
+              <input id="installer-email" type="email" formControlName="email" />
+              @if (form.controls.email.touched && form.controls.email.invalid) {
+                <span class="field-error">A valid email is required.</span>
+              }
+            </div>
+            <div class="field full">
+              <label for="installer-accreditation">Accreditation code</label>
+              <input id="installer-accreditation" formControlName="accreditationCode" />
+              @if (form.controls.accreditationCode.touched && form.controls.accreditationCode.invalid) {
+                <span class="field-error">Accreditation code is required.</span>
+              }
+            </div>
+            <label class="check-field full" for="installer-available">
+              <input id="installer-available" type="checkbox" formControlName="available" />
+              <span>Available for new assignments</span>
+            </label>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-secondary" type="button" (click)="cancelForm()">Cancel</button>
+            <button class="btn btn-primary" type="submit" [disabled]="saving()">
+              {{ saving() ? 'Saving...' : editing() ? 'Save changes' : 'Register installer' }}
+            </button>
+          </div>
+        </form>
+      </aside>
+    }
+  </div>
+</div>

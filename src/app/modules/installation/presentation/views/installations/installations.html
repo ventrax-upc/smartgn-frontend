@@ -1,0 +1,160 @@
+<div class="page">
+  <header class="page-header">
+    <div class="page-heading">
+      <span class="eyebrow">Operations · SuperAdmin</span>
+      <h1 class="page-title">Installations</h1>
+      <p class="page-subtitle">
+        Assign accredited installers, move work through its lifecycle and keep every
+        state change traceable.
+      </p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" type="button" (click)="reload()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  @if (success(); as message) {
+    <div class="alert alert-success">{{ message }}</div>
+  }
+  @if (error(); as message) {
+    <div class="alert alert-error">{{ message }}</div>
+  }
+
+  <div class="grid grid-4">
+    <article class="stat-card">
+      <span class="stat-icon"><mat-icon>pending_actions</mat-icon></span>
+      <span class="stat-value">{{ openCount() }}</span>
+      <span class="stat-label">Open installations</span>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon"><mat-icon>engineering</mat-icon></span>
+      <span class="stat-value">{{ inProgressCount() }}</span>
+      <span class="stat-label">In progress</span>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon"><mat-icon>task_alt</mat-icon></span>
+      <span class="stat-value">{{ completedCount() }}</span>
+      <span class="stat-label">Completed</span>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon"><mat-icon>badge</mat-icon></span>
+      <span class="stat-value">{{ installers().length }}</span>
+      <span class="stat-label">Accredited installers</span>
+    </article>
+  </div>
+
+  <section class="card">
+    <div class="section-title">
+      <h2>Installation queue</h2>
+      <div class="filter-row">
+        <label for="status-filter">Status</label>
+        <select id="status-filter" (change)="filterStatus($any($event.target).value)">
+          @for (status of statuses; track status) {
+            <option [value]="status">{{ status === 'ALL' ? 'All statuses' : status }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    @if (loading()) {
+      <div class="loading-row"><span class="spinner"></span>Loading installations...</div>
+    } @else if (items().length === 0) {
+      <div class="empty">
+        <mat-icon>home_repair_service</mat-icon>
+        <span class="empty-title">No installations for this filter</span>
+        <span class="empty-text">Provisional requests appear here after checkout.</span>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Target</th>
+              <th>Installer</th>
+              <th>Status</th>
+              <th>Device</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (installation of items(); track installation.id) {
+              <tr>
+                <td>
+                  <span class="cell-title">{{ installation.propertyName }}</span>
+                  <div class="cell-muted">{{ installation.pointName }}</div>
+                  <div class="cell-muted mono">{{ installation.id }}</div>
+                </td>
+                <td>
+                  @if (installation.installerName) {
+                    <span>{{ installation.installerName }}</span>
+                  } @else {
+                    <div class="assign-row">
+                      <select
+                        [ngModel]="selectedInstaller(installation)"
+                        (ngModelChange)="selectInstaller(installation, $event)"
+                      >
+                        <option value="">Select installer</option>
+                        @for (installer of availableInstallers(); track installer.id) {
+                          <option [value]="installer.id">
+                            {{ installer.fullName }} · {{ installer.accreditationCode }}
+                          </option>
+                        }
+                      </select>
+                      <button
+                        class="btn btn-secondary btn-sm"
+                        type="button"
+                        [disabled]="saving() || !selectedInstaller(installation)"
+                        (click)="assign(installation)"
+                      >
+                        Assign
+                      </button>
+                    </div>
+                  }
+                </td>
+                <td>
+                  <span
+                    class="chip"
+                    [class.chip-green]="showChip(installation.status, 'COMPLETED')"
+                    [class.chip-blue]="showChip(installation.status, 'IN_PROGRESS') || showChip(installation.status, 'ASSIGNED')"
+                    [class.chip-amber]="showChip(installation.status, 'PENDING') || showChip(installation.status, 'PROVISIONAL')"
+                    [class.chip-red]="showChip(installation.status, 'CANCELLED')"
+                  >
+                    {{ installation.status }}
+                  </span>
+                </td>
+                <td class="cell-muted mono">{{ installation.deviceSerialNumber || '—' }}</td>
+                <td class="cell-muted">{{ installation.createdAt | date: 'dd MMM yyyy' }}</td>
+                <td>
+                  <div class="row-actions">
+                    @if (installation.canStart) {
+                      <button class="btn btn-primary btn-sm" type="button" (click)="start(installation)">
+                        Start
+                      </button>
+                    }
+                    @if (installation.canComplete) {
+                      <button class="btn btn-primary btn-sm" type="button" (click)="complete(installation)">
+                        Complete
+                      </button>
+                    }
+                    @if (installation.isOpen) {
+                      <button class="btn btn-danger btn-sm" type="button" (click)="cancel(installation)">
+                        Cancel
+                      </button>
+                    }
+                    @if (!installation.isOpen) {
+                      <span class="cell-muted">Closed</span>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</div>

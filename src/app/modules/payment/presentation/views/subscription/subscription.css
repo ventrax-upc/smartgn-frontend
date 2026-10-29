@@ -1,0 +1,84 @@
+@import '../../../../../shared/presentation/styles/page.css';
+
+.plan-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.plan-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.plan-name {
+  margin: 4px 0 0;
+  font-size: 34px;
+  font-weight: 750;
+  color: var(--smartgn-ink-strong);
+  letter-spacing: 0.02em;
+}
+
+.price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 14px 0 6px;
+}
+
+.price {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--smartgn-primary);
+}
+
+.benefit-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.benefit-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  color: var(--smartgn-ink);
+}
+
+.benefit-list mat-icon {
+  width: 19px;
+  height: 19px;
+  font-size: 19px;
+  color: var(--smartgn-primary);
+}
+
+.side-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.check-field {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  color: var(--smartgn-ink);
+  cursor: pointer;
+  margin: 8px 0;
+}
+
+.check-field input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--smartgn-primary);
+}
+
+.auto-renew-warning {
+  margin-top: 10px;
+}

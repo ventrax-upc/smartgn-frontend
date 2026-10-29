@@ -1,0 +1,128 @@
+<div class="page">
+  <header class="page-header">
+    <div class="page-heading">
+      <span class="eyebrow">Billing</span>
+      <h1 class="page-title">Payment methods</h1>
+      <p class="page-subtitle">
+        Cards used for Pro renewals and technical visit charges. Card data is tokenized;
+        SmartGN only stores the brand and the last four digits.
+      </p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" type="button" (click)="reload()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+      <button class="btn btn-primary" type="button" (click)="startCreate()">
+        <mat-icon>add_card</mat-icon>
+        Add card
+      </button>
+    </div>
+  </header>
+
+  @if (success(); as message) {
+    <div class="alert alert-success">{{ message }}</div>
+  }
+  @if (error(); as message) {
+    <div class="alert alert-error">{{ message }}</div>
+  }
+
+  <div class="split" [class.single]="!showForm()">
+    <section class="card">
+      <div class="section-title">
+        <h2>Saved cards</h2>
+        <span class="chip">{{ items().length }} active</span>
+      </div>
+
+      @if (loading()) {
+        <div class="loading-row"><span class="spinner"></span>Loading payment methods...</div>
+      } @else if (items().length === 0) {
+        <div class="empty">
+          <mat-icon>credit_card_off</mat-icon>
+          <span class="empty-title">No payment methods</span>
+          <span class="empty-text">Add a card to activate Pro or pay visit charges.</span>
+        </div>
+      } @else {
+        <div class="card-grid">
+          @for (method of items(); track method.id) {
+            <article class="payment-card" [class.default]="method.isDefault">
+              <div class="payment-card-head">
+                <span class="brand">{{ method.brand }}</span>
+                @if (method.isDefault) {
+                  <span class="chip chip-green">Default</span>
+                }
+              </div>
+              <span class="card-number">•••• •••• •••• {{ method.lastFour }}</span>
+              <div class="payment-card-actions">
+                @if (!method.isDefault) {
+                  <button
+                    class="btn btn-secondary btn-sm"
+                    type="button"
+                    [disabled]="saving()"
+                    (click)="setDefault(method)"
+                  >
+                    Make default
+                  </button>
+                }
+                <button
+                  class="btn btn-danger btn-sm"
+                  type="button"
+                  [disabled]="saving()"
+                  (click)="remove(method)"
+                >
+                  Remove
+                </button>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+
+    @if (showForm()) {
+      <aside class="card">
+        <div class="section-title">
+          <h2>Add a card</h2>
+          <button class="btn btn-ghost btn-sm" type="button" (click)="cancelForm()">Close</button>
+        </div>
+        <p class="card-subtitle">
+          This environment uses a local test gateway. In production the card number is
+          exchanged for a provider token and never reaches SmartGN.
+        </p>
+
+        <div class="alert alert-info">
+          Test mode: use any four digits. The card is stored as a local token.
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <div class="field">
+            <label for="card-brand">Brand</label>
+            <select id="card-brand" formControlName="brand">
+              @for (brand of brands; track brand) {
+                <option [value]="brand">{{ brand }}</option>
+              }
+            </select>
+          </div>
+          <div class="field">
+            <label for="card-last-four">Last four digits</label>
+            <input id="card-last-four" formControlName="lastFour" maxlength="4" placeholder="4242" />
+            @if (form.controls.lastFour.touched && form.controls.lastFour.invalid) {
+              <span class="field-error">Enter exactly four digits.</span>
+            }
+          </div>
+          <div class="field">
+            <label for="card-token">Provider token (optional)</label>
+            <input id="card-token" formControlName="providerToken" placeholder="tok_visa_4242" />
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-secondary" type="button" (click)="cancelForm()">Cancel</button>
+            <button class="btn btn-primary" type="submit" [disabled]="saving()">
+              {{ saving() ? 'Saving...' : 'Add card' }}
+            </button>
+          </div>
+        </form>
+      </aside>
+    }
+  </div>
+</div>
