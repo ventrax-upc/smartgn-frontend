@@ -1,0 +1,97 @@
+@import '../../../../../shared/presentation/styles/page.css';
+
+.filter-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filter-chip {
+  border: 1px solid var(--smartgn-border);
+  background: var(--smartgn-surface-raised);
+  color: var(--smartgn-muted);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease;
+}
+
+.filter-chip:hover {
+  border-color: var(--smartgn-primary);
+  color: var(--smartgn-primary);
+}
+
+.filter-chip.active {
+  background: var(--smartgn-primary-strong);
+  border-color: var(--smartgn-primary-strong);
+  color: #fff;
+}
+
+.guide-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.guide-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.guide-card .card-title {
+  margin: 2px 0 0;
+  font-size: 16px;
+}
+
+.guide-card .card-subtitle {
+  margin: 0;
+}
+
+.guide-content {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--smartgn-ink);
+  background: var(--smartgn-surface-soft);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.guide-toggle {
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+.article-reference {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 13px;
+}
+
+.article-reference mat-icon {
+  width: 17px;
+  height: 17px;
+  font-size: 17px;
+  color: var(--smartgn-primary);
+}
+
+.article-reference a {
+  color: var(--smartgn-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.article-reference a:hover {
+  text-decoration: underline;
+}
+
+.split.single {
+  grid-template-columns: 1fr;
+}

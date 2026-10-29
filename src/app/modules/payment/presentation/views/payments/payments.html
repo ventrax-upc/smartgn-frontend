@@ -1,0 +1,153 @@
+<div class="page">
+  <header class="page-header">
+    <div class="page-heading">
+      <span class="eyebrow">Billing</span>
+      <h1 class="page-title">Payments</h1>
+      <p class="page-subtitle">
+        Installation charges, Pro renewals and technical visits, with their invoices and
+        receipts ready to download.
+      </p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" type="button" (click)="reload()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+      <a class="btn btn-secondary" routerLink="/payments/subscription">
+        <mat-icon>workspace_premium</mat-icon>
+        Subscription
+      </a>
+    </div>
+  </header>
+
+  @if (success(); as message) {
+    <div class="alert alert-success">{{ message }}</div>
+  }
+  @if (error(); as message) {
+    <div class="alert alert-error">{{ message }}</div>
+  }
+
+  <div class="grid grid-3">
+    <article class="stat-card">
+      <span class="stat-icon"><mat-icon>receipt_long</mat-icon></span>
+      <span class="stat-value">{{ items().length }}</span>
+      <span class="stat-label">Payment orders</span>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon"><mat-icon>paid</mat-icon></span>
+      <span class="stat-value">
+        {{ paidTotal() | currency: 'PEN' : 'symbol-narrow' : '1.2-2' }}
+      </span>
+      <span class="stat-label">Paid to date</span>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon"><mat-icon>pending_actions</mat-icon></span>
+      <span class="stat-value">
+        {{ pendingTotal() | currency: 'PEN' : 'symbol-narrow' : '1.2-2' }}
+      </span>
+      <span class="stat-label">Pending or failed</span>
+    </article>
+  </div>
+
+  <section class="card">
+    <div class="section-title">
+      <h2>Payment history</h2>
+      <span class="chip">{{ items().length }} records</span>
+    </div>
+
+    @if (loading()) {
+      <div class="loading-row"><span class="spinner"></span>Loading payments...</div>
+    } @else if (items().length === 0) {
+      <div class="empty">
+        <mat-icon>receipt_long</mat-icon>
+        <span class="empty-title">No payments yet</span>
+        <span class="empty-text">Orders appear here after installation, Pro renewal or a visit charge.</span>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Order</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Documents</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (order of items(); track order.id) {
+              <tr>
+                <td>
+                  <span class="cell-title">{{ reasonLabel(order) }}</span>
+                  <div class="cell-muted">{{ order.description }}</div>
+                  <div class="cell-muted mono">{{ order.id }}</div>
+                </td>
+                <td class="cell-muted">{{ order.createdAt | date: 'dd MMM yyyy, HH:mm' }}</td>
+                <td class="mono">
+                  {{ order.amount | currency: order.currency : 'symbol-narrow' : '1.2-2' }}
+                </td>
+                <td>
+                  <span
+                    class="chip"
+                    [class.chip-green]="order.status === 'PAID'"
+                    [class.chip-amber]="order.status === 'PENDING'"
+                    [class.chip-red]="order.status === 'FAILED'"
+                    [class.chip-blue]="order.status === 'REFUNDED'"
+                  >
+                    {{ order.status }}
+                  </span>
+                </td>
+                <td>
+                  @if (order.documents.length === 0) {
+                    <span class="cell-muted">—</span>
+                  } @else {
+                    @for (document of order.documents; track document.id) {
+                      <div class="document-row">
+                        <div>
+                          <span class="cell-title">{{ document.number }}</span>
+                          <div class="cell-muted">{{ document.type }}</div>
+                        </div>
+                        <div class="document-actions">
+                          <button class="btn btn-ghost btn-sm" type="button" (click)="download(order, document.id, 'pdf')">PDF</button>
+                          <button class="btn btn-ghost btn-sm" type="button" (click)="download(order, document.id, 'xml')">XML</button>
+                          <button class="btn btn-ghost btn-sm" type="button" (click)="download(order, document.id, 'cdr')">CDR</button>
+                        </div>
+                      </div>
+                    }
+                  }
+                </td>
+                <td>
+                  @if (order.canPay) {
+                    <div class="pay-row">
+                      <select
+                        [value]="selectedMethod(order)"
+                        (change)="selectMethod(order, $any($event.target).value)"
+                        aria-label="Payment method"
+                      >
+                        @for (method of methods(); track method.id) {
+                          <option [value]="method.id">{{ method.label }}</option>
+                        }
+                      </select>
+                      <button
+                        class="btn btn-primary btn-sm"
+                        type="button"
+                        [disabled]="saving() || methods().length === 0"
+                        (click)="pay(order)"
+                      >
+                        {{ order.status === 'FAILED' ? 'Retry' : 'Pay' }}
+                      </button>
+                    </div>
+                  } @else {
+                    <span class="cell-muted">Closed</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</div>

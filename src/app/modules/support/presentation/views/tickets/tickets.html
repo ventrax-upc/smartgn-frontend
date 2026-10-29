@@ -1,0 +1,178 @@
+<div class="page">
+  <header class="page-header">
+    <div class="page-heading">
+      <span class="eyebrow">Support</span>
+      <h1 class="page-title">Tickets</h1>
+      <p class="page-subtitle">
+        Report an issue, follow the conversation and track the technician visit from a
+        single thread.
+      </p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" type="button" (click)="reload()">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+      @if (!isSuperAdmin()) {
+        <button class="btn btn-primary" type="button" (click)="startCreate()">
+          <mat-icon>add</mat-icon>
+          New ticket
+        </button>
+      }
+    </div>
+  </header>
+
+  @if (success(); as message) {
+    <div class="alert alert-success">{{ message }}</div>
+  }
+  @if (error(); as message) {
+    <div class="alert alert-error">{{ message }}</div>
+  }
+
+  <div class="grid grid-3">
+    <article class="stat-card">
+      <span class="stat-icon"><mat-icon>confirmation_number</mat-icon></span>
+      <span class="stat-value">{{ items().length }}</span>
+      <span class="stat-label">Tickets in view</span>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon"><mat-icon>pending_actions</mat-icon></span>
+      <span class="stat-value">{{ openCount() }}</span>
+      <span class="stat-label">Open or visit requested</span>
+    </article>
+    <article class="stat-card">
+      <span class="stat-icon"><mat-icon>task_alt</mat-icon></span>
+      <span class="stat-value">{{ resolvedCount() }}</span>
+      <span class="stat-label">Resolved</span>
+    </article>
+  </div>
+
+  <div class="split" [class.single]="!showForm()">
+    <section class="card">
+      <div class="section-title">
+        <h2>Support queue</h2>
+        <div class="filter-row">
+          <label for="ticket-filter">Status</label>
+          <select id="ticket-filter" (change)="filter($any($event.target).value)">
+            @for (status of statuses; track status) {
+              <option [value]="status" [selected]="status === activeFilter()">
+                {{ status === 'ALL' ? 'All statuses' : statusLabel(status) }}
+              </option>
+            }
+          </select>
+        </div>
+      </div>
+
+      @if (loading()) {
+        <div class="loading-row"><span class="spinner"></span>Loading tickets...</div>
+      } @else if (items().length === 0) {
+        <div class="empty">
+          <mat-icon>support_agent</mat-icon>
+          <span class="empty-title">No tickets for this filter</span>
+          <span class="empty-text">Open a ticket when a guide does not solve the issue.</span>
+        </div>
+      } @else {
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Supply point</th>
+                <th>Status</th>
+                <th>Opened</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (ticket of items(); track ticket.id) {
+                <tr>
+                  <td>
+                    <a class="ticket-link" [routerLink]="['/support/tickets', ticket.id]">
+                      {{ ticket.subject }}
+                    </a>
+                    <div class="cell-muted">{{ ticket.message | slice: 0 : 72 }}{{ ticket.message.length > 72 ? '…' : '' }}</div>
+                  </td>
+                  <td>
+                    <span>{{ meterLabel(ticket) }}</span>
+                    <div class="cell-muted">{{ ticket.meterId }}</div>
+                  </td>
+                  <td>
+                    <span
+                      class="chip"
+                      [class.chip-green]="ticket.status === 'RESOLVED' || ticket.status === 'CLOSED'"
+                      [class.chip-blue]="ticket.status === 'VISIT_REQUESTED'"
+                      [class.chip-amber]="ticket.status === 'OPEN'"
+                    >
+                      {{ statusLabel(ticket.status) }}
+                    </span>
+                  </td>
+                  <td class="cell-muted">{{ ticket.createdAt | date: 'dd MMM yyyy' }}</td>
+                  <td>
+                    <a class="btn btn-ghost btn-sm" [routerLink]="['/support/tickets', ticket.id]">
+                      Open
+                    </a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    @if (showForm()) {
+      <aside class="card">
+        <div class="section-title">
+          <h2>Open a ticket</h2>
+          <button class="btn btn-ghost btn-sm" type="button" (click)="cancelForm()">Close</button>
+        </div>
+        <p class="card-subtitle">
+          Choose the affected supply point and describe what happened. Include error codes
+          or LED states when possible.
+        </p>
+
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <div class="field">
+            <label for="ticket-meter">Supply point</label>
+            <select id="ticket-meter" formControlName="meterId">
+              <option value="">Select a supply point</option>
+              @for (meter of meters(); track meter.id) {
+                <option [value]="meter.id">
+                  {{ meter.displayName }} · {{ meter.propertyName }}
+                </option>
+              }
+            </select>
+            @if (form.controls.meterId.touched && form.controls.meterId.invalid) {
+              <span class="field-error">Select the affected supply point.</span>
+            }
+          </div>
+          <div class="field">
+            <label for="ticket-subject">Subject</label>
+            <input id="ticket-subject" formControlName="subject" placeholder="Device offline" />
+            @if (form.controls.subject.touched && form.controls.subject.invalid) {
+              <span class="field-error">A short subject is required.</span>
+            }
+          </div>
+          <div class="field">
+            <label for="ticket-message">Description</label>
+            <textarea
+              id="ticket-message"
+              formControlName="message"
+              placeholder="Describe the issue, when it started and what you already tried."
+            ></textarea>
+            @if (form.controls.message.touched && form.controls.message.invalid) {
+              <span class="field-error">Describe the issue.</span>
+            }
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-secondary" type="button" (click)="cancelForm()">Cancel</button>
+            <button class="btn btn-primary" type="submit" [disabled]="saving()">
+              {{ saving() ? 'Opening...' : 'Open ticket' }}
+            </button>
+          </div>
+        </form>
+      </aside>
+    }
+  </div>
+</div>

@@ -1,0 +1,126 @@
+<div class="page">
+  <header class="page-header">
+    <div class="page-heading">
+      <span class="eyebrow">Installation · Properties</span>
+      <h1 class="page-title">My properties</h1>
+      <p class="page-subtitle">
+        Register the houses, commercial locations or buildings where SmartGN devices
+        will be installed. Each property groups its own supply points.
+      </p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-primary" type="button" (click)="startCreate()">
+        <mat-icon>add_home</mat-icon>
+        New property
+      </button>
+    </div>
+  </header>
+
+  @if (success(); as message) {
+    <div class="alert alert-success">{{ message }}</div>
+  }
+  @if (error(); as message) {
+    <div class="alert alert-error">{{ message }}</div>
+  }
+
+  @if (showForm()) {
+    <section class="card">
+      <h2 class="card-title">{{ formTitle() }}</h2>
+      <p class="card-subtitle">
+        The address helps the installation team find the exact location.
+      </p>
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-grid">
+          <div class="field">
+            <label for="property-name">Property name</label>
+            <input id="property-name" formControlName="name" placeholder="Casa Arequipa" />
+          </div>
+          <div class="field">
+            <label for="property-type">Property type</label>
+            <select id="property-type" formControlName="propertyType">
+              <option value="HOUSE">House</option>
+              <option value="COMMERCIAL">Commercial</option>
+              <option value="BUILDING">Building</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="property-address">Address</label>
+            <input
+              id="property-address"
+              formControlName="address"
+              placeholder="Av. Arequipa 1234, Lima"
+            />
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-secondary" type="button" (click)="cancelForm()">Cancel</button>
+          <button class="btn btn-primary" type="submit" [disabled]="saving()">
+            <mat-icon>save</mat-icon>
+            {{ saving() ? 'Saving...' : 'Save property' }}
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+
+  <section class="card">
+    <div class="section-title">
+      <h2>Registered properties</h2>
+      <span class="chip">{{ items().length }} active</span>
+    </div>
+
+    @if (loading()) {
+      <div class="loading-row"><span class="spinner"></span>Loading properties...</div>
+    } @else if (items().length === 0) {
+      <div class="empty">
+        <mat-icon>home_work</mat-icon>
+        <span class="empty-title">No properties yet</span>
+        <span class="empty-text">
+          Register your first property to request an installation and start monitoring.
+        </span>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Type</th>
+              <th>Address</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (property of items(); track property.id) {
+              <tr>
+                <td>
+                  <a class="cell-title property-link" [routerLink]="['/installation/properties', property.id]">
+                    {{ property.name }}
+                  </a>
+                  <div class="cell-muted mono">{{ property.id }}</div>
+                </td>
+                <td><span class="chip chip-blue">{{ property.typeLabel }}</span></td>
+                <td class="cell-muted">{{ property.address }}</td>
+                <td><span class="chip chip-green">Active</span></td>
+                <td>
+                  <div class="row-actions">
+                    <a class="btn btn-secondary btn-sm" [routerLink]="['/installation/properties', property.id]">
+                      Supply points
+                    </a>
+                    <button class="btn btn-ghost btn-sm" type="button" (click)="startEdit(property)">
+                      Edit
+                    </button>
+                    <button class="btn btn-danger btn-sm" type="button" (click)="deactivate(property)">
+                      Deactivate
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</div>

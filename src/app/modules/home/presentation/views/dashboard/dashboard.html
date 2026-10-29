@@ -1,0 +1,231 @@
+<div class="page">
+  <section class="hero-card">
+    <div class="hero-copy">
+      <span class="eyebrow">SmartGN overview</span>
+      <h1 class="page-title">{{ greeting() }}, {{ displayName() }}</h1>
+      <p class="page-subtitle">
+        @if (isSuperAdmin()) {
+          Monitor the operation, keep installations moving and clear the support queue.
+        } @else if (isPrincipal()) {
+          Your properties, supply points and billing in one place.
+        } @else {
+          You are viewing the supply points the principal account granted to you.
+        }
+      </p>
+      <div class="hero-tags">
+        <span class="chip chip-green">{{ roleLabel() }}</span>
+        @if (user(); as current) {
+          <span class="chip">{{ current.email }}</span>
+        }
+      </div>
+    </div>
+    <div class="hero-mark">
+      <img src="assets/smartgn-logo.png" alt="SmartGN" />
+    </div>
+  </section>
+
+  @if (isSuperAdmin()) {
+    <div class="grid grid-4">
+      <article class="stat-card">
+        <span class="stat-icon"><mat-icon>home_repair_service</mat-icon></span>
+        <span class="stat-value">{{ installationsOpen() }}</span>
+        <span class="stat-label">Open installations</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-icon"><mat-icon>developer_board</mat-icon></span>
+        <span class="stat-value">{{ activeDevices() }}</span>
+        <span class="stat-label">Active devices</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-icon"><mat-icon>engineering</mat-icon></span>
+        <span class="stat-value">{{ installersAvailable() }}</span>
+        <span class="stat-label">Installers available</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-icon"><mat-icon>confirmation_number</mat-icon></span>
+        <span class="stat-value">{{ ticketsOpen() }}</span>
+        <span class="stat-label">Open tickets</span>
+      </article>
+    </div>
+  } @else if (isPrincipal()) {
+    <div class="grid grid-4">
+      <article class="stat-card">
+        <span class="stat-icon"><mat-icon>home_work</mat-icon></span>
+        <span class="stat-value">{{ properties() }}</span>
+        <span class="stat-label">Active properties</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-icon"><mat-icon>speed</mat-icon></span>
+        <span class="stat-value">{{ supplyPoints() }}</span>
+        <span class="stat-label">Supply points</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-icon"><mat-icon>group</mat-icon></span>
+        <span class="stat-value">{{ subusers() }}</span>
+        <span class="stat-label">Active subusers</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-icon"><mat-icon>confirmation_number</mat-icon></span>
+        <span class="stat-value">{{ ticketsOpen() }}</span>
+        <span class="stat-label">Open tickets</span>
+      </article>
+    </div>
+  } @else {
+    <div class="grid grid-3">
+      <article class="stat-card">
+        <span class="stat-icon"><mat-icon>speed</mat-icon></span>
+        <span class="stat-value">{{ supplyPoints() }}</span>
+        <span class="stat-label">Granted supply points</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-icon"><mat-icon>confirmation_number</mat-icon></span>
+        <span class="stat-value">{{ ticketsOpen() }}</span>
+        <span class="stat-label">Open tickets</span>
+      </article>
+      <article class="stat-card">
+        <span class="stat-icon"><mat-icon>event</mat-icon></span>
+        <span class="stat-value">{{ visitsScheduled() }}</span>
+        <span class="stat-label">Scheduled visits</span>
+      </article>
+    </div>
+  }
+
+  <div class="dashboard-grid">
+    <section class="card">
+      <div class="section-title">
+        <h2>Quick actions</h2>
+        <span class="chip">{{ quickActions().length }} shortcuts</span>
+      </div>
+      <div class="action-grid">
+        @for (action of quickActions(); track action.link) {
+          <a class="action-card" [routerLink]="action.link">
+            <span class="action-icon"><mat-icon>{{ action.icon }}</mat-icon></span>
+            <span class="action-body">
+              <span class="action-label">{{ action.label }}</span>
+              <span class="action-description">{{ action.description }}</span>
+            </span>
+            <mat-icon class="action-arrow">arrow_forward</mat-icon>
+          </a>
+        }
+      </div>
+    </section>
+
+    <aside class="side-stack">
+      @if (isPrincipal() && subscription(); as current) {
+        <section class="card plan-summary">
+          <div class="section-title">
+            <h2>Your plan</h2>
+            <span class="chip" [class.chip-green]="current.proActive" [class.chip-amber]="!current.proActive">
+              {{ current.proActive ? 'Pro active' : 'Basic' }}
+            </span>
+          </div>
+          <div class="plan-price">
+            {{ current.monthlyProPrice | currency: current.currency : 'symbol-narrow' : '1.2-2' }}
+            <span class="muted">/ month</span>
+          </div>
+          <p class="card-subtitle">
+            Renews
+            {{ current.periodEndsAt | date: 'dd MMM yyyy' }}
+            @if (current.autoRenew) {
+              · automatic
+            } @else {
+              · manual
+            }
+          </p>
+          @if (pendingPayments() > 0) {
+            <div class="alert alert-warning">
+              Pending charges:
+              <strong>{{ pendingPayments() | currency: 'PEN' : 'symbol-narrow' : '1.2-2' }}</strong>
+            </div>
+          }
+          <a class="btn btn-secondary" routerLink="/payments/subscription">Manage plan</a>
+        </section>
+      }
+
+      @if (isPrincipal()) {
+        <section class="card">
+          <div class="section-title">
+            <h2>Subusers</h2>
+            <a class="btn btn-ghost btn-sm" routerLink="/account/subusers">Manage</a>
+          </div>
+          <p class="card-subtitle">
+            Delegate access to selected supply points without sharing your password.
+          </p>
+          <div class="mini-stat">
+            <span class="stat-value">{{ subusers() }}</span>
+            <span class="stat-label">active delegated accounts</span>
+          </div>
+        </section>
+      }
+
+      @if (isSuperAdmin()) {
+        <section class="card">
+          <div class="section-title">
+            <h2>Support coverage</h2>
+            <a class="btn btn-ghost btn-sm" routerLink="/support/visits">Visits</a>
+          </div>
+          <div class="mini-stat">
+            <span class="stat-value">{{ technicians() }}</span>
+            <span class="stat-label">available technicians</span>
+          </div>
+          <div class="divider"></div>
+          <div class="mini-stat">
+            <span class="stat-value">{{ visitsScheduled() }}</span>
+            <span class="stat-label">open visits</span>
+          </div>
+        </section>
+      }
+    </aside>
+  </div>
+
+  <section class="card">
+    <div class="section-title">
+      <h2>Latest tickets</h2>
+      <a class="btn btn-ghost btn-sm" routerLink="/support/tickets">View all</a>
+    </div>
+
+    @if (recentTickets().length === 0) {
+      <div class="empty">
+        <mat-icon>support_agent</mat-icon>
+        <span class="empty-title">No tickets yet</span>
+        <span class="empty-text">Your support queue will appear here.</span>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th>Supply point</th>
+              <th>Status</th>
+              <th>Opened</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (ticket of recentTickets(); track ticket.id) {
+              <tr>
+                <td>
+                  <a class="ticket-link" [routerLink]="['/support/tickets', ticket.id]">
+                    {{ ticket.subject }}
+                  </a>
+                </td>
+                <td class="cell-muted">{{ meterLabel(ticket) }}</td>
+                <td>
+                  <span
+                    class="chip"
+                    [class.chip-green]="ticket.status === 'RESOLVED' || ticket.status === 'CLOSED'"
+                    [class.chip-blue]="ticket.status === 'VISIT_REQUESTED'"
+                    [class.chip-amber]="ticket.status === 'OPEN'"
+                  >
+                    {{ ticketStatusLabel(ticket.status) }}
+                  </span>
+                </td>
+                <td class="cell-muted">{{ ticket.createdAt | date: 'dd MMM yyyy' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</div>
