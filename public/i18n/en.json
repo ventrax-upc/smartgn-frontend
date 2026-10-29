@@ -1,0 +1,31 @@
+{
+  "toolbar": {
+    "account": "Account",
+    "profile": "Profile",
+    "change-password": "Change password",
+    "logout": "Log out"
+  },
+  "sidebar": {
+    "home": "Overview",
+    "properties": "Properties",
+    "meters": "Supply points",
+    "devices": "Devices",
+    "subusers": "Subusers",
+    "installations": "Installations",
+    "installers": "Installers",
+    "subscription": "Subscription",
+    "payments": "Payments",
+    "tickets": "Tickets",
+    "visits": "Visits",
+    "technicians": "Technicians",
+    "guides": "Help center",
+    "profile": "Profile"
+  },
+  "shared": {
+    "sidebar-aria": "Main navigation",
+    "confirm-dialog": {
+      "confirm": "Confirm",
+      "cancel": "Cancel"
+    }
+  }
+}

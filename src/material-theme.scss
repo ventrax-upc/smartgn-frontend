@@ -1,0 +1,73 @@
+@use '@angular/material' as mat;
+
+html {
+  height: 100%;
+  color-scheme: dark;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$green-palette,
+        tertiary: mat.$cyan-palette,
+        theme-type: dark,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+body {
+  color-scheme: dark;
+  background-color: var(--smartgn-canvas);
+  color: var(--smartgn-ink);
+  font: var(--mat-sys-body-medium);
+  margin: 0;
+  min-height: 100%;
+}
+
+/*
+  SmartGN brand overrides. The primary brand color comes from the
+  green palette in newlogo.png (#1E7B2F).
+
+  Dark is the default product theme. The light brand green is preserved for
+  filled controls, while the brighter accent green keeps links and icons
+  readable on dark surfaces.
+*/
+:root {
+  --smartgn-primary: #6ee7a0;
+  --smartgn-primary-strong: #1e7b2f;
+  --smartgn-primary-dark: #145c22;
+  --smartgn-primary-soft: rgba(110, 231, 160, 0.14);
+  --smartgn-ink: #e6f0e9;
+  --smartgn-ink-strong: #f8fafc;
+  --smartgn-muted: #94a3b8;
+  --smartgn-border: #26352b;
+  --smartgn-border-strong: #385244;
+  --smartgn-surface: #111914;
+  --smartgn-surface-raised: #16221b;
+  --smartgn-surface-soft: #0e1511;
+  --smartgn-canvas: #080d0a;
+  --smartgn-input: #0c130f;
+  --smartgn-hover: #1c2c22;
+  --smartgn-chip: #1b2a21;
+  --smartgn-chip-text: #cbd5e1;
+  --smartgn-danger: #f87171;
+  --smartgn-danger-soft: rgba(248, 113, 113, 0.14);
+  --smartgn-warning: #fbbf24;
+  --smartgn-warning-soft: rgba(251, 191, 36, 0.14);
+  --smartgn-info: #60a5fa;
+  --smartgn-info-soft: rgba(96, 165, 250, 0.14);
+  --smartgn-success-soft: rgba(110, 231, 160, 0.12);
+}
+
+.toolbar {
+  @include mat.icon-overrides((
+    color: #94a3b8,
+  ));
+}
+
+.sidebar-content {
+  @include mat.icon-overrides((
+    color: #94a3b8,
+  ));
+}

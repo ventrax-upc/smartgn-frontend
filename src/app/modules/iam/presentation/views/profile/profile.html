@@ -1,0 +1,121 @@
+<div class="page">
+  <header class="page-header">
+    <div class="page-heading">
+      <span class="eyebrow">Account</span>
+      <h1 class="page-title">My profile</h1>
+      <p class="page-subtitle">
+        Keep your contact details up to date. SmartGN uses them for support visits and
+        billing notifications.
+      </p>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-secondary" type="button" (click)="openChangePassword()">
+        <mat-icon>lock_reset</mat-icon>
+        Change password
+      </button>
+    </div>
+  </header>
+
+  @if (success(); as message) {
+    <div class="alert alert-success">{{ message }}</div>
+  }
+  @if (error(); as message) {
+    <div class="alert alert-error">{{ message }}</div>
+  }
+
+  <div class="split">
+    <section class="card">
+      <h2 class="card-title">{{ profile() ? 'Personal information' : 'Complete your profile' }}</h2>
+      <p class="card-subtitle">
+        @if (profile()) {
+          This information appears on tickets, visits and receipts.
+        } @else {
+          Your account has no profile yet. Add your name to personalise the experience.
+        }
+      </p>
+
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="form-grid">
+          <div class="field">
+            <label for="profile-first-name">First name</label>
+            <input id="profile-first-name" formControlName="firstName" placeholder="Ana" />
+            @if (form.controls.firstName.touched && form.controls.firstName.invalid) {
+              <span class="field-error">First name is required.</span>
+            }
+          </div>
+          <div class="field">
+            <label for="profile-last-name">Last name</label>
+            <input id="profile-last-name" formControlName="lastName" placeholder="Torres" />
+            @if (form.controls.lastName.touched && form.controls.lastName.invalid) {
+              <span class="field-error">Last name is required.</span>
+            }
+          </div>
+          <div class="field">
+            <label for="profile-phone">Phone</label>
+            <input id="profile-phone" formControlName="phone" placeholder="+51 987 654 321" />
+            @if (form.controls.phone.touched && form.controls.phone.invalid) {
+              <span class="field-error">Use 7 to 20 digits, spaces, parentheses or hyphens.</span>
+            }
+          </div>
+          <div class="field">
+            <label for="profile-email">Email</label>
+            <input id="profile-email" [value]="user()?.email ?? ''" disabled />
+          </div>
+          <div class="field full">
+            <label for="profile-address">Address</label>
+            <input
+              id="profile-address"
+              formControlName="address"
+              placeholder="Av. Arequipa 1234, Lima"
+            />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit" [disabled]="saving()">
+            <mat-icon>save</mat-icon>
+            {{ saving() ? 'Saving...' : 'Save profile' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <aside class="card account-card">
+      <div class="avatar">{{ initials() }}</div>
+      <h2 class="account-name">{{ displayName() }}</h2>
+      <p class="account-email">{{ user()?.email }}</p>
+
+      <span class="chip chip-green">{{ accessLabel() }}</span>
+
+      <div class="divider"></div>
+
+      <dl class="account-facts">
+        <div>
+          <dt>Role</dt>
+          <dd>{{ user()?.role }}</dd>
+        </div>
+        <div>
+          <dt>Account kind</dt>
+          <dd>{{ user()?.accountKind }}</dd>
+        </div>
+        <div>
+          <dt>Profile</dt>
+          <dd>{{ profile() ? 'Created' : 'Pending' }}</dd>
+        </div>
+      </dl>
+
+      <div class="divider"></div>
+
+      <p class="hint">
+        <mat-icon>info</mat-icon>
+        @if (user()?.isDelegated) {
+          Your visibility is limited to the supply points granted by the principal account.
+        } @else if (user()?.isSuperAdmin) {
+          SuperAdmin accounts operate installations, devices, installers and support.
+        } @else {
+          As a principal user you can manage properties, subusers and billing.
+        }
+      </p>
+    </aside>
+  </div>
+</div>

@@ -1,0 +1,15 @@
+<aside class="sidebar-content">
+  <nav class="sidebar-menu" [attr.aria-label]="'shared.sidebar-aria' | translate">
+    @for (option of options(); track option.label) {
+      <a
+        class="sidebar-option"
+        [routerLink]="option.link"
+        routerLinkActive="selected"
+        [routerLinkActiveOptions]="{ exact: option.exact ?? true }"
+      >
+        <mat-icon class="sidebar-icon">{{ option.icon }}</mat-icon>
+        <span class="sidebar-label">{{ option.label | translate }}</span>
+      </a>
+    }
+  </nav>
+</aside>

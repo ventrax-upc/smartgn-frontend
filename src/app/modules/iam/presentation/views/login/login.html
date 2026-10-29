@@ -1,0 +1,113 @@
+<header class="auth-topbar">
+  <a class="brand" routerLink="/sign-in">
+    <div class="logo-container">
+      <img src="assets/smartgn-logo.png" alt="SmartGN logo" class="logo-image" />
+    </div>
+    <span class="brand-name">Smart<span>GN</span></span>
+  </a>
+
+  <div class="topbar-actions">
+    <span class="topbar-link">Smart energy, clearly managed.</span>
+  </div>
+</header>
+
+<div class="auth-body">
+  <section class="auth-form-panel">
+    <div class="auth-form-wrap">
+      <span class="pill pill-light">Welcome back</span>
+
+      <h1 class="auth-title">Sign in to SmartGN</h1>
+      <p class="auth-subtitle">Enter the credentials of your SmartGN account to continue.</p>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <label class="field-label" for="login-email">Email</label>
+        <div class="input-box" [class.invalid]="getError('email')">
+          <mat-icon>mail_outline</mat-icon>
+          <input
+            id="login-email"
+            type="email"
+            formControlName="email"
+            placeholder="you@example.com"
+            autocomplete="email"
+          />
+        </div>
+        @if (getError('email'); as message) {
+          <span class="field-error">{{ message }}</span>
+        }
+
+        <div class="field-row">
+          <label class="field-label" for="login-password">Password</label>
+          <a class="link-inline" routerLink="/forgot-password">Forgot password?</a>
+        </div>
+        <div class="input-box" [class.invalid]="getError('password')">
+          <mat-icon>lock_outline</mat-icon>
+          <input
+            id="login-password"
+            [type]="showPassword() ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="••••••••"
+            autocomplete="current-password"
+          />
+          <button
+            type="button"
+            class="toggle-visibility"
+            (click)="toggleShowPassword()"
+            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+          >
+            <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+        </div>
+        @if (getError('password'); as message) {
+          <span class="field-error">{{ message }}</span>
+        }
+
+        @if (error(); as message) {
+          <div class="form-error">{{ message }}</div>
+        }
+
+        <button type="submit" class="submit-button" [disabled]="loading()">
+          <span>{{ loading() ? 'Signing in...' : 'Sign in' }}</span>
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </form>
+
+      <div class="demo-box">
+        <div class="demo-title"><mat-icon>science</mat-icon> Demo accounts</div>
+        @for (account of [
+          { role: 'Principal user', email: 'user@smartgn.pe' },
+          { role: 'SuperAdmin', email: 'admin@smartgn.pe' },
+          { role: 'Delegated user', email: 'delegated@smartgn.pe' }
+        ]; track account.email) {
+          <div class="demo-account">
+            <span>{{ account.role }}</span>
+            <button type="button" class="link-inline" (click)="useDemo(account.email)">
+              {{ account.email }}
+            </button>
+          </div>
+        }
+        <div class="demo-account">
+          <span>Password</span>
+          <strong>SmartGN123</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="auth-hero-panel">
+    <span class="pill pill-dark">SmartGN platform</span>
+
+    <h2 class="hero-title">Your energy.<br />Your properties.<br />One clear view.</h2>
+    <p class="hero-subtitle">
+      SmartGN connects your supply points, devices and technical support so you can
+      understand consumption and act on it without spreadsheets.
+    </p>
+
+    <ul class="hero-features">
+      @for (feature of heroFeatures; track feature) {
+        <li><mat-icon>check_circle</mat-icon><span>{{ feature }}</span></li>
+      }
+    </ul>
+
+    <p class="hero-footnote">SmartGN · Ventrax UPC · Academic project 2026</p>
+  </section>
+</div>
