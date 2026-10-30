@@ -1,0 +1,674 @@
+{
+  "users": [
+    {
+      "id": "usr-100",
+      "email": "user@smartgn.pe",
+      "password": "SmartGN123",
+      "role": "USER",
+      "accountKind": "PRINCIPAL",
+      "status": "ACTIVE",
+      "principalAccountId": "usr-100",
+      "sessionVersion": 1
+    },
+    {
+      "id": "usr-200",
+      "email": "admin@smartgn.pe",
+      "password": "SmartGN123",
+      "role": "SUPERADMIN",
+      "accountKind": "PRINCIPAL",
+      "status": "ACTIVE",
+      "principalAccountId": "usr-200",
+      "sessionVersion": 1
+    },
+    {
+      "id": "usr-300",
+      "email": "delegated@smartgn.pe",
+      "password": "SmartGN123",
+      "role": "USER",
+      "accountKind": "DELEGATED",
+      "status": "ACTIVE",
+      "principalAccountId": "usr-100",
+      "sessionVersion": 1
+    },
+    {
+      "id": "usr-400",
+      "email": "pending@smartgn.pe",
+      "password": null,
+      "role": "USER",
+      "accountKind": "DELEGATED",
+      "status": "PENDING_ACTIVATION",
+      "principalAccountId": "usr-100",
+      "sessionVersion": 1,
+      "activationToken": "act-demo-400"
+    }
+  ],
+  "profiles": [
+    {
+      "id": "prf-100",
+      "accountId": "usr-100",
+      "firstName": "Ana",
+      "lastName": "Torres",
+      "phone": "+51 987 654 321",
+      "address": "Av. Arequipa 1234, Lima"
+    },
+    {
+      "id": "prf-200",
+      "accountId": "usr-200",
+      "firstName": "SmartGN",
+      "lastName": "Operations",
+      "phone": "+51 999 000 111",
+      "address": "Av. Javier Prado 456, Lima"
+    },
+    {
+      "id": "prf-300",
+      "accountId": "usr-300",
+      "firstName": "Luis",
+      "lastName": "Torres",
+      "phone": "+51 988 222 333",
+      "address": "Av. Arequipa 1234, Lima"
+    },
+    {
+      "id": "prf-400",
+      "accountId": "usr-400",
+      "firstName": "Rosa",
+      "lastName": "Diaz",
+      "phone": "+51 977 555 444",
+      "address": "Av. Arequipa 1234, Lima"
+    }
+  ],
+  "subusers": [
+    {
+      "id": "usr-300",
+      "accountId": "usr-100",
+      "email": "delegated@smartgn.pe",
+      "firstName": "Luis",
+      "lastName": "Torres",
+      "role": "USER",
+      "accountKind": "DELEGATED",
+      "status": "ACTIVE",
+      "principalAccountId": "usr-100",
+      "createdAt": "2026-09-02T10:15:00.000Z",
+      "grants": [
+        {
+          "meterId": "sp-1",
+          "permissions": [
+            "VIEW_CONSUMPTION",
+            "VIEW_HISTORY",
+            "VIEW_ALERTS",
+            "USE_TICKETS"
+          ]
+        }
+      ]
+    }
+  ],
+  "properties": [
+    {
+      "id": "prp-1",
+      "accountId": "usr-100",
+      "name": "Casa Arequipa",
+      "address": "Av. Arequipa 1234, Lima",
+      "propertyType": "HOUSE",
+      "active": true,
+      "version": 1
+    },
+    {
+      "id": "prp-2",
+      "accountId": "usr-100",
+      "name": "Local Comercial Centro",
+      "address": "Jr. de la Union 780, Lima",
+      "propertyType": "COMMERCIAL",
+      "active": true,
+      "version": 1
+    },
+    {
+      "id": "prp-3",
+      "accountId": "usr-100",
+      "name": "Edificio Miraflores",
+      "address": "Av. Larco 345, Miraflores",
+      "propertyType": "BUILDING",
+      "active": true,
+      "version": 1
+    }
+  ],
+  "supplyPoints": [
+    {
+      "id": "sp-1",
+      "propertyId": "prp-1",
+      "serialNumber": "MTR-0001",
+      "locationName": "Main kitchen",
+      "active": true,
+      "version": 1
+    },
+    {
+      "id": "sp-2",
+      "propertyId": "prp-1",
+      "serialNumber": "MTR-0002",
+      "locationName": "Laundry room",
+      "active": true,
+      "version": 1
+    },
+    {
+      "id": "sp-3",
+      "propertyId": "prp-2",
+      "serialNumber": "MTR-0003",
+      "locationName": "Main counter",
+      "active": true,
+      "version": 1
+    },
+    {
+      "id": "sp-4",
+      "propertyId": "prp-3",
+      "serialNumber": "MTR-0004",
+      "locationName": "Ground floor lobby",
+      "active": true,
+      "version": 1
+    }
+  ],
+  "installers": [
+    {
+      "id": "ins-1",
+      "firstName": "Carlos",
+      "lastName": "Mendoza",
+      "identification": "DNI 45678912",
+      "phone": "+51 955 111 222",
+      "email": "carlos.mendoza@smartgn.pe",
+      "enabled": true,
+      "version": 1,
+      "accreditationCode": "ACC-001",
+      "available": true
+    },
+    {
+      "id": "ins-2",
+      "firstName": "Maria",
+      "lastName": "Quispe",
+      "identification": "DNI 41234567",
+      "phone": "+51 966 222 333",
+      "email": "maria.quispe@smartgn.pe",
+      "enabled": true,
+      "version": 1,
+      "accreditationCode": "ACC-002",
+      "available": true
+    },
+    {
+      "id": "ins-3",
+      "firstName": "Jose",
+      "lastName": "Rivera",
+      "identification": "DNI 40987654",
+      "phone": "+51 977 333 444",
+      "email": "jose.rivera@smartgn.pe",
+      "enabled": true,
+      "version": 1,
+      "accreditationCode": "ACC-003",
+      "available": false
+    },
+    {
+      "id": "ins-8dd6bd50-c213-40b8-9d6b-1f2b490ea949",
+      "firstName": "Juan",
+      "lastName": "Quispe",
+      "identification": "05678913",
+      "phone": "947237564",
+      "email": "juan.quispe@smartgn.pe",
+      "enabled": true,
+      "version": 0,
+      "accreditationCode": "ACC-004",
+      "available": true
+    }
+  ],
+  "installations": [
+    {
+      "id": "stl-1",
+      "accountId": "usr-100",
+      "propertyId": "prp-1",
+      "pointId": "sp-1",
+      "installerId": "ins-1",
+      "status": "COMPLETED",
+      "deviceId": "dev-1",
+      "createdAt": "2026-09-10T09:00:00.000Z",
+      "completedAt": "2026-09-12T16:30:00.000Z",
+      "version": 3
+    },
+    {
+      "id": "stl-2",
+      "accountId": "usr-100",
+      "propertyId": "prp-1",
+      "pointId": "sp-2",
+      "installerId": "ins-2",
+      "status": "IN_PROGRESS",
+      "deviceId": "dev-2",
+      "createdAt": "2026-10-20T11:00:00.000Z",
+      "completedAt": null,
+      "version": 2
+    },
+    {
+      "id": "stl-3",
+      "accountId": "usr-100",
+      "propertyId": "prp-2",
+      "pointId": "sp-3",
+      "installerId": null,
+      "status": "PENDING",
+      "deviceId": null,
+      "createdAt": "2026-10-24T14:00:00.000Z",
+      "completedAt": null,
+      "version": 1
+    },
+    {
+      "id": "stl-4",
+      "accountId": null,
+      "propertyId": "prp-3",
+      "pointId": "sp-4",
+      "installerId": "ins-1",
+      "status": "CANCELLED",
+      "deviceId": null,
+      "createdAt": "2026-10-27T08:45:00.000Z",
+      "completedAt": null,
+      "version": 2
+    }
+  ],
+  "devices": [
+    {
+      "id": "dev-1",
+      "serialNumber": "GN-DEV-0001",
+      "accountId": "usr-100",
+      "propertyId": "prp-1",
+      "pointId": "sp-1",
+      "installationId": "stl-1",
+      "installerId": "ins-1",
+      "location": "Main kitchen",
+      "installedAt": "2026-09-12T15:45:00.000Z",
+      "status": "ACTIVE",
+      "associationVersion": 1,
+      "brokerConfirmed": true,
+      "telemetryConfirmed": true,
+      "version": 1
+    },
+    {
+      "id": "dev-2",
+      "serialNumber": "GN-DEV-0002",
+      "accountId": "usr-100",
+      "propertyId": "prp-1",
+      "pointId": "sp-2",
+      "installationId": "stl-2",
+      "installerId": "ins-2",
+      "location": "Laundry room",
+      "installedAt": "2026-10-20T12:10:00.000Z",
+      "status": "PENDING",
+      "associationVersion": 1,
+      "brokerConfirmed": false,
+      "telemetryConfirmed": false,
+      "version": 1
+    }
+  ],
+  "technicians": [
+    {
+      "technicianId": "tec-1",
+      "fullName": "Diego Salazar",
+      "accreditationCode": "TEC-2026-001",
+      "email": "diego.salazar@smartgn.pe",
+      "phone": "+51 944 111 000",
+      "available": false,
+      "active": true
+    },
+    {
+      "technicianId": "tec-2",
+      "fullName": "Valeria Rojas",
+      "accreditationCode": "TEC-2026-002",
+      "email": "valeria.rojas@smartgn.pe",
+      "phone": "+51 944 222 000",
+      "available": true,
+      "active": true
+    },
+    {
+      "technicianId": "tec-3",
+      "fullName": "Marco Quispe",
+      "accreditationCode": "TEC-2026-003",
+      "email": "marco.quispe@smartgn.pe",
+      "phone": "+51 944 333 000",
+      "available": true,
+      "active": true
+    }
+  ],
+  "tickets": [
+    {
+      "ticketId": "tkt-1",
+      "principalAccountId": "usr-100",
+      "meterId": "sp-1",
+      "subject": "Device reports offline since yesterday",
+      "message": "The meter stopped sending readings after a power outage. The LED is solid red and the dashboard has not updated since yesterday evening.",
+      "status": "OPEN",
+      "createdAt": "2026-10-26T08:30:00.000Z",
+      "resolvedAt": null,
+      "closedAt": null
+    },
+    {
+      "ticketId": "tkt-2",
+      "principalAccountId": "usr-100",
+      "meterId": "sp-3",
+      "subject": "Readings look higher than the physical meter",
+      "message": "The dashboard shows about 12% more consumption than the display on the device. The gap started after the last firmware update.",
+      "status": "VISIT_REQUESTED",
+      "createdAt": "2026-10-21T15:10:00.000Z",
+      "resolvedAt": null,
+      "closedAt": null
+    },
+    {
+      "ticketId": "tkt-3",
+      "principalAccountId": "usr-100",
+      "meterId": "sp-4",
+      "subject": "Request a copy of the installation certificate",
+      "message": "We need the certificate for the building administration records.",
+      "status": "CLOSED",
+      "createdAt": "2026-10-05T10:00:00.000Z",
+      "resolvedAt": "2026-10-06T11:30:00.000Z",
+      "closedAt": "2026-10-07T09:00:00.000Z"
+    },
+    {
+      "ticketId": "tkt-4",
+      "principalAccountId": "usr-100",
+      "meterId": "sp-2",
+      "subject": "Water heater consumption spikes at night",
+      "message": "The laundry room supply point reports a large consumption spike every night after 11 pm, even when the water heater is off.",
+      "status": "RESOLVED",
+      "createdAt": "2026-10-12T07:20:00.000Z",
+      "resolvedAt": "2026-10-18T10:20:00.000Z",
+      "closedAt": null
+    },
+    {
+      "ticketId": "tkt-5e4bbd0d-a375-4ef1-99e3-9a310d5686ea",
+      "principalAccountId": "usr-100",
+      "meterId": "sp-1",
+      "subject": "hola nose",
+      "message": "holadoyyape",
+      "status": "VISIT_REQUESTED",
+      "createdAt": "2026-10-29T05:49:12.722Z",
+      "resolvedAt": null,
+      "closedAt": null
+    }
+  ],
+  "visits": [
+    {
+      "visitId": "vst-1",
+      "ticketId": "tkt-2",
+      "requestedWindowStart": "2026-10-30T14:00:00.000Z",
+      "requestedWindowEnd": "2026-10-30T16:00:00.000Z",
+      "status": "ASSIGNED",
+      "completedAt": null
+    },
+    {
+      "visitId": "vst-2",
+      "ticketId": "tkt-4",
+      "requestedWindowStart": "2026-10-18T09:00:00.000Z",
+      "requestedWindowEnd": "2026-10-18T11:00:00.000Z",
+      "status": "COMPLETED",
+      "completedAt": "2026-10-18T10:20:00.000Z"
+    },
+    {
+      "visitId": "vst-e04726bc-ddfc-4a76-8aac-e76681e8fe43",
+      "ticketId": "tkt-5e4bbd0d-a375-4ef1-99e3-9a310d5686ea",
+      "requestedWindowStart": "2026-11-06T04:53",
+      "requestedWindowEnd": "2026-11-07T05:54",
+      "status": "REQUESTED",
+      "completedAt": null
+    }
+  ],
+  "subscriptions": [
+    {
+      "accountId": "usr-100",
+      "proActive": true,
+      "plan": "PRO",
+      "periodEndsAt": "2026-11-15T23:59:59.000Z",
+      "periodStartsAt": "2026-10-16T00:00:00.000Z",
+      "installationCompleted": true,
+      "autoRenew": true,
+      "technicalCoveragePercent": 100,
+      "monthlyProPrice": 39.9,
+      "currency": "PEN",
+      "technicalBasePriceReference": 49.9
+    }
+  ],
+  "paymentMethods": [
+    {
+      "id": "pm-1",
+      "accountId": "usr-100",
+      "providerToken": "tok_visa_4242",
+      "brand": "VISA",
+      "last_four": "4242",
+      "is_default": true,
+      "active": true,
+      "recurringAuthorized": true
+    },
+    {
+      "id": "pm-2",
+      "accountId": "usr-100",
+      "providerToken": "tok_mc_8888",
+      "brand": "MASTERCARD",
+      "last_four": "8888",
+      "is_default": false,
+      "active": true,
+      "recurringAuthorized": true
+    }
+  ],
+  "paymentOrders": [
+    {
+      "id": "ord-1",
+      "accountId": "usr-100",
+      "reason": "INSTALLATION",
+      "amount": 120,
+      "currency": "PEN",
+      "status": "PAID",
+      "created_at": "2026-09-10T09:05:00.000Z",
+      "confirmed_at": "2026-09-10T09:12:00.000Z",
+      "lines": [
+        {
+          "description": "Device installation - Main kitchen",
+          "quantity": 1,
+          "unitPrice": 120,
+          "total": 120
+        }
+      ],
+      "attempts": [
+        {
+          "id": "att-1",
+          "at": "2026-09-10T09:12:00.000Z",
+          "status": "PAID",
+          "providerReference": "LOCAL-ORD-1"
+        }
+      ],
+      "documents": [
+        {
+          "id": "doc-1",
+          "orderId": "ord-1",
+          "type": "INVOICE",
+          "number": "F001-000123",
+          "issuedAt": "2026-09-10T09:15:00.000Z",
+          "total": 120,
+          "currency": "PEN",
+          "status": "ISSUED"
+        }
+      ]
+    },
+    {
+      "id": "ord-2",
+      "accountId": "usr-100",
+      "reason": "PRO",
+      "amount": 39.9,
+      "currency": "PEN",
+      "status": "PAID",
+      "created_at": "2026-10-16T00:00:00.000Z",
+      "confirmed_at": "2026-10-16T00:00:04.000Z",
+      "lines": [
+        {
+          "description": "SmartGN Pro plan - October",
+          "quantity": 1,
+          "unitPrice": 39.9,
+          "total": 39.9
+        }
+      ],
+      "attempts": [
+        {
+          "id": "att-2",
+          "at": "2026-10-16T00:00:04.000Z",
+          "status": "PAID",
+          "providerReference": "LOCAL-ORD-2"
+        }
+      ],
+      "documents": [
+        {
+          "id": "doc-2",
+          "orderId": "ord-2",
+          "type": "RECEIPT",
+          "number": "B001-000456",
+          "issuedAt": "2026-10-16T00:00:10.000Z",
+          "total": 39.9,
+          "currency": "PEN",
+          "status": "ISSUED"
+        }
+      ]
+    },
+    {
+      "id": "ord-3",
+      "accountId": "usr-100",
+      "reason": "TECHNICAL_VISIT",
+      "amount": 120,
+      "currency": "PEN",
+      "status": "PENDING",
+      "created_at": "2026-10-25T10:25:00.000Z",
+      "confirmed_at": null,
+      "lines": [
+        {
+          "description": "Technical visit - power supply replacement",
+          "quantity": 1,
+          "unitPrice": 120,
+          "total": 120
+        }
+      ],
+      "attempts": [],
+      "documents": []
+    }
+  ],
+  "billingDocuments": [
+    "doc-1",
+    "doc-2"
+  ],
+  "articles": [
+    {
+      "articleId": "art-1",
+      "title": "Understanding the device LED indicators",
+      "category": "Devices",
+      "contentReference": "https://help.smartgn.pe/articles/led-indicators",
+      "publishedAt": "2026-10-01T09:00:00.000Z",
+      "active": true
+    },
+    {
+      "articleId": "art-2",
+      "title": "How to read your consumption dashboard",
+      "category": "Consumption",
+      "contentReference": "https://help.smartgn.pe/articles/consumption-dashboard",
+      "publishedAt": "2026-09-24T09:00:00.000Z",
+      "active": true
+    },
+    {
+      "articleId": "art-3",
+      "title": "Preparing your home for the installation visit",
+      "category": "Installation",
+      "contentReference": "https://help.smartgn.pe/articles/installation-checklist",
+      "publishedAt": "2026-09-15T09:00:00.000Z",
+      "active": true
+    },
+    {
+      "articleId": "art-4",
+      "title": "Managing delegated subusers and their permissions",
+      "category": "Account",
+      "contentReference": "https://help.smartgn.pe/articles/subuser-permissions",
+      "publishedAt": "2026-09-02T09:00:00.000Z",
+      "active": true
+    }
+  ],
+  "ticketReplies": [
+    {
+      "replyId": "rep-1",
+      "ticketId": "tkt-1",
+      "authorAccountId": "usr-100",
+      "body": "I already restarted the device twice and the red LED remains.",
+      "postedAt": "2026-10-26T08:32:00.000Z"
+    },
+    {
+      "replyId": "rep-2",
+      "ticketId": "tkt-2",
+      "authorAccountId": "usr-300",
+      "body": "This started after the last firmware update.",
+      "postedAt": "2026-10-21T15:12:00.000Z"
+    },
+    {
+      "replyId": "rep-3",
+      "ticketId": "tkt-2",
+      "authorAccountId": "usr-200",
+      "body": "A technician has been assigned and will validate the calibration on site.",
+      "postedAt": "2026-10-23T09:00:00.000Z"
+    },
+    {
+      "replyId": "rep-4",
+      "ticketId": "tkt-3",
+      "authorAccountId": "usr-200",
+      "body": "The certificate was sent to your registered email address.",
+      "postedAt": "2026-10-06T11:30:00.000Z"
+    },
+    {
+      "replyId": "rep-5",
+      "ticketId": "tkt-4",
+      "authorAccountId": "usr-100",
+      "body": "The spikes only happen after 11 pm. Nothing else in the laundry room is running.",
+      "postedAt": "2026-10-12T07:25:00.000Z"
+    },
+    {
+      "replyId": "rep-6",
+      "ticketId": "tkt-4",
+      "authorAccountId": "usr-200",
+      "body": "We completed the on-site diagnosis. The power supply was replaced and the meter recalibrated.",
+      "postedAt": "2026-10-18T10:30:00.000Z"
+    }
+  ],
+  "ticketPhotos": [
+    {
+      "photoId": "pho-1",
+      "ticketId": "tkt-1",
+      "objectReference": "tickets/tkt-1/led-red.jpg",
+      "uploadedByAccountId": "usr-100",
+      "uploadedAt": "2026-10-26T08:33:00.000Z"
+    },
+    {
+      "photoId": "pho-2",
+      "ticketId": "tkt-2",
+      "objectReference": "https://storage.smartgn.pe/tickets/tkt-2/display.jpg",
+      "uploadedByAccountId": "usr-300",
+      "uploadedAt": "2026-10-21T15:14:00.000Z"
+    }
+  ],
+  "serviceRatings": [
+    {
+      "ratingId": "rat-1",
+      "ticketId": "tkt-3",
+      "score": 5,
+      "comment": "Fast response and the certificate arrived the next day.",
+      "ratedAt": "2026-10-07T09:00:00.000Z"
+    }
+  ],
+  "technicianAssignments": [
+    {
+      "assignmentId": "asg-1",
+      "visitId": "vst-1",
+      "technicianId": "tec-1",
+      "assignedAt": "2026-10-23T09:00:00.000Z",
+      "active": true
+    }
+  ],
+  "visitDiagnoses": [
+    {
+      "diagnosisId": "dia-1",
+      "visitId": "vst-2",
+      "summary": "Replaced the faulty power supply and recalibrated the meter. Night consumption readings now match the physical display.",
+      "finalCost": 120,
+      "billingReferenceId": "8f14e45f-ceea-4a67-9c1e-2b3a9d0c7a11",
+      "createdAt": "2026-10-18T10:20:00.000Z"
+    }
+  ]
+}
