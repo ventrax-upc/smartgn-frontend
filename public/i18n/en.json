@@ -3,7 +3,16 @@
     "account": "Account",
     "profile": "Profile",
     "change-password": "Change password",
-    "logout": "Log out"
+    "logout": "Log out",
+    "theme": "Theme",
+    "light-mode": "Light mode",
+    "dark-mode": "Dark mode",
+    "language": "Language",
+    "role": {
+      "admin": "SuperAdmin",
+      "delegated": "Delegated user",
+      "owner": "Account owner"
+    }
   },
   "sidebar": {
     "home": "Overview",
@@ -26,6 +35,68 @@
     "confirm-dialog": {
       "confirm": "Confirm",
       "cancel": "Cancel"
+    }
+  },
+  "home": {
+    "eyebrow": "SmartGN overview",
+    "greeting": {
+      "morning": "Good morning",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening"
+    },
+    "subtitle": {
+      "admin": "Monitor the operation, keep installations moving and clear the support queue.",
+      "principal": "Your properties, supply points and billing in one place.",
+      "delegated": "You are viewing the supply points the principal account granted to you."
+    },
+    "role": {
+      "admin": "SuperAdmin",
+      "delegated": "Delegated subuser",
+      "principal": "Principal account"
+    },
+    "stats": {
+      "openInstallations": "Open installations",
+      "activeDevices": "Active devices",
+      "installersAvailable": "Installers available",
+      "openTickets": "Open tickets",
+      "activeProperties": "Active properties",
+      "supplyPoints": "Supply points",
+      "activeSubusers": "Active subusers",
+      "grantedSupplyPoints": "Granted supply points",
+      "scheduledVisits": "Scheduled visits"
+    },
+    "subusers": {
+      "title": "Subusers",
+      "manage": "Manage",
+      "description": "Delegate access to selected supply points without sharing your password.",
+      "active": "active delegated accounts"
+    },
+    "support": {
+      "title": "Support coverage",
+      "visits": "Visits",
+      "technicians": "available technicians",
+      "openVisits": "open visits"
+    },
+    "ticketStatus": {
+      "title": "Ticket status",
+      "open": "Open",
+      "tickets": "tickets"
+    },
+    "status": {
+      "OPEN": "Open",
+      "VISIT_REQUESTED": "Visit requested",
+      "RESOLVED": "Resolved",
+      "CLOSED": "Closed"
+    },
+    "latest": {
+      "title": "Latest tickets",
+      "viewAll": "View all",
+      "emptyTitle": "No tickets yet",
+      "emptyText": "Your support queue will appear here.",
+      "subject": "Subject",
+      "supplyPoint": "Supply point",
+      "status": "Status",
+      "created": "Opened"
     }
   }
 }

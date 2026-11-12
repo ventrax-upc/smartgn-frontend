@@ -1,4 +1,6 @@
+import { registerLocaleData } from '@angular/common';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import localeEs from '@angular/common/locales/es';
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
@@ -11,6 +13,9 @@ import { apiInterceptor } from './shared/infrastructure/api.interceptor';
 
 import { routes } from './app.routes';
 import {provideAnimationsAsync} from '@angular/platform-browser/animations/async';
+
+// Lets DatePipe/CurrencyPipe format with Spanish month names when the UI language is 'es'.
+registerLocaleData(localeEs);
 
 export const appConfig: ApplicationConfig = {
   providers: [

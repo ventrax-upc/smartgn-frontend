@@ -1,50 +1,53 @@
 <div class="page">
-  <section class="hero-card">
-    <div class="hero-copy">
-      <span class="eyebrow">SmartGN overview</span>
-      <h1 class="page-title">{{ greeting() }}, {{ displayName() }}</h1>
+  <header class="overview-header">
+    <div class="header-copy">
+      <span class="eyebrow">{{ 'home.eyebrow' | translate }}</span>
+      <h1 class="page-title">{{ greetingKey() | translate }}, {{ displayName() }}</h1>
+      <p class="header-date">{{ todayLabel() }}</p>
       <p class="page-subtitle">
         @if (isSuperAdmin()) {
-          Monitor the operation, keep installations moving and clear the support queue.
+          {{ 'home.subtitle.admin' | translate }}
         } @else if (isPrincipal()) {
-          Your properties, supply points and billing in one place.
+          {{ 'home.subtitle.principal' | translate }}
         } @else {
-          You are viewing the supply points the principal account granted to you.
+          {{ 'home.subtitle.delegated' | translate }}
         }
       </p>
+    </div>
+    <div class="header-side">
       <div class="hero-tags">
-        <span class="chip chip-green">{{ roleLabel() }}</span>
+        <span class="chip chip-green">{{ roleKey() | translate }}</span>
         @if (user(); as current) {
           <span class="chip">{{ current.email }}</span>
         }
       </div>
+      <div class="hero-mark">
+        <img src="assets/smartgn-logo.png" alt="SmartGN" />
+      </div>
     </div>
-    <div class="hero-mark">
-      <img src="assets/smartgn-logo.png" alt="SmartGN" />
-    </div>
-  </section>
+  </header>
 
   @if (isSuperAdmin()) {
     <div class="grid grid-4">
       <article class="stat-card">
         <span class="stat-icon"><mat-icon>home_repair_service</mat-icon></span>
         <span class="stat-value">{{ installationsOpen() }}</span>
-        <span class="stat-label">Open installations</span>
+        <span class="stat-label">{{ 'home.stats.openInstallations' | translate }}</span>
       </article>
       <article class="stat-card">
         <span class="stat-icon"><mat-icon>developer_board</mat-icon></span>
         <span class="stat-value">{{ activeDevices() }}</span>
-        <span class="stat-label">Active devices</span>
+        <span class="stat-label">{{ 'home.stats.activeDevices' | translate }}</span>
       </article>
       <article class="stat-card">
         <span class="stat-icon"><mat-icon>engineering</mat-icon></span>
         <span class="stat-value">{{ installersAvailable() }}</span>
-        <span class="stat-label">Installers available</span>
+        <span class="stat-label">{{ 'home.stats.installersAvailable' | translate }}</span>
       </article>
       <article class="stat-card">
         <span class="stat-icon"><mat-icon>confirmation_number</mat-icon></span>
         <span class="stat-value">{{ ticketsOpen() }}</span>
-        <span class="stat-label">Open tickets</span>
+        <span class="stat-label">{{ 'home.stats.openTickets' | translate }}</span>
       </article>
     </div>
   } @else if (isPrincipal()) {
@@ -52,22 +55,22 @@
       <article class="stat-card">
         <span class="stat-icon"><mat-icon>home_work</mat-icon></span>
         <span class="stat-value">{{ properties() }}</span>
-        <span class="stat-label">Active properties</span>
+        <span class="stat-label">{{ 'home.stats.activeProperties' | translate }}</span>
       </article>
       <article class="stat-card">
         <span class="stat-icon"><mat-icon>speed</mat-icon></span>
         <span class="stat-value">{{ supplyPoints() }}</span>
-        <span class="stat-label">Supply points</span>
+        <span class="stat-label">{{ 'home.stats.supplyPoints' | translate }}</span>
       </article>
       <article class="stat-card">
         <span class="stat-icon"><mat-icon>group</mat-icon></span>
         <span class="stat-value">{{ subusers() }}</span>
-        <span class="stat-label">Active subusers</span>
+        <span class="stat-label">{{ 'home.stats.activeSubusers' | translate }}</span>
       </article>
       <article class="stat-card">
         <span class="stat-icon"><mat-icon>confirmation_number</mat-icon></span>
         <span class="stat-value">{{ ticketsOpen() }}</span>
-        <span class="stat-label">Open tickets</span>
+        <span class="stat-label">{{ 'home.stats.openTickets' | translate }}</span>
       </article>
     </div>
   } @else {
@@ -75,130 +78,101 @@
       <article class="stat-card">
         <span class="stat-icon"><mat-icon>speed</mat-icon></span>
         <span class="stat-value">{{ supplyPoints() }}</span>
-        <span class="stat-label">Granted supply points</span>
+        <span class="stat-label">{{ 'home.stats.grantedSupplyPoints' | translate }}</span>
       </article>
       <article class="stat-card">
         <span class="stat-icon"><mat-icon>confirmation_number</mat-icon></span>
         <span class="stat-value">{{ ticketsOpen() }}</span>
-        <span class="stat-label">Open tickets</span>
+        <span class="stat-label">{{ 'home.stats.openTickets' | translate }}</span>
       </article>
       <article class="stat-card">
         <span class="stat-icon"><mat-icon>event</mat-icon></span>
         <span class="stat-value">{{ visitsScheduled() }}</span>
-        <span class="stat-label">Scheduled visits</span>
+        <span class="stat-label">{{ 'home.stats.scheduledVisits' | translate }}</span>
       </article>
     </div>
   }
 
-  <div class="dashboard-grid">
+  <div class="panel-grid">
+    @if (isPrincipal()) {
+      <section class="card">
+        <div class="section-title">
+          <h2>{{ 'home.subusers.title' | translate }}</h2>
+          <a class="btn btn-ghost btn-sm" routerLink="/account/subusers">{{ 'home.subusers.manage' | translate }}</a>
+        </div>
+        <p class="card-subtitle">{{ 'home.subusers.description' | translate }}</p>
+        <div class="mini-stat">
+          <span class="stat-value">{{ subusers() }}</span>
+          <span class="stat-label">{{ 'home.subusers.active' | translate }}</span>
+        </div>
+      </section>
+    }
+
+    @if (isSuperAdmin()) {
+      <section class="card">
+        <div class="section-title">
+          <h2>{{ 'home.support.title' | translate }}</h2>
+          <a class="btn btn-ghost btn-sm" routerLink="/support/visits">{{ 'home.support.visits' | translate }}</a>
+        </div>
+        <div class="mini-stat">
+          <span class="stat-value">{{ technicians() }}</span>
+          <span class="stat-label">{{ 'home.support.technicians' | translate }}</span>
+        </div>
+        <div class="divider"></div>
+        <div class="mini-stat">
+          <span class="stat-value">{{ visitsScheduled() }}</span>
+          <span class="stat-label">{{ 'home.support.openVisits' | translate }}</span>
+        </div>
+      </section>
+    }
+
     <section class="card">
       <div class="section-title">
-        <h2>Quick actions</h2>
-        <span class="chip">{{ quickActions().length }} shortcuts</span>
+        <h2>{{ 'home.ticketStatus.title' | translate }}</h2>
+        <a class="btn btn-ghost btn-sm" routerLink="/support/tickets">{{ 'home.ticketStatus.open' | translate }}</a>
       </div>
-      <div class="action-grid">
-        @for (action of quickActions(); track action.link) {
-          <a class="action-card" [routerLink]="action.link">
-            <span class="action-icon"><mat-icon>{{ action.icon }}</mat-icon></span>
-            <span class="action-body">
-              <span class="action-label">{{ action.label }}</span>
-              <span class="action-description">{{ action.description }}</span>
-            </span>
-            <mat-icon class="action-arrow">arrow_forward</mat-icon>
-          </a>
-        }
+      <div class="donut-wrap">
+        <div class="donut">
+          <div class="donut-ring" [style.background]="donutBackground()"></div>
+          <div class="donut-hole">
+            <span class="donut-total">{{ ticketTotal() }}</span>
+            <span class="donut-caption">{{ 'home.ticketStatus.tickets' | translate }}</span>
+          </div>
+        </div>
+        <ul class="status-list">
+          @for (slice of statusSlices(); track slice.status) {
+            <li>
+              <span class="legend-dot" [style.background]="slice.color"></span>
+              <span class="status-name">{{ slice.labelKey | translate }}</span>
+              <span class="status-count">{{ slice.count }}</span>
+            </li>
+          }
+        </ul>
       </div>
     </section>
-
-    <aside class="side-stack">
-      @if (isPrincipal() && subscription(); as current) {
-        <section class="card plan-summary">
-          <div class="section-title">
-            <h2>Your plan</h2>
-            <span class="chip" [class.chip-green]="current.proActive" [class.chip-amber]="!current.proActive">
-              {{ current.proActive ? 'Pro active' : 'Basic' }}
-            </span>
-          </div>
-          <div class="plan-price">
-            {{ current.monthlyProPrice | currency: current.currency : 'symbol-narrow' : '1.2-2' }}
-            <span class="muted">/ month</span>
-          </div>
-          <p class="card-subtitle">
-            Renews
-            {{ current.periodEndsAt | date: 'dd MMM yyyy' }}
-            @if (current.autoRenew) {
-              · automatic
-            } @else {
-              · manual
-            }
-          </p>
-          @if (pendingPayments() > 0) {
-            <div class="alert alert-warning">
-              Pending charges:
-              <strong>{{ pendingPayments() | currency: 'PEN' : 'symbol-narrow' : '1.2-2' }}</strong>
-            </div>
-          }
-          <a class="btn btn-secondary" routerLink="/payments/subscription">Manage plan</a>
-        </section>
-      }
-
-      @if (isPrincipal()) {
-        <section class="card">
-          <div class="section-title">
-            <h2>Subusers</h2>
-            <a class="btn btn-ghost btn-sm" routerLink="/account/subusers">Manage</a>
-          </div>
-          <p class="card-subtitle">
-            Delegate access to selected supply points without sharing your password.
-          </p>
-          <div class="mini-stat">
-            <span class="stat-value">{{ subusers() }}</span>
-            <span class="stat-label">active delegated accounts</span>
-          </div>
-        </section>
-      }
-
-      @if (isSuperAdmin()) {
-        <section class="card">
-          <div class="section-title">
-            <h2>Support coverage</h2>
-            <a class="btn btn-ghost btn-sm" routerLink="/support/visits">Visits</a>
-          </div>
-          <div class="mini-stat">
-            <span class="stat-value">{{ technicians() }}</span>
-            <span class="stat-label">available technicians</span>
-          </div>
-          <div class="divider"></div>
-          <div class="mini-stat">
-            <span class="stat-value">{{ visitsScheduled() }}</span>
-            <span class="stat-label">open visits</span>
-          </div>
-        </section>
-      }
-    </aside>
   </div>
 
   <section class="card">
     <div class="section-title">
-      <h2>Latest tickets</h2>
-      <a class="btn btn-ghost btn-sm" routerLink="/support/tickets">View all</a>
+      <h2>{{ 'home.latest.title' | translate }}</h2>
+      <a class="btn btn-ghost btn-sm" routerLink="/support/tickets">{{ 'home.latest.viewAll' | translate }}</a>
     </div>
 
     @if (recentTickets().length === 0) {
       <div class="empty">
         <mat-icon>support_agent</mat-icon>
-        <span class="empty-title">No tickets yet</span>
-        <span class="empty-text">Your support queue will appear here.</span>
+        <span class="empty-title">{{ 'home.latest.emptyTitle' | translate }}</span>
+        <span class="empty-text">{{ 'home.latest.emptyText' | translate }}</span>
       </div>
     } @else {
       <div class="table-wrap">
         <table class="table">
           <thead>
             <tr>
-              <th>Subject</th>
-              <th>Supply point</th>
-              <th>Status</th>
-              <th>Opened</th>
+              <th>{{ 'home.latest.subject' | translate }}</th>
+              <th>{{ 'home.latest.supplyPoint' | translate }}</th>
+              <th>{{ 'home.latest.status' | translate }}</th>
+              <th>{{ 'home.latest.created' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -217,10 +191,10 @@
                     [class.chip-blue]="ticket.status === 'VISIT_REQUESTED'"
                     [class.chip-amber]="ticket.status === 'OPEN'"
                   >
-                    {{ ticketStatusLabel(ticket.status) }}
+                    {{ ticketStatusKey(ticket.status) | translate }}
                   </span>
                 </td>
-                <td class="cell-muted">{{ ticket.createdAt | date: 'dd MMM yyyy' }}</td>
+                <td class="cell-muted">{{ ticket.createdAt | date: 'dd MMM yyyy' : undefined : lang() }}</td>
               </tr>
             }
           </tbody>

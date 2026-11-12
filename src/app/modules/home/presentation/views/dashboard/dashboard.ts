@@ -1,7 +1,9 @@
 import { Component, OnInit, computed, inject } from '@angular/core';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
+import { TranslatePipe } from '@ngx-translate/core';
+import { LanguageService } from '../../../../../shared/application/language.service';
 import { AuthStore } from '../../../../iam/application/auth.store';
 import { SubusersStore } from '../../../../iam/application/subusers.store';
 import { PropertiesStore } from '../../../../installation/application/properties.store';
@@ -13,19 +15,24 @@ import { TicketsStore } from '../../../../support/application/tickets.store';
 import { VisitsStore } from '../../../../support/application/visits.store';
 import { TechniciansStore } from '../../../../support/application/technicians.store';
 import { Ticket, TicketStatus } from '../../../../support/domain/model/ticket.entity';
-import { SubscriptionStore } from '../../../../payment/application/subscription.store';
-import { PaymentsStore } from '../../../../payment/application/payments.store';
 
-interface QuickAction {
-  link: string;
-  label: string;
-  description: string;
-  icon: string;
+interface StatusSlice {
+  status: TicketStatus;
+  labelKey: string;
+  count: number;
+  color: string;
 }
+
+const STATUS_COLORS: Record<TicketStatus, string> = {
+  OPEN: '#c2410c',
+  VISIT_REQUESTED: '#3b6fb6',
+  RESOLVED: '#2f855a',
+  CLOSED: '#64748b',
+};
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CurrencyPipe, DatePipe, RouterLink, MatIcon],
+  imports: [DatePipe, RouterLink, MatIcon, TranslatePipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
@@ -40,8 +47,7 @@ export class DashboardPage implements OnInit {
   private readonly ticketsStore = inject(TicketsStore);
   private readonly visitsStore = inject(VisitsStore);
   private readonly techniciansStore = inject(TechniciansStore);
-  private readonly subscriptionStore = inject(SubscriptionStore);
-  private readonly paymentsStore = inject(PaymentsStore);
+  protected readonly lang = inject(LanguageService).lang;
 
   protected readonly user = this.authStore.currentUser;
   protected readonly displayName = this.authStore.displayName;
@@ -59,148 +65,68 @@ export class DashboardPage implements OnInit {
   protected readonly technicians = this.techniciansStore.availableCount;
   protected readonly ticketsOpen = this.ticketsStore.openCount;
   protected readonly visitsScheduled = this.visitsStore.scheduledCount;
-  protected readonly subscription = this.subscriptionStore.subscription;
-  protected readonly pendingPayments = this.paymentsStore.pendingTotal;
   protected readonly recentTickets = computed(() => this.ticketsStore.items().slice(0, 5));
 
-  protected readonly roleLabel = computed(() => {
-    if (this.isSuperAdmin()) return 'SuperAdmin';
-    if (this.isDelegated()) return 'Delegated subuser';
-    return 'Principal account';
+  protected readonly roleKey = computed(() => {
+    if (this.isSuperAdmin()) return 'home.role.admin';
+    if (this.isDelegated()) return 'home.role.delegated';
+    return 'home.role.principal';
   });
 
-  protected readonly greeting = computed(() => {
+  protected readonly greetingKey = computed(() => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 19) return 'Good afternoon';
-    return 'Good evening';
+    if (hour < 12) return 'home.greeting.morning';
+    if (hour < 19) return 'home.greeting.afternoon';
+    return 'home.greeting.evening';
   });
 
-  protected readonly quickActions = computed<QuickAction[]>(() => {
-    if (this.isSuperAdmin()) {
-      return [
-        {
-          link: '/installation/installations',
-          label: 'Installation queue',
-          description: 'Assign installers and move work forward.',
-          icon: 'home_repair_service',
-        },
-        {
-          link: '/installation/devices',
-          label: 'Devices',
-          description: 'Provision, rotate and revoke credentials.',
-          icon: 'developer_board',
-        },
-        {
-          link: '/installation/installers',
-          label: 'Installers',
-          description: 'Keep the accredited directory current.',
-          icon: 'engineering',
-        },
-        {
-          link: '/support/tickets',
-          label: 'Support queue',
-          description: 'Reply to customers and assign technicians.',
-          icon: 'support_agent',
-        },
-        {
-          link: '/support/visits',
-          label: 'Visits',
-          description: 'Schedule and close on-site work.',
-          icon: 'event',
-        },
-        {
-          link: '/support/technicians',
-          label: 'Technicians',
-          description: 'Manage the support workforce.',
-          icon: 'badge',
-        },
-        {
-          link: '/support/guides',
-          label: 'Help center',
-          description: 'Publish knowledge articles for customers.',
-          icon: 'menu_book',
-        },
-      ];
-    }
-
-    if (this.isPrincipal()) {
-      return [
-        {
-          link: '/installation/properties',
-          label: 'Properties',
-          description: 'Register properties and supply points.',
-          icon: 'home_work',
-        },
-        {
-          link: '/installation/meters',
-          label: 'Supply points',
-          description: 'See every metering point on your account.',
-          icon: 'speed',
-        },
-        {
-          link: '/account/subusers',
-          label: 'Subusers',
-          description: 'Delegate access without sharing your password.',
-          icon: 'group',
-        },
-        {
-          link: '/payments/subscription',
-          label: 'Subscription',
-          description: 'Review your plan and renewal settings.',
-          icon: 'workspace_premium',
-        },
-        {
-          link: '/payments/history',
-          label: 'Payments',
-          description: 'Download invoices and settle pending orders.',
-          icon: 'receipt_long',
-        },
-        {
-          link: '/support/tickets',
-          label: 'Support',
-          description: 'Open a ticket or follow an existing one.',
-          icon: 'support_agent',
-        },
-      ];
-    }
-
-    return [
-      {
-        link: '/installation/meters',
-        label: 'My supply points',
-        description: 'Only the points granted by the principal account.',
-        icon: 'speed',
-      },
-      {
-        link: '/support/tickets',
-        label: 'Support',
-        description: 'Open a ticket for a granted supply point.',
-        icon: 'support_agent',
-      },
-      {
-        link: '/support/visits',
-        label: 'Visits',
-        description: 'Track scheduled technician visits.',
-        icon: 'event',
-      },
-      {
-        link: '/support/guides',
-        label: 'Help center',
-        description: 'Guides for devices, consumption and accounts.',
-        icon: 'menu_book',
-      },
-      {
-        link: '/account/profile',
-        label: 'Profile',
-        description: 'Keep your contact details up to date.',
-        icon: 'person',
-      },
-    ];
+  protected readonly todayLabel = computed(() => {
+    const label = new Date().toLocaleDateString(this.lang(), {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+    return label.charAt(0).toUpperCase() + label.slice(1);
   });
 
-  protected ticketStatusLabel(status: TicketStatus): string {
-    return status.replaceAll('_', ' ').toLowerCase();
+  protected readonly statusSlices = computed<StatusSlice[]>(() => {
+    const counts: Record<TicketStatus, number> = {
+      OPEN: 0,
+      VISIT_REQUESTED: 0,
+      RESOLVED: 0,
+      CLOSED: 0,
+    };
+    for (const ticket of this.ticketsStore.items()) counts[ticket.status] += 1;
+    return (Object.keys(counts) as TicketStatus[]).map((status) => ({
+      status,
+      labelKey: this.ticketStatusKey(status),
+      count: counts[status],
+      color: STATUS_COLORS[status],
+    }));
+  });
+
+  protected readonly ticketTotal = computed(() =>
+    this.statusSlices().reduce((sum, slice) => sum + slice.count, 0),
+  );
+
+  protected readonly donutBackground = computed(() => {
+    const total = this.ticketTotal();
+    if (total === 0) return 'conic-gradient(var(--smartgn-border-strong) 0 100%)';
+    let acc = 0;
+    const stops = this.statusSlices()
+      .filter((slice) => slice.count > 0)
+      .map((slice) => {
+        const from = (acc / total) * 100;
+        acc += slice.count;
+        const to = (acc / total) * 100;
+        return `${slice.color} ${from}% ${to}%`;
+      });
+    return `conic-gradient(${stops.join(', ')})`;
+  });
+
+  protected ticketStatusKey(status: TicketStatus): string {
+    return `home.status.${status}`;
   }
 
   protected meterLabel(ticket: Ticket): string {
@@ -219,8 +145,6 @@ export class DashboardPage implements OnInit {
       this.metersStore.load();
       this.subusersStore.load();
       this.devicesStore.load();
-      this.subscriptionStore.load();
-      this.paymentsStore.load();
     } else {
       this.metersStore.load();
     }

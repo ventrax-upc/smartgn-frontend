@@ -1,0 +1,102 @@
+{
+  "toolbar": {
+    "account": "Cuenta",
+    "profile": "Perfil",
+    "change-password": "Cambiar contraseña",
+    "logout": "Cerrar sesión",
+    "theme": "Tema",
+    "light-mode": "Modo claro",
+    "dark-mode": "Modo oscuro",
+    "language": "Idioma",
+    "role": {
+      "admin": "SuperAdmin",
+      "delegated": "Usuario delegado",
+      "owner": "Propietario de la cuenta"
+    }
+  },
+  "sidebar": {
+    "home": "Resumen",
+    "properties": "Propiedades",
+    "meters": "Puntos de suministro",
+    "devices": "Dispositivos",
+    "subusers": "Subusuarios",
+    "installations": "Instalaciones",
+    "installers": "Instaladores",
+    "subscription": "Suscripción",
+    "payments": "Pagos",
+    "tickets": "Tickets",
+    "visits": "Visitas",
+    "technicians": "Técnicos",
+    "guides": "Centro de ayuda",
+    "profile": "Perfil"
+  },
+  "shared": {
+    "sidebar-aria": "Navegación principal",
+    "confirm-dialog": {
+      "confirm": "Confirmar",
+      "cancel": "Cancelar"
+    }
+  },
+  "home": {
+    "eyebrow": "Resumen de SmartGN",
+    "greeting": {
+      "morning": "Buenos días",
+      "afternoon": "Buenas tardes",
+      "evening": "Buenas noches"
+    },
+    "subtitle": {
+      "admin": "Supervisa la operación, mantén las instalaciones en marcha y atiende la cola de soporte.",
+      "principal": "Tus propiedades, puntos de suministro y facturación en un solo lugar.",
+      "delegated": "Estás viendo los puntos de suministro que la cuenta principal te asignó."
+    },
+    "role": {
+      "admin": "SuperAdmin",
+      "delegated": "Subusuario delegado",
+      "principal": "Cuenta principal"
+    },
+    "stats": {
+      "openInstallations": "Instalaciones abiertas",
+      "activeDevices": "Dispositivos activos",
+      "installersAvailable": "Instaladores disponibles",
+      "openTickets": "Tickets abiertos",
+      "activeProperties": "Propiedades activas",
+      "supplyPoints": "Puntos de suministro",
+      "activeSubusers": "Subusuarios activos",
+      "grantedSupplyPoints": "Puntos de suministro asignados",
+      "scheduledVisits": "Visitas programadas"
+    },
+    "subusers": {
+      "title": "Subusuarios",
+      "manage": "Gestionar",
+      "description": "Delega el acceso a puntos de suministro seleccionados sin compartir tu contraseña.",
+      "active": "cuentas delegadas activas"
+    },
+    "support": {
+      "title": "Cobertura de soporte",
+      "visits": "Visitas",
+      "technicians": "técnicos disponibles",
+      "openVisits": "visitas abiertas"
+    },
+    "ticketStatus": {
+      "title": "Estado de tickets",
+      "open": "Abrir",
+      "tickets": "tickets"
+    },
+    "status": {
+      "OPEN": "Abierto",
+      "VISIT_REQUESTED": "Visita solicitada",
+      "RESOLVED": "Resuelto",
+      "CLOSED": "Cerrado"
+    },
+    "latest": {
+      "title": "Últimos tickets",
+      "viewAll": "Ver todos",
+      "emptyTitle": "Aún no hay tickets",
+      "emptyText": "Tu cola de soporte aparecerá aquí.",
+      "subject": "Asunto",
+      "supplyPoint": "Punto de suministro",
+      "status": "Estado",
+      "created": "Creado"
+    }
+  }
+}

@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { LanguageService } from './shared/application/language.service';
+import { ThemeService } from './shared/application/theme.service';
 
 /*
   App used to always render <app-layout/> directly, which meant every page
@@ -15,4 +17,8 @@ import { RouterOutlet } from '@angular/router';
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App {}
+export class App {
+  // Injecting the services is what applies the saved theme and language at startup.
+  private readonly theme = inject(ThemeService);
+  private readonly language = inject(LanguageService);
+}

@@ -38,7 +38,7 @@
 .layout-body {
   display: flex;
   flex: 1;
-  background: var(--smartgn-canvas);
+  background: transparent;
 }
 
 /*

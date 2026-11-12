@@ -6,7 +6,43 @@
     </a>
 
     <div class="toolbar-actions">
-      <span class="role-chip">{{ roleLabel() }}</span>
+      <span class="role-chip">{{ roleKey() | translate }}</span>
+
+      <button
+        mat-icon-button
+        class="icon-button"
+        type="button"
+        [attr.aria-label]="(themeMode() === 'dark' ? 'toolbar.light-mode' : 'toolbar.dark-mode') | translate"
+        [title]="(themeMode() === 'dark' ? 'toolbar.light-mode' : 'toolbar.dark-mode') | translate"
+        (click)="toggleTheme()"
+      >
+        <mat-icon>{{ themeMode() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      </button>
+
+      <button
+        mat-icon-button
+        class="icon-button"
+        type="button"
+        [attr.aria-label]="'toolbar.language' | translate"
+        [title]="'toolbar.language' | translate"
+        [matMenuTriggerFor]="languageMenu"
+      >
+        <mat-icon>translate</mat-icon>
+      </button>
+
+      <mat-menu #languageMenu="matMenu">
+        @for (language of languages; track language.code) {
+          <button
+            mat-menu-item
+            type="button"
+            [class.language-active]="language.code === currentLang()"
+            (click)="setLanguage(language.code)"
+          >
+            <mat-icon>{{ language.code === currentLang() ? 'check' : '' }}</mat-icon>
+            <span>{{ language.label }}</span>
+          </button>
+        }
+      </mat-menu>
 
       <button
         mat-icon-button
@@ -22,7 +58,7 @@
         <div class="account-menu-header">
           <span class="account-menu-name">{{ displayName() }}</span>
           <span class="account-menu-email">{{ currentUser()?.email }}</span>
-          <span class="account-menu-role">{{ roleLabel() }}</span>
+          <span class="account-menu-role">{{ roleKey() | translate }}</span>
         </div>
 
         <button mat-menu-item routerLink="/account/profile">

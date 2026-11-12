@@ -1,6 +1,8 @@
 .toolbar {
-  background-color: var(--smartgn-surface);
-  border-bottom: 1px solid var(--smartgn-border);
+  background-color: var(--smartgn-glass);
+  -webkit-backdrop-filter: blur(var(--smartgn-blur));
+  backdrop-filter: blur(var(--smartgn-blur));
+  border-bottom: 1px solid var(--smartgn-glass-border);
 }
 
 .toolbar-row {
@@ -116,5 +118,10 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  color: var(--smartgn-primary);
+}
+
+.language-active {
+  font-weight: 650;
   color: var(--smartgn-primary);
 }

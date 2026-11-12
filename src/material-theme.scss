@@ -17,8 +17,10 @@ html {
 }
 
 body {
-  color-scheme: dark;
   background-color: var(--smartgn-canvas);
+  background-image: var(--smartgn-canvas-gradient);
+  background-attachment: fixed;
+  background-size: cover;
   color: var(--smartgn-ink);
   font: var(--mat-sys-body-medium);
   margin: 0;
@@ -40,7 +42,7 @@ body {
   --smartgn-primary-soft: rgba(110, 231, 160, 0.14);
   --smartgn-ink: #e6f0e9;
   --smartgn-ink-strong: #f8fafc;
-  --smartgn-muted: #94a3b8;
+  --smartgn-muted: #a3b3a9;
   --smartgn-border: #26352b;
   --smartgn-border-strong: #385244;
   --smartgn-surface: #111914;
@@ -53,21 +55,112 @@ body {
   --smartgn-chip-text: #cbd5e1;
   --smartgn-danger: #f87171;
   --smartgn-danger-soft: rgba(248, 113, 113, 0.14);
-  --smartgn-warning: #fbbf24;
-  --smartgn-warning-soft: rgba(251, 191, 36, 0.14);
+  --smartgn-warning: #f59e68;
+  --smartgn-warning-soft: rgba(245, 158, 104, 0.14);
   --smartgn-info: #60a5fa;
   --smartgn-info-soft: rgba(96, 165, 250, 0.14);
   --smartgn-success-soft: rgba(110, 231, 160, 0.12);
+  --smartgn-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+
+  /* Soft green mesh gradient + translucent "glass" surfaces (dark variant). */
+  --smartgn-canvas-gradient:
+    radial-gradient(55% 45% at 0% 45%, rgba(22, 78, 70, 0.5), transparent 70%),
+    radial-gradient(50% 45% at 100% 90%, rgba(22, 78, 70, 0.4), transparent 70%),
+    radial-gradient(60% 45% at 50% 0%, rgba(31, 75, 44, 0.7), transparent 70%),
+    radial-gradient(50% 45% at 60% 55%, rgba(35, 85, 70, 0.3), transparent 70%),
+    linear-gradient(160deg, #09120e 0%, #0e1a14 100%);
+  --smartgn-glass: rgba(12, 24, 18, 0.72);
+  --smartgn-glass-border: rgba(180, 215, 200, 0.1);
+  --smartgn-blur: 12px;
+  --smartgn-accent-from: #1f4b2c;
+  --smartgn-accent-to: #2d6a4f;
+}
+
+/*
+  Light mode. ThemeService sets <html data-theme="light">; every --smartgn-*
+  token is swapped here, and Material's own system tokens follow through the
+  second mat.theme include. The accent used for text/icons becomes the deep
+  brand green so it stays readable on white surfaces.
+*/
+html[data-theme='light'] {
+  color-scheme: light;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$green-palette,
+        tertiary: mat.$cyan-palette,
+        theme-type: light,
+      ),
+    )
+  );
+
+  --smartgn-primary: #17622a;
+  --smartgn-primary-strong: #1e7b2f;
+  --smartgn-primary-dark: #145c22;
+  --smartgn-primary-soft: rgba(30, 123, 47, 0.12);
+  --smartgn-ink: #1f2a24;
+  --smartgn-ink-strong: #0b1a10;
+  --smartgn-muted: #46564c;
+  --smartgn-border: #e3e0dd;
+  --smartgn-border-strong: #c9c5c0;
+  --smartgn-surface: #ffffff;
+  --smartgn-surface-raised: #f6f4f2;
+  --smartgn-surface-soft: #faf9f8;
+  --smartgn-canvas: #d6e2da;
+  --smartgn-input: #ffffff;
+  --smartgn-hover: #eaf1ec;
+  --smartgn-chip: #ecefec;
+  --smartgn-chip-text: #3f4d44;
+  --smartgn-danger: #b91c1c;
+  --smartgn-danger-soft: rgba(185, 28, 28, 0.1);
+  --smartgn-warning: #b45309;
+  --smartgn-warning-soft: rgba(180, 83, 9, 0.12);
+  --smartgn-info: #1d4ed8;
+  --smartgn-info-soft: rgba(29, 78, 216, 0.1);
+  --smartgn-success-soft: rgba(30, 123, 47, 0.1);
+  --smartgn-shadow: 0 4px 16px rgba(31, 42, 36, 0.08);
+
+  /* Soft green -> lime -> mint mesh gradient + frosted glass surfaces. */
+  --smartgn-canvas-gradient:
+    radial-gradient(60% 55% at 0% 45%, rgba(160, 205, 190, 0.75), transparent 72%),
+    radial-gradient(55% 50% at 100% 90%, rgba(160, 205, 190, 0.7), transparent 72%),
+    radial-gradient(60% 40% at 50% 0%, rgba(31, 75, 44, 0.22), transparent 70%),
+    radial-gradient(55% 50% at 55% 50%, rgba(140, 185, 160, 0.45), transparent 72%),
+    linear-gradient(160deg, #d3e0d8 0%, #e4ece7 100%);
+  --smartgn-glass: rgba(255, 255, 255, 0.72);
+  --smartgn-glass-border: rgba(255, 255, 255, 0.8);
+  --smartgn-blur: 12px;
+  --smartgn-accent-from: #1f4b2c;
+  --smartgn-accent-to: #2d6a4f;
+}
+
+/*
+  Users who ask for reduced transparency (or browsers without backdrop-filter)
+  get solid surfaces, so text never depends on what is behind a card.
+*/
+@media (prefers-reduced-transparency: reduce) {
+  :root,
+  html[data-theme='light'] {
+    --smartgn-glass: var(--smartgn-surface);
+    --smartgn-blur: 0px;
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root,
+  html[data-theme='light'] {
+    --smartgn-glass: var(--smartgn-surface);
+  }
 }
 
 .toolbar {
   @include mat.icon-overrides((
-    color: #94a3b8,
+    color: var(--smartgn-muted),
   ));
 }
 
 .sidebar-content {
   @include mat.icon-overrides((
-    color: #94a3b8,
+    color: var(--smartgn-muted),
   ));
 }
