@@ -1,11 +1,19 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { Observable, forkJoin, map, of, switchMap } from 'rxjs';
 import { DevicesApi } from '../infrastructure/devices-api';
 import { Device, DeviceStatus, ProvisioningReceipt } from '../domain/model/device.entity';
+import { SupplyPoint } from '../domain/model/supply-point.entity';
 import { RegisterDeviceResource } from '../infrastructure/device-response';
+import { PropertiesApi } from '../infrastructure/properties-api';
+import { SupplyPointsApi } from '../infrastructure/supply-points-api';
+import { AuthStore } from '../../iam/application/auth.store';
 
 @Injectable({ providedIn: 'root' })
 export class DevicesStore {
   private readonly api = inject(DevicesApi);
+  private readonly auth = inject(AuthStore);
+  private readonly propertiesApi = inject(PropertiesApi);
+  private readonly supplyPointsApi = inject(SupplyPointsApi);
 
   private readonly itemsSignal = signal<Device[]>([]);
   readonly items = this.itemsSignal.asReadonly();
@@ -33,7 +41,10 @@ export class DevicesStore {
   load(status?: DeviceStatus): void {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
-    this.api.getAll({ status }).subscribe({
+    const request$ = this.auth.isSuperAdmin()
+      ? this.api.getAll({ status })
+      : this.loadForOwner(status);
+    request$.subscribe({
       next: (items) => {
         this.itemsSignal.set(items);
         this.loadingSignal.set(false);
@@ -47,7 +58,10 @@ export class DevicesStore {
 
   register(
     input: RegisterDeviceResource,
-    callbacks?: { onSuccess?: (receipt: ProvisioningReceipt) => void; onError?: (message: string) => void },
+    callbacks?: {
+      onSuccess?: (receipt: ProvisioningReceipt) => void;
+      onError?: (message: string) => void;
+    },
   ): void {
     this.savingSignal.set(true);
     this.api.register(input).subscribe({
@@ -66,7 +80,10 @@ export class DevicesStore {
 
   rotate(
     device: Device,
-    callbacks?: { onSuccess?: (receipt: ProvisioningReceipt) => void; onError?: (message: string) => void },
+    callbacks?: {
+      onSuccess?: (receipt: ProvisioningReceipt) => void;
+      onError?: (message: string) => void;
+    },
   ): void {
     this.savingSignal.set(true);
     this.api.rotateCredentials(device.id).subscribe({
@@ -105,6 +122,27 @@ export class DevicesStore {
     this.receiptSignal.set(null);
   }
 
+  /*
+    The backend only lets SuperAdmin list every device. An account owner must
+    query by supply point, so we walk properties -> supply points -> devices.
+  */
+  private loadForOwner(status?: DeviceStatus): Observable<Device[]> {
+    return this.propertiesApi.getAll().pipe(
+      switchMap((properties) =>
+        properties.length
+          ? forkJoin(properties.map((property) => this.supplyPointsApi.getAll(property.id)))
+          : of<SupplyPoint[][]>([]),
+      ),
+      map((groups) => groups.flat()),
+      switchMap((points) =>
+        points.length
+          ? forkJoin(points.map((point) => this.api.getAll({ pointId: point.id, status })))
+          : of<Device[][]>([]),
+      ),
+      map((groups) => groups.flat()),
+    );
+  }
+
   private replace(updated: Device): void {
     this.itemsSignal.update((items) =>
       items.map((item) => (item.id === updated.id ? updated : item)),
@@ -112,8 +150,6 @@ export class DevicesStore {
   }
 
   private messageFrom(err: unknown): string {
-    return err instanceof Error && err.message
-      ? err.message
-      : 'Could not complete the operation.';
+    return err instanceof Error && err.message ? err.message : 'Could not complete the operation.';
   }
 }
