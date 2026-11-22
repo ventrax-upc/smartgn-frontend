@@ -123,6 +123,13 @@ export interface AssignmentResource {
 
 export interface AssignmentInputResource {
   technicianId: string;
+  reason?: string;
+}
+
+export interface DiagnosisInputResource {
+  summary: string;
+  finalCost: number;
+  performedWork?: string;
 }
 
 export interface DiagnosisResource {
@@ -132,11 +139,7 @@ export interface DiagnosisResource {
   finalCost: number;
   billingReferenceId: string | null;
   createdAt: string;
-}
-
-export interface DiagnosisInputResource {
-  summary: string;
-  finalCost: number;
+  performedWork?: string;
 }
 
 export type ArticleResponse = ArticleResource[];

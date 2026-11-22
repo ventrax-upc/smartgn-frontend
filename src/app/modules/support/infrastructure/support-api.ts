@@ -74,14 +74,14 @@ export class SupportApi {
   /* Articles ---------------------------------------------------------- */
 
   getArticles(): Observable<KnowledgeArticle[]> {
-    return this.http.get<ArticleResource[]>(`${this.url}/articles`).pipe(
+    return this.http.get<ArticleResource[]>(`${this.url}/knowledge-articles`).pipe(
       map((resources) => this.articleAssembler.toEntitiesFromResponse(resources)),
       catchError((err) => throwError(() => this.toError(err, 'Could not load the help articles.'))),
     );
   }
 
   createArticle(input: ArticleInputResource): Observable<KnowledgeArticle> {
-    return this.http.post<ArticleResource>(`${this.url}/articles`, input).pipe(
+    return this.http.post<ArticleResource>(`${this.url}/knowledge-articles`, input).pipe(
       map((resource) => this.articleAssembler.toEntityFromResource(resource)),
       catchError((err) => throwError(() => this.toError(err, 'Could not publish the article.'))),
     );
@@ -127,7 +127,7 @@ export class SupportApi {
   }
 
   closeTicket(ticketId: string): Observable<Ticket> {
-    return this.http.put<TicketResource>(`${this.url}/tickets/${ticketId}/close`, {}).pipe(
+    return this.http.post<TicketResource>(`${this.url}/tickets/${ticketId}/close`, {}).pipe(
       map((resource) => this.ticketAssembler.toEntityFromResource(resource)),
       catchError((err) => throwError(() => this.toError(err, 'Could not close the ticket.'))),
     );
@@ -178,12 +178,10 @@ export class SupportApi {
   }
 
   rateTicket(ticketId: string, input: RatingInputResource): Observable<ServiceRating> {
-    return this.http
-      .post<RatingResource>(`${this.url}/tickets/${ticketId}/rating`, input)
-      .pipe(
-        map((resource) => this.ratingAssembler.toEntityFromResource(resource)),
-        catchError((err) => throwError(() => this.toError(err, 'Could not submit the rating.'))),
-      );
+    return this.http.post<RatingResource>(`${this.url}/tickets/${ticketId}/rating`, input).pipe(
+      map((resource) => this.ratingAssembler.toEntityFromResource(resource)),
+      catchError((err) => throwError(() => this.toError(err, 'Could not submit the rating.'))),
+    );
   }
 
   /* Visits ------------------------------------------------------------ */
@@ -196,12 +194,10 @@ export class SupportApi {
   }
 
   requestVisit(ticketId: string, input: VisitInputResource): Observable<Visit> {
-    return this.http
-      .post<VisitResource>(`${this.url}/tickets/${ticketId}/visits`, input)
-      .pipe(
-        map((resource) => this.visitAssembler.toEntityFromResource(resource)),
-        catchError((err) => throwError(() => this.toError(err, 'Could not request the visit.'))),
-      );
+    return this.http.post<VisitResource>(`${this.url}/tickets/${ticketId}/visits`, input).pipe(
+      map((resource) => this.visitAssembler.toEntityFromResource(resource)),
+      catchError((err) => throwError(() => this.toError(err, 'Could not request the visit.'))),
+    );
   }
 
   assignTechnician(
@@ -209,7 +205,10 @@ export class SupportApi {
     input: AssignmentInputResource,
   ): Observable<TechnicianAssignment> {
     return this.http
-      .post<AssignmentResource>(`${this.url}/visits/${visitId}/assignments`, input)
+      .post<AssignmentResource>(`${this.url}/visits/${visitId}/assign`, {
+        technicianId: input.technicianId,
+        reason: input.reason ?? 'Assigned from the admin panel',
+      })
       .pipe(
         map((resource) => this.assignmentAssembler.toEntityFromResource(resource)),
         catchError((err) =>
@@ -230,12 +229,14 @@ export class SupportApi {
 
   completeVisit(visitId: string, input: DiagnosisInputResource): Observable<VisitDiagnosis> {
     return this.http
-      .post<DiagnosisResource>(`${this.url}/visits/${visitId}/diagnosis`, input)
+      .post<DiagnosisResource>(`${this.url}/visits/${visitId}/complete`, {
+        diagnosis: input.summary,
+        performedWork: input.performedWork ?? input.summary,
+        finalCost: input.finalCost,
+      })
       .pipe(
         map((resource) => this.diagnosisAssembler.toEntityFromResource(resource)),
-        catchError((err) =>
-          throwError(() => this.toError(err, 'Could not complete the visit.')),
-        ),
+        catchError((err) => throwError(() => this.toError(err, 'Could not complete the visit.'))),
       );
   }
 
@@ -243,7 +244,8 @@ export class SupportApi {
     const httpErr = err as
       | { error?: { details?: string; message?: string }; message?: string; status?: number }
       | undefined;
-    const message = httpErr?.error?.details ?? httpErr?.error?.message ?? httpErr?.message ?? fallback;
+    const message =
+      httpErr?.error?.details ?? httpErr?.error?.message ?? httpErr?.message ?? fallback;
     const error = new Error(message) as Error & { status?: number };
     error.status = httpErr?.status;
     return error;
