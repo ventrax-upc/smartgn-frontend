@@ -2,18 +2,20 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { SubscriptionStore } from '../../../application/subscription.store';
 import { PaymentMethodsStore } from '../../../application/payment-methods.store';
 
 @Component({
   selector: 'app-subscription',
-  imports: [CurrencyPipe, DatePipe, RouterLink, MatIcon],
+  imports: [CurrencyPipe, DatePipe, RouterLink, MatIcon, TranslatePipe],
   templateUrl: './subscription.html',
   styleUrl: './subscription.css',
 })
 export class SubscriptionPage implements OnInit {
   private readonly store = inject(SubscriptionStore);
   private readonly methodsStore = inject(PaymentMethodsStore);
+  private readonly translate = inject(TranslateService);
 
   protected readonly subscription = this.store.subscription;
   protected readonly loading = this.store.loading;
@@ -46,7 +48,8 @@ export class SubscriptionPage implements OnInit {
       return;
     }
     this.store.subscribePro(methodId, this.autoRenew(), {
-      onSuccess: () => this.success.set('Pro plan activated. Your period starts today.'),
+      onSuccess: () =>
+        this.success.set(this.translate.instant('subscription.messages.activatedSuccess')),
     });
   }
 
@@ -56,7 +59,13 @@ export class SubscriptionPage implements OnInit {
     if (!this.subscription()?.proActive) return;
     this.store.setAutoRenew(enabled, {
       onSuccess: () =>
-        this.success.set(enabled ? 'Auto-renewal enabled.' : 'Auto-renewal disabled.'),
+        this.success.set(
+          this.translate.instant(
+            enabled
+              ? 'subscription.messages.autoRenewEnabled'
+              : 'subscription.messages.autoRenewDisabled',
+          ),
+        ),
     });
   }
 }

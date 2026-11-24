@@ -11,7 +11,8 @@
     "role": {
       "admin": "SuperAdmin",
       "delegated": "Usuario delegado",
-      "owner": "Propietario de la cuenta"
+      "owner": "Propietario de la cuenta",
+      "home": "Inicio de SmartGN"
     }
   },
   "sidebar": {
@@ -35,6 +36,63 @@
     "confirm-dialog": {
       "confirm": "Confirmar",
       "cancel": "Cancelar"
+    }
+  },
+  "common": {
+    "refresh": "Actualizar"
+  },
+  "payments": {
+    "methods": "Métodos de pago",
+    "methodLabel": "Método de pago",
+    "useDefaultCard": "Usar tarjeta predeterminada",
+    "defaultSuffix": "(predeterminada)",
+    "addCard": "Agregar tarjeta",
+    "errors": {
+      "operationFailed": "No se pudo completar la operación."
+    }
+  },
+  "subscription": {
+    "eyebrow": "Facturación",
+    "title": "Suscripción",
+    "subtitle": "Administra tu plan SmartGN, revisa lo que incluye y controla la renovación automática.",
+    "loading": "Cargando suscripción...",
+    "currentPlan": "Plan actual",
+    "statusActive": "Activo",
+    "statusBasic": "Básico",
+    "perMonth": "/ mes",
+    "priceComparisonPrefix": "Precio de referencia de soporte técnico:",
+    "priceComparisonMiddle": "Los clientes Pro ahorran",
+    "priceComparisonSuffix": "al mes.",
+    "billingPeriod": "Período de facturación",
+    "technicalCoverage": "Cobertura técnica",
+    "coverageValue": "{{ percent }}% de la mano de obra de la visita",
+    "installation": "Instalación",
+    "installationCompleted": "Completada",
+    "installationPending": "Pendiente",
+    "benefits": {
+      "monitoring": "Funciones de monitoreo Pro para cada punto de suministro",
+      "prioritySupport": "Soporte prioritario y visitas técnicas",
+      "invoices": "Facturas mensuales y comprobantes en tu cuenta"
+    },
+    "activatePro": "Activar Pro",
+    "installationRequired": "Se requiere una instalación completada antes de activar Pro.",
+    "chooseCardHint": "Elige la tarjeta que se usará para el primer cobro mensual.",
+    "autoRenewLabel": "Renovar automáticamente cada mes",
+    "noPaymentMethodWarning": "Agrega un método de pago antes de activar Pro.",
+    "activating": "Activando...",
+    "activateAction": "Activar Pro",
+    "autoRenewTitle": "Renovación automática",
+    "autoRenewDescription": "Mantén Pro activo sin pagos manuales. La renovación requiere una tarjeta recurrente autorizada.",
+    "expirationWarning": "Pro vencerá el {{ date }} a menos que renueves manualmente.",
+    "billingActivityTitle": "Actividad de facturación",
+    "billingActivityDescription": "Las facturas, comprobantes y cargos pendientes de visitas técnicas están en tu historial de pagos.",
+    "viewPayments": "Ver pagos",
+    "emptyTitle": "No se encontró ninguna suscripción",
+    "emptyText": "La suscripción de tu cuenta se inicializa después de la compra.",
+    "messages": {
+      "activatedSuccess": "Plan Pro activado. Tu período comienza hoy.",
+      "autoRenewEnabled": "Renovación automática activada.",
+      "autoRenewDisabled": "Renovación automática desactivada."
     }
   },
   "home": {
@@ -97,6 +155,55 @@
       "supplyPoint": "Punto de suministro",
       "status": "Estado",
       "created": "Creado"
+    }
+  },
+  "installation": {
+    "properties": {
+      "eyebrow": "Instalaciones · Propiedades",
+      "title": "Mis propiedades",
+      "description": "Registra las viviendas, locales comerciales o edificios donde se instalarán dispositivos SmartGN. Cada propiedad agrupa sus propios puntos de suministro.",
+      "new": "Nueva propiedad",
+      "form": {
+        "createTitle": "Registrar una propiedad",
+        "editTitle": "Editar propiedad",
+        "description": "La dirección ayuda al equipo de instalación a encontrar la ubicación exacta.",
+        "name": "Nombre de la propiedad",
+        "namePlaceholder": "Casa Arequipa",
+        "type": "Tipo de propiedad",
+        "house": "Vivienda",
+        "commercial": "Local comercial",
+        "building": "Edificio",
+        "address": "Dirección",
+        "addressPlaceholder": "Av. Arequipa 1234, Lima",
+        "cancel": "Cancelar",
+        "saving": "Guardando...",
+        "save": "Guardar propiedad"
+      },
+      "list": {
+        "title": "Propiedades registradas",
+        "active": "activas",
+        "loading": "Cargando propiedades...",
+        "emptyTitle": "Aún no tienes propiedades",
+        "emptyDescription": "Registra tu primera propiedad para solicitar una instalación y comenzar a monitorearla.",
+        "property": "Propiedad",
+        "type": "Tipo",
+        "address": "Dirección",
+        "status": "Estado",
+        "activeStatus": "Activa",
+        "supplyPoints": "Puntos de suministro",
+        "edit": "Editar",
+        "deactivate": "Desactivar"
+      },
+      "messages": {
+        "created": "Propiedad registrada.",
+        "updated": "Propiedad actualizada.",
+        "deactivated": "Propiedad desactivada."
+      },
+      "confirmation": {
+        "title": "Desactivar propiedad",
+        "message": "¿Deseas desactivar esta propiedad? Su historial y puntos de suministro se conservarán.",
+        "confirm": "Desactivar"
+      }
     }
   }
 }

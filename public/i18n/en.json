@@ -11,7 +11,8 @@
     "role": {
       "admin": "SuperAdmin",
       "delegated": "Delegated user",
-      "owner": "Account owner"
+      "owner": "Account owner",
+      "home": "SmartGN home"
     }
   },
   "sidebar": {
@@ -35,6 +36,63 @@
     "confirm-dialog": {
       "confirm": "Confirm",
       "cancel": "Cancel"
+    }
+  },
+  "common": {
+    "refresh": "Refresh"
+  },
+  "payments": {
+    "methods": "Payment methods",
+    "methodLabel": "Payment method",
+    "useDefaultCard": "Use default card",
+    "defaultSuffix": "(default)",
+    "addCard": "Add a card",
+    "errors": {
+      "operationFailed": "Could not complete the operation."
+    }
+  },
+  "subscription": {
+    "eyebrow": "Billing",
+    "title": "Subscription",
+    "subtitle": "Manage your SmartGN plan, review what is included and control automatic renewal.",
+    "loading": "Loading subscription...",
+    "currentPlan": "Current plan",
+    "statusActive": "Active",
+    "statusBasic": "Basic",
+    "perMonth": "/ month",
+    "priceComparisonPrefix": "Reference technical support price:",
+    "priceComparisonMiddle": "Pro customers save",
+    "priceComparisonSuffix": "per month.",
+    "billingPeriod": "Billing period",
+    "technicalCoverage": "Technical coverage",
+    "coverageValue": "{{ percent }}% of visit labor",
+    "installation": "Installation",
+    "installationCompleted": "Completed",
+    "installationPending": "Pending",
+    "benefits": {
+      "monitoring": "Pro monitoring features for every supply point",
+      "prioritySupport": "Priority support and technician visits",
+      "invoices": "Monthly invoices and receipts in your account"
+    },
+    "activatePro": "Activate Pro",
+    "installationRequired": "A completed installation is required before activating Pro.",
+    "chooseCardHint": "Choose the card used for the first monthly charge.",
+    "autoRenewLabel": "Renew automatically every month",
+    "noPaymentMethodWarning": "Add a payment method before activating Pro.",
+    "activating": "Activating...",
+    "activateAction": "Activate Pro",
+    "autoRenewTitle": "Auto-renewal",
+    "autoRenewDescription": "Keep Pro active without manual payments. Renewal requires an authorized recurring card.",
+    "expirationWarning": "Pro will expire on {{ date }} unless you renew manually.",
+    "billingActivityTitle": "Billing activity",
+    "billingActivityDescription": "Invoices, receipts and pending technical visit charges live in your payment history.",
+    "viewPayments": "View payments",
+    "emptyTitle": "No subscription found",
+    "emptyText": "Your account subscription is initialized after purchase.",
+    "messages": {
+      "activatedSuccess": "Pro plan activated. Your period starts today.",
+      "autoRenewEnabled": "Auto-renewal enabled.",
+      "autoRenewDisabled": "Auto-renewal disabled."
     }
   },
   "home": {
@@ -97,6 +155,55 @@
       "supplyPoint": "Supply point",
       "status": "Status",
       "created": "Opened"
+    }
+  },
+  "installation": {
+    "properties": {
+      "eyebrow": "Installation · Properties",
+      "title": "My properties",
+      "description": "Register the houses, commercial locations or buildings where SmartGN devices will be installed. Each property groups its own supply points.",
+      "new": "New property",
+      "form": {
+        "createTitle": "Register a property",
+        "editTitle": "Edit property",
+        "description": "The address helps the installation team find the exact location.",
+        "name": "Property name",
+        "namePlaceholder": "Casa Arequipa",
+        "type": "Property type",
+        "house": "House",
+        "commercial": "Commercial",
+        "building": "Building",
+        "address": "Address",
+        "addressPlaceholder": "Av. Arequipa 1234, Lima",
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "save": "Save property"
+      },
+      "list": {
+        "title": "Registered properties",
+        "active": "active",
+        "loading": "Loading properties...",
+        "emptyTitle": "No properties yet",
+        "emptyDescription": "Register your first property to request an installation and start monitoring.",
+        "property": "Property",
+        "type": "Type",
+        "address": "Address",
+        "status": "Status",
+        "activeStatus": "Active",
+        "supplyPoints": "Supply points",
+        "edit": "Edit",
+        "deactivate": "Deactivate"
+      },
+      "messages": {
+        "created": "Property registered.",
+        "updated": "Property updated.",
+        "deactivated": "Property deactivated."
+      },
+      "confirmation": {
+        "title": "Deactivate property",
+        "message": "Do you want to deactivate this property? Its history and supply points will be preserved.",
+        "confirm": "Deactivate"
+      }
     }
   }
 }

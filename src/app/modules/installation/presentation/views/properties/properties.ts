@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { RouterLink } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
@@ -9,7 +10,7 @@ import { ConfirmDialog } from '../../../../../shared/presentation/components/con
 
 @Component({
   selector: 'app-properties',
-  imports: [ReactiveFormsModule, RouterLink, MatIcon],
+  imports: [ReactiveFormsModule, RouterLink, MatIcon, TranslatePipe],
   templateUrl: './properties.html',
   styleUrl: './properties.css',
 })
@@ -27,7 +28,9 @@ export class PropertiesPage implements OnInit {
   protected readonly success = signal<string | null>(null);
 
   protected readonly formTitle = computed(() =>
-    this.editing() ? 'Edit property' : 'Register a property',
+    this.editing()
+      ? 'installation.properties.form.editTitle'
+      : 'installation.properties.form.createTitle',
   );
 
   protected readonly form = new FormGroup({
@@ -42,7 +45,11 @@ export class PropertiesPage implements OnInit {
 
   protected startCreate(): void {
     this.editing.set(null);
-    this.form.reset({ name: '', address: '', propertyType: 'HOUSE' });
+    this.form.reset({
+      name: '',
+      address: '',
+      propertyType: 'HOUSE',
+    });
     this.showForm.set(true);
     this.success.set(null);
   }
@@ -68,36 +75,48 @@ export class PropertiesPage implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
+
     const payload = {
       name: this.form.getRawValue().name ?? '',
       address: this.form.getRawValue().address ?? '',
       propertyType: this.form.getRawValue().propertyType ?? 'HOUSE',
     };
+
     const editing = this.editing();
+
     const callbacks = {
       onSuccess: () => {
         this.showForm.set(false);
         this.editing.set(null);
-        this.success.set(editing ? 'Property updated.' : 'Property registered.');
+        this.success.set(
+          editing
+            ? 'installation.properties.messages.updated'
+            : 'installation.properties.messages.created',
+        );
       },
     };
-    if (editing) this.store.update(editing, payload, callbacks);
-    else this.store.create(payload, callbacks);
+
+    if (editing) {
+      this.store.update(editing, payload, callbacks);
+    } else {
+      this.store.create(payload, callbacks);
+    }
   }
 
   protected deactivate(property: Property): void {
     const ref = this.dialog.open(ConfirmDialog, {
       data: {
-        titleKey: 'Deactivate property',
-        messageKey: `Deactivate "${property.name}"? Its history and supply points are preserved.`,
-        confirmKey: 'Deactivate',
+        titleKey: 'installation.properties.confirmation.title',
+        messageKey: 'installation.properties.confirmation.message',
+        confirmKey: 'installation.properties.confirmation.confirm',
         iconName: 'domain_disabled',
       },
     });
+
     ref.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
         this.store.deactivate(property, {
-          onSuccess: () => this.success.set('Property deactivated.'),
+          onSuccess: () => this.success.set('installation.properties.messages.deactivated'),
         });
       }
     });
