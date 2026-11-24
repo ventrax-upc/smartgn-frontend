@@ -1,10 +1,12 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import { PaymentOrder } from '../domain/model/payment-order.entity';
 import { PaymentApi } from '../infrastructure/payment-api';
 
 @Injectable({ providedIn: 'root' })
 export class PaymentsStore {
   private readonly api = inject(PaymentApi);
+  private readonly translate = inject(TranslateService);
 
   private readonly itemsSignal = signal<PaymentOrder[]>([]);
   readonly items = this.itemsSignal.asReadonly();
@@ -105,8 +107,9 @@ export class PaymentsStore {
   }
 
   private messageFrom(err: unknown): string {
-    return err instanceof Error && err.message
-      ? err.message
-      : 'Could not complete the operation.';
+    if (err instanceof Error && err.message) {
+      return this.translate.instant(err.message);
+    }
+    return this.translate.instant('payments.errors.operationFailed');
   }
 }
