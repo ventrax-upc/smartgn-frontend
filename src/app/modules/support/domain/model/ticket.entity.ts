@@ -5,7 +5,7 @@ import { BaseEntity } from '../../../../shared/domain/model/base-entity';
   The backend returns the aggregate directly, so the HTTP contract uses
   ticketId, principalAccountId and meterId.
 */
-export type TicketStatus = 'OPEN' | 'VISIT_REQUESTED' | 'RESOLVED' | 'CLOSED';
+export type TicketStatus = 'OPEN' | 'WRITTEN_SUPPORT' | 'VISIT_REQUESTED' | 'RESOLVED' | 'CLOSED';
 
 export class Ticket implements BaseEntity {
   private readonly _id: string;
@@ -77,7 +77,7 @@ export class Ticket implements BaseEntity {
   }
 
   get isOpen(): boolean {
-    return this._status === 'OPEN' || this._status === 'VISIT_REQUESTED';
+    return this._status !== 'RESOLVED' && !this.isClosed;
   }
 
   get isClosed(): boolean {
@@ -85,6 +85,6 @@ export class Ticket implements BaseEntity {
   }
 
   get canBeRated(): boolean {
-    return this._status === 'RESOLVED' || this._status === 'CLOSED';
+    return this.isClosed;
   }
 }

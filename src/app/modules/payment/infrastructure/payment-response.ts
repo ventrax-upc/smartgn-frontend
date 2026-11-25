@@ -67,7 +67,7 @@ export interface PaymentOrderResource extends BaseResource {
   reason: PaymentReason;
   amount: number;
   currency: string;
-  status: PaymentStatus;
+  status: PaymentStatus | 'CONFIRMED' | 'DECLINED';
   created_at: string;
   confirmed_at: string | null;
   lines: PaymentLineResource[];

@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { Layout } from './shared/presentation/components/layout/layout';
 import { authGuard } from './modules/iam/presentation/guards/auth.guard';
+import { userGuard } from './modules/iam/presentation/guards/user.guard';
 import { IAM_ROUTES } from './modules/iam/presentation/iam.routes';
 
 /*
@@ -23,6 +24,15 @@ export const routes: Routes = [
           import('./modules/iam/presentation/views/role-redirect/role-redirect').then(
             (m) => m.RoleRedirect,
           ),
+      },
+      {
+        path: 'monitoring',
+        canActivate: [userGuard],
+        loadComponent: () => import('./modules/analytics/presentation/monitoring').then((m) => m.MonitoringPage),
+      },
+      {
+        path: 'alerts',
+        loadComponent: () => import('./modules/analytics/presentation/alerts').then((m) => m.AlertsPage),
       },
       {
         path: '',

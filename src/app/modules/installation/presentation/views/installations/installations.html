@@ -1,83 +1,82 @@
 <div class="page">
   <header class="page-header">
     <div class="page-heading">
-      <span class="eyebrow">Operations · SuperAdmin</span>
-      <h1 class="page-title">Installations</h1>
+      <span class="eyebrow">{{ 'ui.operationsSuperadmin' | translate }}</span>
+      <h1 class="page-title">{{ 'ui.installations' | translate }}</h1>
       <p class="page-subtitle">
-        Assign accredited installers, move work through its lifecycle and keep every
-        state change traceable.
+        {{ 'ui.assignAccreditedInstallersMoveWorkThroughIts' | translate }}
       </p>
     </div>
     <div class="header-actions">
       <button class="btn btn-secondary" type="button" (click)="reload()">
         <mat-icon>refresh</mat-icon>
-        Refresh
+        {{ 'ui.refresh' | translate }}
       </button>
     </div>
   </header>
 
   @if (success(); as message) {
-    <div class="alert alert-success">{{ message }}</div>
+    <div class="alert alert-success">{{ message | translate }}</div>
   }
   @if (error(); as message) {
-    <div class="alert alert-error">{{ message }}</div>
+    <div class="alert alert-error">{{ message | translate }}</div>
   }
 
   <div class="grid grid-4">
     <article class="stat-card">
       <span class="stat-icon"><mat-icon>pending_actions</mat-icon></span>
       <span class="stat-value">{{ openCount() }}</span>
-      <span class="stat-label">Open installations</span>
+      <span class="stat-label">{{ 'ui.openInstallations' | translate }}</span>
     </article>
     <article class="stat-card">
       <span class="stat-icon"><mat-icon>engineering</mat-icon></span>
       <span class="stat-value">{{ inProgressCount() }}</span>
-      <span class="stat-label">In progress</span>
+      <span class="stat-label">{{ 'ui.inProgress' | translate }}</span>
     </article>
     <article class="stat-card">
       <span class="stat-icon"><mat-icon>task_alt</mat-icon></span>
       <span class="stat-value">{{ completedCount() }}</span>
-      <span class="stat-label">Completed</span>
+      <span class="stat-label">{{ 'ui.completed' | translate }}</span>
     </article>
     <article class="stat-card">
       <span class="stat-icon"><mat-icon>badge</mat-icon></span>
       <span class="stat-value">{{ installers().length }}</span>
-      <span class="stat-label">Accredited installers</span>
+      <span class="stat-label">{{ 'ui.accreditedInstallers' | translate }}</span>
     </article>
   </div>
 
   <section class="card">
     <div class="section-title">
-      <h2>Installation queue</h2>
+      <h2>{{ 'ui.installationQueue' | translate }}</h2>
       <div class="filter-row">
-        <label for="status-filter">Status</label>
+        <label for="status-filter">{{ 'ui.status' | translate }}</label>
         <select id="status-filter" (change)="filterStatus($any($event.target).value)">
           @for (status of statuses; track status) {
-            <option [value]="status">{{ status === 'ALL' ? 'All statuses' : status }}</option>
+            <option [value]="status">{{ status === 'ALL' ? ('ui.allStatuses' | translate) : status }}</option>
           }
         </select>
       </div>
     </div>
 
     @if (loading()) {
-      <div class="loading-row"><span class="spinner"></span>Loading installations...</div>
+      <div class="loading-row"><span class="spinner"></span>{{ 'ui.loadingInstallations' | translate }}</div>
     } @else if (items().length === 0) {
       <div class="empty">
         <mat-icon>home_repair_service</mat-icon>
-        <span class="empty-title">No installations for this filter</span>
-        <span class="empty-text">Provisional requests appear here after checkout.</span>
+        <span class="empty-title">{{ 'ui.noInstallationsForThisFilter' | translate }}</span>
+        <span class="empty-text">{{ 'ui.provisionalRequestsAppearHereAfterCheckout' | translate }}</span>
       </div>
     } @else {
       <div class="table-wrap">
         <table class="table">
           <thead>
             <tr>
-              <th>Target</th>
-              <th>Installer</th>
-              <th>Status</th>
-              <th>Device</th>
-              <th>Created</th>
-              <th>Actions</th>
+              <th>{{ 'ui.target' | translate }}</th>
+              <th>{{ 'ui.installer' | translate }}</th>
+              <th>{{ 'ui.status' | translate }}</th>
+              <th>{{ 'ui.device' | translate }}</th>
+              <th>{{ 'ui.created' | translate }}</th>
+              <th>{{ 'ui.actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -89,15 +88,15 @@
                   <div class="cell-muted mono">{{ installation.id }}</div>
                 </td>
                 <td>
-                  @if (installation.installerName) {
-                    <span>{{ installation.installerName }}</span>
-                  } @else {
+                  @if (installation.installerId) {
+                    <span>{{ installerLabel(installation) }}</span>
+                  } @else if (installation.canAssign) {
                     <div class="assign-row">
                       <select
                         [ngModel]="selectedInstaller(installation)"
                         (ngModelChange)="selectInstaller(installation, $event)"
                       >
-                        <option value="">Select installer</option>
+                        <option value="">{{ 'ui.selectInstaller' | translate }}</option>
                         @for (installer of availableInstallers(); track installer.id) {
                           <option [value]="installer.id">
                             {{ installer.fullName }} · {{ installer.accreditationCode }}
@@ -110,9 +109,11 @@
                         [disabled]="saving() || !selectedInstaller(installation)"
                         (click)="assign(installation)"
                       >
-                        Assign
+                        {{ 'ui.assign' | translate }}
                       </button>
                     </div>
+                  } @else {
+                    <span class="cell-muted">—</span>
                   }
                 </td>
                 <td>
@@ -123,30 +124,30 @@
                     [class.chip-amber]="showChip(installation.status, 'PENDING') || showChip(installation.status, 'PROVISIONAL')"
                     [class.chip-red]="showChip(installation.status, 'CANCELLED')"
                   >
-                    {{ installation.status }}
+                    {{ ('entityStatus.' + installation.status) | translate }}
                   </span>
                 </td>
                 <td class="cell-muted mono">{{ installation.deviceSerialNumber || '—' }}</td>
-                <td class="cell-muted">{{ installation.createdAt | date: 'dd MMM yyyy' }}</td>
+                <td class="cell-muted">{{ installation.createdAt | date: 'dd MMM yyyy' : undefined : lang() }}</td>
                 <td>
                   <div class="row-actions">
                     @if (installation.canStart) {
                       <button class="btn btn-primary btn-sm" type="button" (click)="start(installation)">
-                        Start
+                        {{ 'ui.start' | translate }}
                       </button>
                     }
                     @if (installation.canComplete) {
                       <button class="btn btn-primary btn-sm" type="button" (click)="complete(installation)">
-                        Complete
+                        {{ 'ui.complete' | translate }}
                       </button>
                     }
                     @if (installation.isOpen) {
                       <button class="btn btn-danger btn-sm" type="button" (click)="cancel(installation)">
-                        Cancel
+                        {{ 'ui.cancel' | translate }}
                       </button>
                     }
                     @if (!installation.isOpen) {
-                      <span class="cell-muted">Closed</span>
+                      <span class="cell-muted">{{ 'ui.closed' | translate }}</span>
                     }
                   </div>
                 </td>

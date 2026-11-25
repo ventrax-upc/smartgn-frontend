@@ -13,7 +13,7 @@ const STORAGE_KEY = 'smartgn-lang';
 
 /*
   Owns the UI language. ngx-translate does the actual lookup; this service only
-  picks the initial language (saved choice, then browser language), persists
+  picks the initial language (saved choice, then English), persists
   changes and keeps <html lang> in sync.
 */
 @Injectable({ providedIn: 'root' })
@@ -42,9 +42,9 @@ export class LanguageService {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored === 'en' || stored === 'es') return stored;
     } catch {
-      // ignore and detect from the browser
+      // Storage can be blocked.
     }
-    return navigator.language?.toLowerCase().startsWith('es') ? 'es' : 'en';
+    return 'en';
   }
 
   private apply(lang: AppLanguage): void {

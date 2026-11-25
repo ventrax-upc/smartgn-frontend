@@ -75,6 +75,7 @@ export class TicketsStore {
   readonly statuses: TicketFilter[] = [
     'ALL',
     'OPEN',
+    'WRITTEN_SUPPORT',
     'VISIT_REQUESTED',
     'RESOLVED',
     'CLOSED',
@@ -132,10 +133,9 @@ export class TicketsStore {
     this.savingSignal.set(true);
     this.api
       .createTicket({
-        principalAccountId: accountId,
         meterId: input.meterId,
         subject: input.subject,
-        message: input.message,
+        description: input.message,
       })
       .subscribe({
         next: (ticket) => {
@@ -190,7 +190,7 @@ export class TicketsStore {
 
   addPhoto(
     ticketId: string,
-    objectReference: string,
+    file: File,
     callbacks?: StoreCallbacks<TicketPhoto>,
   ): void {
     const accountId = this.authStore.currentUser()?.id;
@@ -200,8 +200,9 @@ export class TicketsStore {
     }
 
     this.savingSignal.set(true);
+    this.errorSignal.set(null);
     this.api
-      .addPhoto(ticketId, { objectReference, uploadedByAccountId: accountId })
+      .addPhoto(ticketId, { file, uploadedByAccountId: accountId })
       .subscribe({
         next: (photo) => {
           this.photosSignal.update((items) => [...items, photo]);
@@ -210,7 +211,9 @@ export class TicketsStore {
         },
         error: (err) => {
           this.savingSignal.set(false);
-          callbacks?.onError?.(this.messageFrom(err));
+          const message = this.messageFrom(err);
+          this.errorSignal.set(message);
+          callbacks?.onError?.(message);
         },
       });
   }

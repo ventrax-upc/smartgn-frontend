@@ -1,26 +1,26 @@
 <header class="auth-topbar">
   <a class="brand" routerLink="/sign-in">
     <div class="logo-container">
-      <img src="assets/smartgn-logo.png" alt="SmartGN logo" class="logo-image" />
+      <img src="assets/smartgn-logo.png" [alt]="'ui.smartgnLogo' | translate" class="logo-image" />
     </div>
     <span class="brand-name">Smart<span>GN</span></span>
   </a>
 
   <div class="topbar-actions">
-    <span class="topbar-link">Smart energy, clearly managed.</span>
+    <span class="topbar-link">{{ 'ui.smartEnergyClearlyManaged' | translate }}</span>
   </div>
 </header>
 
 <div class="auth-body">
   <section class="auth-form-panel">
     <div class="auth-form-wrap">
-      <span class="pill pill-light">Welcome back</span>
+      <span class="pill pill-light">{{ 'ui.welcomeBack' | translate }}</span>
 
-      <h1 class="auth-title">Sign in to SmartGN</h1>
-      <p class="auth-subtitle">Enter the credentials of your SmartGN account to continue.</p>
+      <h1 class="auth-title">{{ 'ui.signInToSmartgn' | translate }}</h1>
+      <p class="auth-subtitle">{{ 'ui.enterTheCredentialsOfYourSmartgnAccount' | translate }}</p>
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        <label class="field-label" for="login-email">Email</label>
+        <label class="field-label" for="login-email">{{ 'ui.email' | translate }}</label>
         <div class="input-box" [class.invalid]="getError('email')">
           <mat-icon>mail_outline</mat-icon>
           <input
@@ -32,12 +32,12 @@
           />
         </div>
         @if (getError('email'); as message) {
-          <span class="field-error">{{ message }}</span>
+          <span class="field-error">{{ message | translate }}</span>
         }
 
         <div class="field-row">
-          <label class="field-label" for="login-password">Password</label>
-          <a class="link-inline" routerLink="/forgot-password">Forgot password?</a>
+          <label class="field-label" for="login-password">{{ 'ui.password' | translate }}</label>
+          <a class="link-inline" routerLink="/forgot-password">{{ 'ui.forgotPassword' | translate }}</a>
         </div>
         <div class="input-box" [class.invalid]="getError('password')">
           <mat-icon>lock_outline</mat-icon>
@@ -52,62 +52,63 @@
             type="button"
             class="toggle-visibility"
             (click)="toggleShowPassword()"
-            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+            [attr.aria-label]="showPassword() ? ('ui.hidePassword' | translate) : ('ui.showPassword' | translate)"
           >
             <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
         </div>
         @if (getError('password'); as message) {
-          <span class="field-error">{{ message }}</span>
+          <span class="field-error">{{ message | translate }}</span>
         }
 
         @if (error(); as message) {
-          <div class="form-error">{{ message }}</div>
+          <div class="form-error">{{ message | translate }}</div>
         }
 
         <button type="submit" class="submit-button" [disabled]="loading()">
-          <span>{{ loading() ? 'Signing in...' : 'Sign in' }}</span>
+          <span>{{ loading() ? ('ui.signingIn' | translate) : ('ui.signIn' | translate) }}</span>
           <mat-icon>arrow_forward</mat-icon>
         </button>
       </form>
 
-      <div class="demo-box">
-        <div class="demo-title"><mat-icon>science</mat-icon> Demo accounts</div>
-        @for (account of [
-          { role: 'Principal user', email: 'user@smartgn.pe' },
-          { role: 'SuperAdmin', email: 'admin@smartgn.pe' },
-          { role: 'Delegated user', email: 'delegated@smartgn.pe' }
-        ]; track account.email) {
+      @if (showDemoAccounts) {
+        <div class="demo-box">
+          <div class="demo-title"><mat-icon>science</mat-icon> {{ 'ui.demoAccounts' | translate }}</div>
+          @for (account of [
+            { role: 'PRINCIPAL', email: 'user@smartgn.pe' },
+            { role: 'SUPERADMIN', email: 'admin@smartgn.pe' },
+            { role: 'DELEGATED', email: 'delegated@smartgn.pe' }
+          ]; track account.email) {
+            <div class="demo-account">
+              <span>{{ ('accountRole.' + account.role) | translate }}</span>
+              <button type="button" class="link-inline" (click)="useDemo(account.email)">
+                {{ account.email }}
+              </button>
+            </div>
+          }
           <div class="demo-account">
-            <span>{{ account.role }}</span>
-            <button type="button" class="link-inline" (click)="useDemo(account.email)">
-              {{ account.email }}
-            </button>
+            <span>{{ 'ui.password' | translate }}</span>
+            <strong>SmartGN123</strong>
           </div>
-        }
-        <div class="demo-account">
-          <span>Password</span>
-          <strong>SmartGN123</strong>
         </div>
-      </div>
+      }
     </div>
   </section>
 
   <section class="auth-hero-panel">
-    <span class="pill pill-dark">SmartGN platform</span>
+    <span class="pill pill-dark">{{ 'ui.smartgnPlatform' | translate }}</span>
 
-    <h2 class="hero-title">Your energy.<br />Your properties.<br />One clear view.</h2>
+    <h2 class="hero-title">{{ 'ui.yourEnergy' | translate }}<br />{{ 'ui.yourProperties' | translate }}<br />{{ 'ui.oneClearView' | translate }}</h2>
     <p class="hero-subtitle">
-      SmartGN connects your supply points, devices and technical support so you can
-      understand consumption and act on it without spreadsheets.
+      {{ 'ui.smartgnConnectsYourSupplyPointsDevicesAnd' | translate }}
     </p>
 
     <ul class="hero-features">
       @for (feature of heroFeatures; track feature) {
-        <li><mat-icon>check_circle</mat-icon><span>{{ feature }}</span></li>
+        <li><mat-icon>check_circle</mat-icon><span>{{ feature | translate }}</span></li>
       }
     </ul>
 
-    <p class="hero-footnote">SmartGN · Ventrax UPC · Academic project 2026</p>
+    <p class="hero-footnote">{{ 'ui.smartgnVentraxUpcAcademicProject2026' | translate }}</p>
   </section>
 </div>

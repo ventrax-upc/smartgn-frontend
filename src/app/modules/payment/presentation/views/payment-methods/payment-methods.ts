@@ -1,3 +1,5 @@
+import { TranslatePipe } from '@ngx-translate/core';
+import { environment } from '../../../../../../environments/environment';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
@@ -8,7 +10,7 @@ import { ConfirmDialog } from '../../../../../shared/presentation/components/con
 
 @Component({
   selector: 'app-payment-methods',
-  imports: [ReactiveFormsModule, MatIcon],
+  imports: [TranslatePipe, ReactiveFormsModule, MatIcon],
   templateUrl: './payment-methods.html',
   styleUrl: './payment-methods.css',
 })
@@ -24,13 +26,15 @@ export class PaymentMethodsPage implements OnInit {
   protected readonly success = signal<string | null>(null);
   protected readonly brands = ['VISA', 'MASTERCARD', 'AMEX', 'DINERS'];
 
+  protected readonly tokenRequired = !environment.showDemoAccounts;
+
   protected readonly form = new FormGroup({
     brand: new FormControl('VISA', [Validators.required]),
     lastFour: new FormControl('', [
       Validators.required,
       Validators.pattern(/^\d{4}$/),
     ]),
-    providerToken: new FormControl(''),
+    providerToken: new FormControl('', this.tokenRequired ? [Validators.required, Validators.pattern(/\S/)] : []),
   });
 
   ngOnInit(): void {
@@ -66,7 +70,7 @@ export class PaymentMethodsPage implements OnInit {
       {
         onSuccess: () => {
           this.showForm.set(false);
-          this.success.set('Payment method added to your account.');
+          this.success.set('ui.paymentMethodAddedToYourAccount');
         },
       },
     );
@@ -75,7 +79,7 @@ export class PaymentMethodsPage implements OnInit {
   protected setDefault(method: PaymentMethod): void {
     if (method.isDefault) return;
     this.store.setDefault(method, {
-      onSuccess: () => this.success.set('Default payment method updated.'),
+      onSuccess: () => this.success.set('ui.defaultPaymentMethodUpdated'),
     });
   }
 
@@ -91,7 +95,7 @@ export class PaymentMethodsPage implements OnInit {
     ref.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
         this.store.remove(method, {
-          onSuccess: () => this.success.set('Payment method removed.'),
+          onSuccess: () => this.success.set('ui.paymentMethodRemoved'),
         });
       }
     });

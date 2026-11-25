@@ -1,3 +1,4 @@
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
@@ -5,7 +6,7 @@ import { TechniciansStore } from '../../../application/technicians.store';
 
 @Component({
   selector: 'app-technicians',
-  imports: [ReactiveFormsModule, MatIcon],
+  imports: [TranslatePipe, ReactiveFormsModule, MatIcon],
   templateUrl: './technicians.html',
   styleUrl: './technicians.css',
 })
@@ -62,7 +63,7 @@ export class TechniciansPage implements OnInit {
       {
         onSuccess: () => {
           this.showForm.set(false);
-          this.success.set('Technician registered and available for assignments.');
+          this.success.set('ui.technicianRegisteredAndAvailableForAssignments');
         },
       },
     );

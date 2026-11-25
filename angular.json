@@ -46,13 +46,7 @@
                   "maximumError": "30kB"
                 }
               ],
-              "outputHashing": "all",
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.development.ts",
-                  "with": "src/environments/environment.ts"
-                }
-              ]
+              "outputHashing": "all"
             },
             "development": {
               "optimization": false,
@@ -62,6 +56,14 @@
                 {
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/environment.development.ts"
+                }
+              ]
+            },
+            "mock": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.mock.ts"
                 }
               ]
             }
@@ -76,6 +78,9 @@
             },
             "development": {
               "buildTarget": "smartgn-frontend:build:development"
+            },
+            "mock": {
+              "buildTarget": "smartgn-frontend:build:development,mock"
             }
           },
           "defaultConfiguration": "development"

@@ -54,12 +54,18 @@ export class DeviceAssembler
   toReceipt(resource: ProvisioningReceiptResource): ProvisioningReceipt {
     return {
       device: this.toEntityFromResource(resource.device),
-      credential: resource.credential,
-      testMode: resource.testMode,
+      credential: 'credential' in resource
+        ? resource.credential
+        : {
+            clientId: String(resource.device.id),
+            username: resource.mqttUsername,
+            password: resource.oneTimeCredential,
+          },
+      testMode: 'testMode' in resource && resource.testMode,
     };
   }
 
   toEntitiesFromResponse(response: DeviceResponse): Device[] {
-    return response.map((resource) => this.toEntityFromResource(resource));
+    return response.map((resource) => this.toEntityFromResource('device' in resource ? resource.device : resource));
   }
 }

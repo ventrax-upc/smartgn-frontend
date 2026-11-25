@@ -5,7 +5,6 @@ import { environment } from '../../../../environments/environment';
 import { Installation, InstallationStatus } from '../domain/model/installation.entity';
 import { InstallationAssembler } from './installation-assembler';
 import {
-  CreateInstallationResource,
   InstallationResource,
 } from './installation-response';
 
@@ -20,20 +19,6 @@ export class InstallationsApi {
     return this.http.get<InstallationResource[]>(`${this.url}${query}`).pipe(
       map((resources) => this.assembler.toEntitiesFromResponse(resources)),
       catchError((err) => throwError(() => this.toError(err, 'Could not load installations.'))),
-    );
-  }
-
-  getById(id: string): Observable<Installation> {
-    return this.http.get<InstallationResource>(`${this.url}/${id}`).pipe(
-      map((resource) => this.assembler.toEntityFromResource(resource)),
-      catchError((err) => throwError(() => this.toError(err, 'Could not load the installation.'))),
-    );
-  }
-
-  create(input: CreateInstallationResource): Observable<Installation> {
-    return this.http.post<InstallationResource>(this.url, input).pipe(
-      map((resource) => this.assembler.toEntityFromResource(resource)),
-      catchError((err) => throwError(() => this.toError(err, 'Could not create the installation.'))),
     );
   }
 

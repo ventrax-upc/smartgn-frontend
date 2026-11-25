@@ -1,3 +1,5 @@
+import { LanguageService } from '../../../../../shared/application/language.service';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -8,11 +10,12 @@ import { PaymentOrder } from '../../../domain/model/payment-order.entity';
 
 @Component({
   selector: 'app-payments',
-  imports: [CurrencyPipe, DatePipe, RouterLink, MatIcon],
+  imports: [TranslatePipe, CurrencyPipe, DatePipe, RouterLink, MatIcon],
   templateUrl: './payments.html',
   styleUrl: './payments.css',
 })
 export class PaymentsPage implements OnInit {
+  protected readonly lang = inject(LanguageService).lang;
   private readonly store = inject(PaymentsStore);
   private readonly methodsStore = inject(PaymentMethodsStore);
 
@@ -49,7 +52,7 @@ export class PaymentsPage implements OnInit {
     const methodId = this.selectedMethod(order);
     if (!methodId) return;
     const callbacks = {
-      onSuccess: () => this.success.set(`Payment ${order.id} confirmed.`),
+      onSuccess: () => this.success.set('ui.paymentRequestedRefreshToCheckConfirmation'),
     };
     if (order.status === 'FAILED') {
       this.store.retry(order, methodId, callbacks);
@@ -65,8 +68,8 @@ export class PaymentsPage implements OnInit {
   }
 
   protected reasonLabel(order: PaymentOrder): string {
-    if (order.reason === 'PRO') return 'Pro subscription';
-    if (order.reason === 'TECHNICAL_VISIT') return 'Technical visit';
-    return 'Installation';
+    if (order.reason === 'PRO') return 'ui.proSubscription';
+    if (order.reason === 'TECHNICAL_VISIT') return 'ui.technicalVisit';
+    return 'ui.installation';
   }
 }

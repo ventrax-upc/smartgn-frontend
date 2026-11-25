@@ -84,7 +84,7 @@ export class AuthStore {
         callbacks?.onSuccess?.(user);
       },
       error: (err) => {
-        const message = this.messageFrom(err, 'Invalid email or password.');
+        const message = this.messageFrom(err, 'ui.invalidEmailOrPassword');
         this.errorSignal.set(message);
         this.loadingSignal.set(false);
         callbacks?.onError?.(message);
@@ -124,7 +124,7 @@ export class AuthStore {
         this.setProfile(profile);
         callbacks?.onSuccess?.(profile);
       },
-      error: (err) => callbacks?.onError?.(this.messageFrom(err, 'Could not save your profile.')),
+      error: (err) => callbacks?.onError?.(this.messageFrom(err, 'ui.couldNotSaveYourProfile')),
     });
   }
 
@@ -135,7 +135,7 @@ export class AuthStore {
   ): void {
     this.authApi.changePassword(currentPassword, newPassword).subscribe({
       next: () => callbacks?.onSuccess?.(),
-      error: (err) => callbacks?.onError?.(this.messageFrom(err, 'Could not change the password.')),
+      error: (err) => callbacks?.onError?.(this.messageFrom(err, 'ui.couldNotChangeThePassword')),
     });
   }
 
@@ -149,7 +149,7 @@ export class AuthStore {
     this.authApi.requestPasswordReset(email).subscribe({
       next: (result) => callbacks?.onSuccess?.(result.demoResetToken ?? null),
       error: (err) =>
-        callbacks?.onError?.(this.messageFrom(err, 'Could not request the password reset.')),
+        callbacks?.onError?.(this.messageFrom(err, 'ui.couldNotRequestThePasswordReset')),
     });
   }
 
@@ -161,7 +161,7 @@ export class AuthStore {
     this.authApi.resetPassword(token, newPassword).subscribe({
       next: () => callbacks?.onSuccess?.(),
       error: (err) =>
-        callbacks?.onError?.(this.messageFrom(err, 'The reset token is invalid or has expired.')),
+        callbacks?.onError?.(this.messageFrom(err, 'ui.theResetTokenIsInvalidOrHas')),
     });
   }
 
@@ -172,7 +172,7 @@ export class AuthStore {
   ): void {
     this.authApi.activatePassword(activationToken, newPassword).subscribe({
       next: () => callbacks?.onSuccess?.(),
-      error: (err) => callbacks?.onError?.(this.messageFrom(err, 'Could not activate the account.')),
+      error: (err) => callbacks?.onError?.(this.messageFrom(err, 'ui.couldNotActivateTheAccount')),
     });
   }
 

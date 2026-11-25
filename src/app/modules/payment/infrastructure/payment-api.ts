@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, catchError, map, throwError } from 'rxjs';
+import { Observable, catchError, map, switchMap, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { PaymentMethod } from '../domain/model/payment-method.entity';
 import { PaymentOrder } from '../domain/model/payment-order.entity';
@@ -34,12 +34,13 @@ export class PaymentApi {
 
   subscribePro(paymentMethodId: string, autoRenew: boolean): Observable<Subscription> {
     return this.http
-      .post<SubscriptionResource>(`${this.base}/subscriptions/pro`, {
-        paymentMethodId,
-        autoRenew,
-      })
+      .post<unknown>(
+        `${this.base}/subscriptions/pro`,
+        { paymentMethodId, autoRenew },
+        { headers: { 'Idempotency-Key': crypto.randomUUID() } },
+      )
       .pipe(
-        map((resource) => this.subscriptionAssembler.toEntityFromResource(resource)),
+        switchMap(() => this.getSubscription()),
         catchError((err) =>
           throwError(() => this.toError(err, 'Could not activate the Pro plan.')),
         ),
@@ -108,20 +109,24 @@ export class PaymentApi {
       );
   }
 
-  payOrder(id: string, paymentMethodId: string): Observable<PaymentOrder> {
+  payOrder(id: string, paymentMethodId: string): Observable<void> {
     return this.http
-      .post<PaymentOrderResource>(`${this.base}/payments/orders/${id}/pay`, { paymentMethodId })
+      .post<unknown>(`${this.base}/payments/orders/${id}/pay`, { paymentMethodId })
       .pipe(
-        map((resource) => this.orderAssembler.toEntityFromResource(resource)),
+        map(() => undefined),
         catchError((err) => throwError(() => this.toError(err, 'Could not pay the order.'))),
       );
   }
 
-  retryOrder(id: string, paymentMethodId: string): Observable<PaymentOrder> {
+  retryOrder(id: string, paymentMethodId: string): Observable<void> {
     return this.http
-      .post<PaymentOrderResource>(`${this.base}/payments/orders/${id}/retry`, { paymentMethodId })
+      .post<unknown>(
+        `${this.base}/payments/orders/${id}/retry`,
+        { paymentMethodId },
+        { headers: { 'Idempotency-Key': crypto.randomUUID() } },
+      )
       .pipe(
-        map((resource) => this.orderAssembler.toEntityFromResource(resource)),
+        map(() => undefined),
         catchError((err) => throwError(() => this.toError(err, 'Could not retry the payment.'))),
       );
   }

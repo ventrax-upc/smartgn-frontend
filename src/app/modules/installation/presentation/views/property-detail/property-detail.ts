@@ -1,3 +1,4 @@
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -9,7 +10,7 @@ import { SupplyPoint } from '../../../domain/model/supply-point.entity';
 
 @Component({
   selector: 'app-property-detail',
-  imports: [ReactiveFormsModule, RouterLink, MatIcon],
+  imports: [TranslatePipe, ReactiveFormsModule, RouterLink, MatIcon],
   templateUrl: './property-detail.html',
   styleUrl: './property-detail.css',
 })
@@ -76,7 +77,7 @@ export class PropertyDetailPage implements OnInit {
       this.pointsStore.update(editing, value.locationName ?? '', {
         onSuccess: () => {
           this.cancelEdit();
-          this.success.set('Supply point updated.');
+          this.success.set('ui.supplyPointUpdated');
         },
       });
       return;
@@ -90,7 +91,7 @@ export class PropertyDetailPage implements OnInit {
       {
         onSuccess: () => {
           this.cancelEdit();
-          this.success.set('Supply point registered.');
+          this.success.set('ui.supplyPointRegistered');
         },
       },
     );

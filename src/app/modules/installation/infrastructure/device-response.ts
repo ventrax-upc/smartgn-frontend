@@ -27,11 +27,10 @@ export interface DeviceCredentialResource {
   expiresAt: string;
 }
 
-export interface ProvisioningReceiptResource {
-  device: DeviceResource;
-  credential: DeviceCredentialResource;
-  testMode: boolean;
-}
+export type ProvisioningReceiptResource = { device: DeviceResource } & (
+  | { credential: DeviceCredentialResource; testMode: boolean }
+  | { mqttUsername: string; oneTimeCredential: string }
+);
 
 export interface RegisterDeviceResource {
   deviceId?: string;
@@ -44,4 +43,4 @@ export interface RegisterDeviceResource {
   replacementGapReason?: string;
 }
 
-export type DeviceResponse = DeviceResource[];
+export type DeviceResponse = (DeviceResource | { device: DeviceResource })[];

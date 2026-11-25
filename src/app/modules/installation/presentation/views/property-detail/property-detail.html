@@ -1,51 +1,50 @@
 <div class="page">
   <a class="back-link" routerLink="/properties">
     <mat-icon>arrow_back</mat-icon>
-    Back to properties
+    {{ 'ui.backToProperties' | translate }}
   </a>
 
   @if (propertyError(); as message) {
-    <div class="alert alert-error">{{ message }}</div>
+    <div class="alert alert-error">{{ message | translate }}</div>
   } @else if (property(); as current) {
     <header class="page-header">
       <div class="page-heading">
-        <span class="eyebrow">{{ current.typeLabel }}</span>
+        <span class="eyebrow">{{ ('propertyType.' + current.propertyType) | translate }}</span>
         <h1 class="page-title">{{ current.name }}</h1>
         <p class="page-subtitle">{{ current.address }}</p>
       </div>
       <div class="header-actions">
-        <span class="chip chip-green">Active</span>
+        <span class="chip chip-green">{{ 'ui.active' | translate }}</span>
         <span class="chip mono">v{{ current.version }}</span>
       </div>
     </header>
   }
 
   @if (success(); as message) {
-    <div class="alert alert-success">{{ message }}</div>
+    <div class="alert alert-success">{{ message | translate }}</div>
   }
   @if (error(); as message) {
-    <div class="alert alert-error">{{ message }}</div>
+    <div class="alert alert-error">{{ message | translate }}</div>
   }
 
   <div class="split">
     <section class="card">
       <div class="section-title">
-        <h2>Supply points</h2>
-        <span class="chip">{{ points().length }} registered</span>
+        <h2>{{ 'ui.supplyPoints' | translate }}</h2>
+        <span class="chip">{{ points().length }} {{ 'ui.registered' | translate }}</span>
       </div>
       <p class="card-subtitle">
-        The serial number identifies the physical meter and cannot be changed after
-        registration. The location name is descriptive and can be updated.
+        {{ 'ui.theSerialNumberIdentifiesThePhysicalMeter' | translate }}
       </p>
 
       @if (loading()) {
-        <div class="loading-row"><span class="spinner"></span>Loading supply points...</div>
+        <div class="loading-row"><span class="spinner"></span>{{ 'ui.loadingSupplyPoints' | translate }}</div>
       } @else if (points().length === 0) {
         <div class="empty">
           <mat-icon>bolt</mat-icon>
-          <span class="empty-title">No supply points yet</span>
+          <span class="empty-title">{{ 'ui.noSupplyPointsYet' | translate }}</span>
           <span class="empty-text">
-            Add the meter serial number and the room or area where it is installed.
+            {{ 'ui.addTheMeterSerialNumberAndThe' | translate }}
           </span>
         </div>
       } @else {
@@ -53,9 +52,9 @@
           <table class="table">
             <thead>
               <tr>
-                <th>Serial number</th>
-                <th>Location</th>
-                <th>Status</th>
+                <th>{{ 'ui.serialNumber' | translate }}</th>
+                <th>{{ 'ui.location' | translate }}</th>
+                <th>{{ 'ui.status' | translate }}</th>
                 <th></th>
               </tr>
             </thead>
@@ -66,12 +65,12 @@
                   <td>{{ point.locationName }}</td>
                   <td>
                     <span class="chip" [class.chip-green]="point.active" [class.chip-red]="!point.active">
-                      {{ point.active ? 'Active' : 'Inactive' }}
+                      {{ point.active ? ('ui.active' | translate) : 'Inactive' }}
                     </span>
                   </td>
                   <td>
                     <button class="btn btn-ghost btn-sm" type="button" (click)="startEdit(point)">
-                      Edit location
+                      {{ 'ui.editLocation' | translate }}
                     </button>
                   </td>
                 </tr>
@@ -86,29 +85,29 @@
       <h2 class="card-title">{{ editing() ? 'Edit supply point' : 'Add a supply point' }}</h2>
       <p class="card-subtitle">
         @if (editing()) {
-          Only the descriptive location can change. The meter identity stays intact.
+          {{ 'ui.onlyTheDescriptiveLocationCanChangeThe' | translate }}
         } @else {
-          Register the meter exactly as it appears on the device label.
+          {{ 'ui.registerTheMeterExactlyAsItAppears' | translate }}
         }
       </p>
 
       <form [formGroup]="form" (ngSubmit)="submit()">
         <div class="field">
-          <label for="point-serial">Serial number</label>
+          <label for="point-serial">{{ 'ui.serialNumber' | translate }}</label>
           <input id="point-serial" formControlName="serialNumber" placeholder="MTR-0005" />
         </div>
         <div class="field">
-          <label for="point-location">Location</label>
-          <input id="point-location" formControlName="locationName" placeholder="Main kitchen" />
+          <label for="point-location">{{ 'ui.location' | translate }}</label>
+          <input id="point-location" formControlName="locationName" [placeholder]="'ui.mainKitchen' | translate" />
         </div>
 
         <div class="form-actions">
           @if (editing()) {
-            <button class="btn btn-secondary" type="button" (click)="cancelEdit()">Cancel</button>
+            <button class="btn btn-secondary" type="button" (click)="cancelEdit()">{{ 'ui.cancel' | translate }}</button>
           }
           <button class="btn btn-primary" type="submit" [disabled]="saving() || !property()">
             <mat-icon>{{ editing() ? 'save' : 'add' }}</mat-icon>
-            {{ saving() ? 'Saving...' : editing() ? 'Save changes' : 'Add point' }}
+            {{ saving() ? ('ui.saving' | translate) : editing() ? ('ui.saveChanges' | translate) : ('ui.addPoint' | translate) }}
           </button>
         </div>
       </form>

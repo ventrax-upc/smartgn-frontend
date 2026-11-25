@@ -1,3 +1,4 @@
+import { LanguageService } from '../../../../../shared/application/language.service';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -13,6 +14,7 @@ import { PaymentMethodsStore } from '../../../application/payment-methods.store'
   styleUrl: './subscription.css',
 })
 export class SubscriptionPage implements OnInit {
+  protected readonly lang = inject(LanguageService).lang;
   private readonly store = inject(SubscriptionStore);
   private readonly methodsStore = inject(PaymentMethodsStore);
   private readonly translate = inject(TranslateService);

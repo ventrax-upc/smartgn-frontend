@@ -25,6 +25,7 @@ interface StatusSlice {
 
 const STATUS_COLORS: Record<TicketStatus, string> = {
   OPEN: '#c2410c',
+  WRITTEN_SUPPORT: '#9273b6',
   VISIT_REQUESTED: '#3b6fb6',
   RESOLVED: '#2f855a',
   CLOSED: '#64748b',
@@ -93,6 +94,7 @@ export class DashboardPage implements OnInit {
   protected readonly statusSlices = computed<StatusSlice[]>(() => {
     const counts: Record<TicketStatus, number> = {
       OPEN: 0,
+      WRITTEN_SUPPORT: 0,
       VISIT_REQUESTED: 0,
       RESOLVED: 0,
       CLOSED: 0,

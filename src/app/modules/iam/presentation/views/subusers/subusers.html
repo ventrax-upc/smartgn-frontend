@@ -1,37 +1,36 @@
 <div class="page">
   <header class="page-header">
     <div class="page-heading">
-      <span class="eyebrow">Account</span>
-      <h1 class="page-title">Subusers</h1>
+      <span class="eyebrow">{{ 'ui.account' | translate }}</span>
+      <h1 class="page-title">{{ 'ui.subusers' | translate }}</h1>
       <p class="page-subtitle">
-        Invite family members or staff with their own credentials. They only see the supply
-        points and actions you grant here.
+        {{ 'ui.inviteFamilyMembersOrStaffWithTheir' | translate }}
       </p>
     </div>
     <div class="header-actions">
       <button class="btn btn-secondary" type="button" (click)="reload()">
         <mat-icon>refresh</mat-icon>
-        Refresh
+        {{ 'ui.refresh' | translate }}
       </button>
     </div>
   </header>
 
   @if (success(); as message) {
-    <div class="alert alert-success">{{ message }}</div>
+    <div class="alert alert-success">{{ message | translate }}</div>
   }
   @if (error(); as message) {
-    <div class="alert alert-error">{{ message }}</div>
+    <div class="alert alert-error">{{ message | translate }}</div>
   }
 
   @if (activationLink(); as link) {
     <div class="alert alert-info activation">
       <div>
-        <strong>Activation link</strong>
+        <strong>{{ 'ui.activationLink' | translate }}</strong>
         <div class="mono">{{ link }}</div>
       </div>
       <button class="btn btn-secondary btn-sm" type="button" (click)="copyActivation()">
         <mat-icon>content_copy</mat-icon>
-        Copy
+        {{ 'ui.copy' | translate }}
       </button>
     </div>
   }
@@ -40,44 +39,44 @@
     <article class="stat-card">
       <span class="stat-icon"><mat-icon>group</mat-icon></span>
       <span class="stat-value">{{ count() }}</span>
-      <span class="stat-label">Subusers</span>
+      <span class="stat-label">{{ 'ui.subusers' | translate }}</span>
     </article>
     <article class="stat-card">
       <span class="stat-icon"><mat-icon>verified_user</mat-icon></span>
       <span class="stat-value">{{ activeCount() }}</span>
-      <span class="stat-label">Active</span>
+      <span class="stat-label">{{ 'ui.active' | translate }}</span>
     </article>
     <article class="stat-card">
       <span class="stat-icon"><mat-icon>hourglass_top</mat-icon></span>
       <span class="stat-value">{{ pendingCount() }}</span>
-      <span class="stat-label">Pending activation</span>
+      <span class="stat-label">{{ 'ui.pendingActivation' | translate }}</span>
     </article>
   </div>
 
   <div class="split">
     <section class="card">
       <div class="section-title">
-        <h2>Delegated accounts</h2>
-        <span class="chip">{{ count() }} records</span>
+        <h2>{{ 'ui.delegatedAccounts' | translate }}</h2>
+        <span class="chip">{{ count() }} {{ 'ui.records' | translate }}</span>
       </div>
 
       @if (loading()) {
-        <div class="loading-row"><span class="spinner"></span>Loading subusers...</div>
+        <div class="loading-row"><span class="spinner"></span>{{ 'ui.loadingSubusers' | translate }}</div>
       } @else if (items().length === 0) {
         <div class="empty">
           <mat-icon>group_off</mat-icon>
-          <span class="empty-title">No subusers yet</span>
-          <span class="empty-text">Invite a subuser from the form to delegate read or support access.</span>
+          <span class="empty-title">{{ 'ui.noSubusersYet' | translate }}</span>
+          <span class="empty-text">{{ 'ui.inviteASubuserFromTheFormTo' | translate }}</span>
         </div>
       } @else {
         <div class="table-wrap">
           <table class="table">
             <thead>
               <tr>
-                <th>Subuser</th>
-                <th>Status</th>
-                <th>Granted points</th>
-                <th>Actions</th>
+                <th>{{ 'ui.subuser' | translate }}</th>
+                <th>{{ 'ui.status' | translate }}</th>
+                <th>{{ 'ui.grantedPoints' | translate }}</th>
+                <th>{{ 'ui.actions' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -89,13 +88,13 @@
                   </td>
                   <td>
                     <span class="chip" [class.chip-green]="subuser.status === 'ACTIVE'" [class.chip-amber]="subuser.status === 'PENDING_ACTIVATION'" [class.chip-red]="subuser.status === 'SUSPENDED'">
-                      {{ subuser.status }}
+                      {{ ('entityStatus.' + subuser.status) | translate }}
                     </span>
                   </td>
-                  <td>{{ subuser.grantedMeters }} meters</td>
+                  <td>{{ subuser.grantedMeters }} {{ 'ui.meters2' | translate }}</td>
                   <td>
                     <button class="btn btn-ghost btn-sm" type="button" (click)="selectSubuser(subuser.id)">
-                      Manage access
+                      {{ 'ui.manageAccess' | translate }}
                     </button>
                   </td>
                 </tr>
@@ -108,52 +107,52 @@
 
     <aside class="side-stack">
       <section class="card">
-        <h2 class="card-title">Invite a subuser</h2>
+        <h2 class="card-title">{{ 'ui.inviteASubuser' | translate }}</h2>
         <p class="card-subtitle">
-          The invited person activates their own password. You never share your credentials.
+          {{ 'ui.theInvitedPersonActivatesTheirOwnPassword' | translate }}
         </p>
 
         <form [formGroup]="form" (ngSubmit)="submit()">
           <div class="field">
-            <label for="subuser-email">Email</label>
+            <label for="subuser-email">{{ 'ui.email' | translate }}</label>
             <input id="subuser-email" type="email" formControlName="email" placeholder="name@example.com" />
             @if (form.controls.email.touched && form.controls.email.invalid) {
-              <span class="field-error">A valid email is required.</span>
+              <span class="field-error">{{ 'ui.aValidEmailIsRequired' | translate }}</span>
             }
           </div>
           <div class="form-grid">
             <div class="field">
-              <label for="subuser-first-name">First name</label>
+              <label for="subuser-first-name">{{ 'ui.firstName' | translate }}</label>
               <input id="subuser-first-name" formControlName="firstName" />
             </div>
             <div class="field">
-              <label for="subuser-last-name">Last name</label>
+              <label for="subuser-last-name">{{ 'ui.lastName' | translate }}</label>
               <input id="subuser-last-name" formControlName="lastName" />
             </div>
           </div>
           <div class="form-actions">
             <button class="btn btn-primary" type="submit" [disabled]="saving()">
               <mat-icon>person_add</mat-icon>
-              {{ saving() ? 'Inviting...' : 'Invite subuser' }}
+              {{ saving() ? ('ui.inviting' | translate) : ('ui.inviteSubuser' | translate) }}
             </button>
           </div>
         </form>
       </section>
 
       <section class="card">
-        <h2 class="card-title">Grant access</h2>
+        <h2 class="card-title">{{ 'ui.grantAccess' | translate }}</h2>
         <p class="card-subtitle">
-          Select a subuser and a supply point, then choose the actions they can perform.
+          {{ 'ui.selectASubuserAndASupplyPoint' | translate }}
         </p>
 
         <div class="field">
-          <label for="grant-subuser">Subuser</label>
+          <label for="grant-subuser">{{ 'ui.subuser' | translate }}</label>
           <select
             id="grant-subuser"
             [value]="selectedSubuserId()"
             (change)="selectSubuser($any($event.target).value)"
           >
-            <option value="">Select a subuser</option>
+            <option value="">{{ 'ui.selectASubuser' | translate }}</option>
             @for (subuser of items(); track subuser.id) {
               <option [value]="subuser.id">{{ subuser.fullName }}</option>
             }
@@ -161,13 +160,13 @@
         </div>
 
         <div class="field">
-          <label for="grant-meter">Supply point</label>
+          <label for="grant-meter">{{ 'ui.supplyPoint' | translate }}</label>
           <select
             id="grant-meter"
             [value]="selectedMeterId()"
             (change)="selectMeter($any($event.target).value)"
           >
-            <option value="">Select a supply point</option>
+            <option value="">{{ 'ui.selectASupplyPoint' | translate }}</option>
             @for (meter of meters(); track meter.id) {
               <option [value]="meter.id">{{ meter.displayName }} · {{ meter.propertyName }}</option>
             }
@@ -184,7 +183,7 @@
                   [checked]="hasPermission(permission.value)"
                   (change)="togglePermission(permission.value, $any($event.target).checked)"
                 />
-                <span>{{ permission.label }}</span>
+                <span>{{ permission.label | translate }}</span>
               </label>
             }
           </div>
@@ -197,7 +196,7 @@
             [disabled]="saving() || !selectedSubuserId() || !selectedMeterId()"
             (click)="saveGrants()"
           >
-            Save access
+            {{ 'ui.saveAccess' | translate }}
           </button>
         </div>
       </section>

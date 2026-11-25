@@ -1,3 +1,4 @@
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -6,7 +7,7 @@ import { AuthStore } from '../../../application/auth.store';
 
 @Component({
   selector: 'app-activate-password',
-  imports: [ReactiveFormsModule, RouterLink, MatIcon],
+  imports: [TranslatePipe, ReactiveFormsModule, RouterLink, MatIcon],
   templateUrl: './activate-password.html',
   styleUrl: './activate-password.css',
 })
@@ -41,7 +42,7 @@ export class ActivatePassword {
     }
     const { activationToken, newPassword, confirmPassword } = this.form.getRawValue();
     if (newPassword !== confirmPassword) {
-      this.error.set('Passwords do not match.');
+      this.error.set('ui.passwordsDoNotMatch');
       return;
     }
     this.loading.set(true);

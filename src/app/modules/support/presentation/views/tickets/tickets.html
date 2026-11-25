@@ -1,62 +1,61 @@
 <div class="page">
   <header class="page-header">
     <div class="page-heading">
-      <span class="eyebrow">Support</span>
-      <h1 class="page-title">Tickets</h1>
+      <span class="eyebrow">{{ 'ui.support' | translate }}</span>
+      <h1 class="page-title">{{ 'ui.tickets' | translate }}</h1>
       <p class="page-subtitle">
-        Report an issue, follow the conversation and track the technician visit from a
-        single thread.
+        {{ 'ui.reportAnIssueFollowTheConversationAnd' | translate }}
       </p>
     </div>
     <div class="header-actions">
       <button class="btn btn-secondary" type="button" (click)="reload()">
         <mat-icon>refresh</mat-icon>
-        Refresh
+        {{ 'ui.refresh' | translate }}
       </button>
       @if (!isSuperAdmin()) {
         <button class="btn btn-primary" type="button" (click)="startCreate()">
           <mat-icon>add</mat-icon>
-          New ticket
+          {{ 'ui.newTicket' | translate }}
         </button>
       }
     </div>
   </header>
 
   @if (success(); as message) {
-    <div class="alert alert-success">{{ message }}</div>
+    <div class="alert alert-success">{{ message | translate }}</div>
   }
   @if (error(); as message) {
-    <div class="alert alert-error">{{ message }}</div>
+    <div class="alert alert-error">{{ message | translate }}</div>
   }
 
   <div class="grid grid-3">
     <article class="stat-card">
       <span class="stat-icon"><mat-icon>confirmation_number</mat-icon></span>
       <span class="stat-value">{{ items().length }}</span>
-      <span class="stat-label">Tickets in view</span>
+      <span class="stat-label">{{ 'ui.ticketsInView' | translate }}</span>
     </article>
     <article class="stat-card">
       <span class="stat-icon"><mat-icon>pending_actions</mat-icon></span>
       <span class="stat-value">{{ openCount() }}</span>
-      <span class="stat-label">Open or visit requested</span>
+      <span class="stat-label">{{ 'ui.openOrVisitRequested' | translate }}</span>
     </article>
     <article class="stat-card">
       <span class="stat-icon"><mat-icon>task_alt</mat-icon></span>
       <span class="stat-value">{{ resolvedCount() }}</span>
-      <span class="stat-label">Resolved</span>
+      <span class="stat-label">{{ 'ui.resolved' | translate }}</span>
     </article>
   </div>
 
   <div class="split" [class.single]="!showForm()">
     <section class="card">
       <div class="section-title">
-        <h2>Support queue</h2>
+        <h2>{{ 'ui.supportQueue' | translate }}</h2>
         <div class="filter-row">
-          <label for="ticket-filter">Status</label>
+          <label for="ticket-filter">{{ 'ui.status' | translate }}</label>
           <select id="ticket-filter" (change)="filter($any($event.target).value)">
             @for (status of statuses; track status) {
               <option [value]="status" [selected]="status === activeFilter()">
-                {{ status === 'ALL' ? 'All statuses' : statusLabel(status) }}
+                {{ status === 'ALL' ? ('ui.allStatuses' | translate) : (statusLabel(status) | translate) }}
               </option>
             }
           </select>
@@ -64,22 +63,22 @@
       </div>
 
       @if (loading()) {
-        <div class="loading-row"><span class="spinner"></span>Loading tickets...</div>
+        <div class="loading-row"><span class="spinner"></span>{{ 'ui.loadingTickets' | translate }}</div>
       } @else if (items().length === 0) {
         <div class="empty">
           <mat-icon>support_agent</mat-icon>
-          <span class="empty-title">No tickets for this filter</span>
-          <span class="empty-text">Open a ticket when a guide does not solve the issue.</span>
+          <span class="empty-title">{{ 'ui.noTicketsForThisFilter' | translate }}</span>
+          <span class="empty-text">{{ 'ui.openATicketWhenAGuideDoes' | translate }}</span>
         </div>
       } @else {
         <div class="table-wrap">
           <table class="table">
             <thead>
               <tr>
-                <th>Subject</th>
-                <th>Supply point</th>
-                <th>Status</th>
-                <th>Opened</th>
+                <th>{{ 'ui.subject' | translate }}</th>
+                <th>{{ 'ui.supplyPoint' | translate }}</th>
+                <th>{{ 'ui.status' | translate }}</th>
+                <th>{{ 'ui.opened' | translate }}</th>
                 <th></th>
               </tr>
             </thead>
@@ -103,13 +102,13 @@
                       [class.chip-blue]="ticket.status === 'VISIT_REQUESTED'"
                       [class.chip-amber]="ticket.status === 'OPEN'"
                     >
-                      {{ statusLabel(ticket.status) }}
+                      {{ statusLabel(ticket.status) | translate }}
                     </span>
                   </td>
-                  <td class="cell-muted">{{ ticket.createdAt | date: 'dd MMM yyyy' }}</td>
+                  <td class="cell-muted">{{ ticket.createdAt | date: 'dd MMM yyyy' : undefined : lang() }}</td>
                   <td>
                     <a class="btn btn-ghost btn-sm" [routerLink]="['/support/tickets', ticket.id]">
-                      Open
+                      {{ 'ui.open' | translate }}
                     </a>
                   </td>
                 </tr>
@@ -123,19 +122,18 @@
     @if (showForm()) {
       <aside class="card">
         <div class="section-title">
-          <h2>Open a ticket</h2>
-          <button class="btn btn-ghost btn-sm" type="button" (click)="cancelForm()">Close</button>
+          <h2>{{ 'ui.openATicket' | translate }}</h2>
+          <button class="btn btn-ghost btn-sm" type="button" (click)="cancelForm()">{{ 'ui.close' | translate }}</button>
         </div>
         <p class="card-subtitle">
-          Choose the affected supply point and describe what happened. Include error codes
-          or LED states when possible.
+          {{ 'ui.chooseTheAffectedSupplyPointAndDescribe' | translate }}
         </p>
 
         <form [formGroup]="form" (ngSubmit)="submit()">
           <div class="field">
-            <label for="ticket-meter">Supply point</label>
+            <label for="ticket-meter">{{ 'ui.supplyPoint' | translate }}</label>
             <select id="ticket-meter" formControlName="meterId">
-              <option value="">Select a supply point</option>
+              <option value="">{{ 'ui.selectASupplyPoint' | translate }}</option>
               @for (meter of meters(); track meter.id) {
                 <option [value]="meter.id">
                   {{ meter.displayName }} · {{ meter.propertyName }}
@@ -143,32 +141,32 @@
               }
             </select>
             @if (form.controls.meterId.touched && form.controls.meterId.invalid) {
-              <span class="field-error">Select the affected supply point.</span>
+              <span class="field-error">{{ 'ui.selectTheAffectedSupplyPoint' | translate }}</span>
             }
           </div>
           <div class="field">
-            <label for="ticket-subject">Subject</label>
-            <input id="ticket-subject" formControlName="subject" placeholder="Device offline" />
+            <label for="ticket-subject">{{ 'ui.subject' | translate }}</label>
+            <input id="ticket-subject" formControlName="subject" [placeholder]="'ui.deviceOffline' | translate" />
             @if (form.controls.subject.touched && form.controls.subject.invalid) {
-              <span class="field-error">A short subject is required.</span>
+              <span class="field-error">{{ 'ui.aShortSubjectIsRequired' | translate }}</span>
             }
           </div>
           <div class="field">
-            <label for="ticket-message">Description</label>
+            <label for="ticket-message">{{ 'ui.description' | translate }}</label>
             <textarea
               id="ticket-message"
               formControlName="message"
-              placeholder="Describe the issue, when it started and what you already tried."
+              [placeholder]="'ui.describeTheIssueWhenItStartedAnd' | translate"
             ></textarea>
             @if (form.controls.message.touched && form.controls.message.invalid) {
-              <span class="field-error">Describe the issue.</span>
+              <span class="field-error">{{ 'ui.describeTheIssue' | translate }}</span>
             }
           </div>
 
           <div class="form-actions">
-            <button class="btn btn-secondary" type="button" (click)="cancelForm()">Cancel</button>
+            <button class="btn btn-secondary" type="button" (click)="cancelForm()">{{ 'ui.cancel' | translate }}</button>
             <button class="btn btn-primary" type="submit" [disabled]="saving()">
-              {{ saving() ? 'Opening...' : 'Open ticket' }}
+              {{ saving() ? ('ui.opening' | translate) : ('ui.openTicket' | translate) }}
             </button>
           </div>
         </form>

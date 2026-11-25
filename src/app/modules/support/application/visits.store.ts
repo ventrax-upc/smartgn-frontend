@@ -140,6 +140,23 @@ export class VisitsStore {
     });
   }
 
+  advanceVisit(visit: Visit): void {
+    if (this.savingSignal() || (visit.status !== 'ASSIGNED' && visit.status !== 'SCHEDULED')) return;
+    this.errorSignal.set(null);
+    this.savingSignal.set(true);
+    const request = visit.status === 'ASSIGNED' ? this.api.scheduleVisit(visit) : this.api.startVisit(visit.id);
+    request.subscribe({
+      next: (updated) => {
+        this.merge([updated]);
+        this.savingSignal.set(false);
+      },
+      error: (err) => {
+        this.errorSignal.set(this.messageFrom(err));
+        this.savingSignal.set(false);
+      },
+    });
+  }
+
   completeVisit(
     visitId: string,
     summary: string,

@@ -4,6 +4,7 @@ import { DevicesApi } from '../infrastructure/devices-api';
 import { Device, DeviceStatus, ProvisioningReceipt } from '../domain/model/device.entity';
 import { SupplyPoint } from '../domain/model/supply-point.entity';
 import { RegisterDeviceResource } from '../infrastructure/device-response';
+import { MetersApi } from '../infrastructure/meters-api';
 import { PropertiesApi } from '../infrastructure/properties-api';
 import { SupplyPointsApi } from '../infrastructure/supply-points-api';
 import { AuthStore } from '../../iam/application/auth.store';
@@ -12,6 +13,7 @@ import { AuthStore } from '../../iam/application/auth.store';
 export class DevicesStore {
   private readonly api = inject(DevicesApi);
   private readonly auth = inject(AuthStore);
+  private readonly metersApi = inject(MetersApi);
   private readonly propertiesApi = inject(PropertiesApi);
   private readonly supplyPointsApi = inject(SupplyPointsApi);
 
@@ -43,7 +45,9 @@ export class DevicesStore {
     this.errorSignal.set(null);
     const request$ = this.auth.isSuperAdmin()
       ? this.api.getAll({ status })
-      : this.loadForOwner(status);
+      : this.auth.isDelegated()
+        ? this.loadForDelegate(status)
+        : this.loadForOwner(status);
     request$.subscribe({
       next: (items) => {
         this.itemsSignal.set(items);
@@ -139,6 +143,21 @@ export class DevicesStore {
           ? forkJoin(points.map((point) => this.api.getAll({ pointId: point.id, status })))
           : of<Device[][]>([]),
       ),
+      map((groups) => groups.flat()),
+    );
+  }
+
+  private loadForDelegate(status?: DeviceStatus): Observable<Device[]> {
+    return this.metersApi.getAll().pipe(
+      switchMap((meters) => {
+        const requests = meters.flatMap((meter) => {
+          const [permission] = meter.permissions;
+          return permission
+            ? [this.api.getAll({ pointId: meter.id, function: permission, status })]
+            : [];
+        });
+        return requests.length ? forkJoin(requests) : of<Device[][]>([]);
+      }),
       map((groups) => groups.flat()),
     );
   }

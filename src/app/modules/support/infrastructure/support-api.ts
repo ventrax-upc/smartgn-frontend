@@ -159,7 +159,13 @@ export class SupportApi {
   }
 
   addPhoto(ticketId: string, input: PhotoInputResource): Observable<TicketPhoto> {
-    return this.http.post<PhotoResource>(`${this.url}/tickets/${ticketId}/photos`, input).pipe(
+    const upload = new FormData();
+    upload.append('file', input.file);
+    upload.append('uploadedByAccountId', input.uploadedByAccountId);
+    const body = environment.showDemoAccounts
+      ? { objectReference: input.file.name, uploadedByAccountId: input.uploadedByAccountId }
+      : upload;
+    return this.http.post<PhotoResource>(`${this.url}/tickets/${ticketId}/photos`, body).pipe(
       map((resource) => this.photoAssembler.toEntityFromResource(resource)),
       catchError((err) => throwError(() => this.toError(err, 'Could not attach the photo.'))),
     );
@@ -215,6 +221,19 @@ export class SupportApi {
           throwError(() => this.toError(err, 'Could not assign the technician.')),
         ),
       );
+  }
+
+  scheduleVisit(visit: Visit): Observable<Visit> {
+    return this.http.post<VisitResource>(`${this.url}/visits/${visit.id}/schedule`, {
+      requestedWindowStart: visit.requestedWindowStart,
+      requestedWindowEnd: visit.requestedWindowEnd,
+    }).pipe(map((resource) => this.visitAssembler.toEntityFromResource(resource)));
+  }
+
+  startVisit(visitId: string): Observable<Visit> {
+    return this.http.post<VisitResource>(`${this.url}/visits/${visitId}/start`, {}).pipe(
+      map((resource) => this.visitAssembler.toEntityFromResource(resource)),
+    );
   }
 
   getDiagnosis(visitId: string): Observable<VisitDiagnosis | null> {

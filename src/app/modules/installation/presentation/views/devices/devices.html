@@ -1,62 +1,60 @@
 <div class="page">
   <header class="page-header">
     <div class="page-heading">
-      <span class="eyebrow">{{ isSuperAdmin() ? 'Operations · SuperAdmin' : 'Your account' }}</span>
-      <h1 class="page-title">Devices</h1>
+      <span class="eyebrow">{{ isSuperAdmin() ? ('ui.operationsSuperadmin' | translate) : 'Your account' }}</span>
+      <h1 class="page-title">{{ 'ui.devices' | translate }}</h1>
       <p class="page-subtitle">
         @if (isSuperAdmin()) {
-          Register installed hardware, provision one-time credentials and follow broker
-          and telemetry confirmations before trusting a device as active.
+          {{ 'ui.registerInstalledHardwareProvisionOneTimeCredentials' | translate }}
         } @else {
-          Devices installed on your supply points and their current connection status.
+          {{ 'ui.devicesInstalledOnYourSupplyPointsAnd' | translate }}
         }
       </p>
     </div>
     <div class="header-actions">
       <button class="btn btn-secondary" type="button" (click)="reload()">
         <mat-icon>refresh</mat-icon>
-        Refresh
+        {{ 'ui.refresh' | translate }}
       </button>
     </div>
   </header>
 
   @if (error(); as message) {
-    <div class="alert alert-error">{{ message }}</div>
+    <div class="alert alert-error">{{ message | translate }}</div>
   }
 
   @if (isSuperAdmin()) {
     @if (receipt(); as current) {
     <section class="card receipt-card">
       <div class="section-title">
-        <h2>Provisioning receipt</h2>
-        <button class="btn btn-ghost btn-sm" type="button" (click)="clearReceipt()">Dismiss</button>
+        <h2>{{ 'ui.provisioningReceipt' | translate }}</h2>
+        <button class="btn btn-ghost btn-sm" type="button" (click)="clearReceipt()">{{ 'ui.dismiss' | translate }}</button>
       </div>
       <p class="card-subtitle">
-        This credential is shown only once. Configure it on the physical device before
-        leaving this page.
+        {{ 'ui.thisCredentialIsShownOnlyOnceConfigure' | translate }}
       </p>
       <div class="credential-grid">
         <div>
-          <span class="fact-label">Device</span>
+          <span class="fact-label">{{ 'ui.device' | translate }}</span>
           <span class="mono">{{ current.device.serialNumber }}</span>
         </div>
         <div>
-          <span class="fact-label">Client ID</span>
+          <span class="fact-label">{{ 'ui.clientId' | translate }}</span>
           <span class="mono">{{ current.credential.clientId }}</span>
         </div>
         <div>
-          <span class="fact-label">Username</span>
+          <span class="fact-label">{{ 'ui.username' | translate }}</span>
           <span class="mono">{{ current.credential.username }}</span>
         </div>
         <div>
-          <span class="fact-label">Password</span>
+          <span class="fact-label">{{ 'ui.password' | translate }}</span>
           <span class="mono">{{ current.credential.password }}</span>
         </div>
       </div>
       <div class="form-actions">
         <button class="btn btn-secondary" type="button" (click)="copyCredential()">
           <mat-icon>content_copy</mat-icon>
-          Copy credential
+          {{ 'ui.copyCredential' | translate }}
         </button>
       </div>
     </section>
@@ -66,27 +64,27 @@
   <div class="split" [class.single]="!isSuperAdmin()">
     <section class="card">
       <div class="section-title">
-        <h2>Fleet</h2>
-        <span class="chip">{{ items().length }} devices</span>
+        <h2>{{ 'ui.fleet' | translate }}</h2>
+        <span class="chip">{{ items().length }} {{ 'ui.devices2' | translate }}</span>
       </div>
 
       @if (loading()) {
-        <div class="loading-row"><span class="spinner"></span>Loading devices...</div>
+        <div class="loading-row"><span class="spinner"></span>{{ 'ui.loadingDevices' | translate }}</div>
       } @else if (items().length === 0) {
         <div class="empty">
           <mat-icon>developer_board</mat-icon>
-          <span class="empty-title">No devices registered</span>
-          <span class="empty-text">Register hardware from a completed installation.</span>
+          <span class="empty-title">{{ 'ui.noDevicesRegistered' | translate }}</span>
+          <span class="empty-text">{{ 'ui.registerHardwareFromACompletedInstallation' | translate }}</span>
         </div>
       } @else {
         <div class="table-wrap">
           <table class="table">
             <thead>
               <tr>
-                <th>Device</th>
-                <th>Location</th>
-                <th>Status</th>
-                <th>Confirmations</th>
+                <th>{{ 'ui.device' | translate }}</th>
+                <th>{{ 'ui.location' | translate }}</th>
+                <th>{{ 'ui.status' | translate }}</th>
+                <th>{{ 'ui.confirmations' | translate }}</th>
                 <th></th>
               </tr>
             </thead>
@@ -95,7 +93,7 @@
                 <tr>
                   <td>
                     <span class="cell-title mono">{{ device.serialNumber }}</span>
-                    <div class="cell-muted">assoc. v{{ device.associationVersion }}</div>
+                    <div class="cell-muted">{{ 'ui.assocV' | translate }}{{ device.associationVersion }}</div>
                   </td>
                   <td>
                     <span>{{ device.location }}</span>
@@ -108,24 +106,24 @@
                       [class.chip-amber]="device.status === 'PENDING'"
                       [class.chip-red]="device.status === 'REVOKED' || device.status === 'FAILED'"
                     >
-                      {{ device.status }}
+                      {{ ('entityStatus.' + device.status) | translate }}
                     </span>
                   </td>
                   <td>
                     <div class="confirmation-list">
-                      <span class="chip" [class.chip-green]="device.brokerConfirmed">Broker</span>
-                      <span class="chip" [class.chip-green]="device.telemetryConfirmed">Telemetry</span>
+                      <span class="chip" [class.chip-green]="device.brokerConfirmed">{{ 'ui.broker' | translate }}</span>
+                      <span class="chip" [class.chip-green]="device.telemetryConfirmed">{{ 'ui.telemetry' | translate }}</span>
                     </div>
                   </td>
                   <td>
                     @if (isSuperAdmin()) {
                       <div class="row-actions">
                         <button class="btn btn-ghost btn-sm" type="button" (click)="rotate(device)">
-                          Rotate
+                          {{ 'ui.rotate' | translate }}
                         </button>
                         @if (device.status !== 'REVOKED') {
                           <button class="btn btn-danger btn-sm" type="button" (click)="revoke(device)">
-                            Revoke
+                            {{ 'ui.revoke' | translate }}
                           </button>
                         }
                       </div>
@@ -143,17 +141,16 @@
 
     @if (isSuperAdmin()) {
     <aside class="card">
-      <h2 class="card-title">Register a device</h2>
+      <h2 class="card-title">{{ 'ui.registerADevice' | translate }}</h2>
       <p class="card-subtitle">
-        Registration returns a credential once and leaves the device in PENDING until
-        broker and telemetry confirm.
+        {{ 'ui.registrationReturnsACredentialOnceAndLeaves' | translate }}
       </p>
 
       <form [formGroup]="form" (ngSubmit)="submit()">
         <div class="field">
-          <label for="device-installation">Installation</label>
+          <label for="device-installation">{{ 'ui.installation' | translate }}</label>
           <select id="device-installation" formControlName="installationId">
-            <option value="">Select an installation</option>
+            <option value="">{{ 'ui.selectAnInstallation' | translate }}</option>
             @for (installation of installations(); track installation.id) {
               <option [value]="installation.id">
                 {{ installation.pointName }} · {{ installation.installerName }}
@@ -162,22 +159,22 @@
           </select>
         </div>
         <div class="field">
-          <label for="device-serial">Serial number</label>
+          <label for="device-serial">{{ 'ui.serialNumber' | translate }}</label>
           <input id="device-serial" formControlName="serialNumber" placeholder="GN-DEV-0003" />
         </div>
         <div class="field">
-          <label for="device-location">Location</label>
-          <input id="device-location" formControlName="location" placeholder="Main kitchen" />
+          <label for="device-location">{{ 'ui.location' | translate }}</label>
+          <input id="device-location" formControlName="location" [placeholder]="'ui.mainKitchen' | translate" />
         </div>
         <div class="field">
-          <label for="device-date">Installed at</label>
+          <label for="device-date">{{ 'ui.installedAt' | translate }}</label>
           <input id="device-date" type="datetime-local" formControlName="installedAt" />
         </div>
 
         <div class="form-actions">
           <button class="btn btn-primary" type="submit" [disabled]="saving()">
             <mat-icon>add_link</mat-icon>
-            {{ saving() ? 'Registering...' : 'Register device' }}
+            {{ saving() ? ('ui.registering' | translate) : ('ui.registerDevice' | translate) }}
           </button>
         </div>
       </form>

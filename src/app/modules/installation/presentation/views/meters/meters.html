@@ -1,52 +1,51 @@
 <div class="page">
   <header class="page-header">
     <div class="page-heading">
-      <span class="eyebrow">Installation · Supply points</span>
-      <h1 class="page-title">My supply points</h1>
+      <span class="eyebrow">{{ 'ui.installationSupplyPoints' | translate }}</span>
+      <h1 class="page-title">{{ 'ui.mySupplyPoints' | translate }}</h1>
       <p class="page-subtitle">
-        Every meter you can access, with the permissions granted to your account.
-        Consumption monitoring and alerts arrive in the next product increment.
+        {{ 'ui.everyMeterYouCanAccessWithThe' | translate }}
       </p>
     </div>
     <div class="header-actions">
       <button class="btn btn-secondary" type="button" (click)="reload()">
         <mat-icon>refresh</mat-icon>
-        Refresh
+        {{ 'ui.refresh' | translate }}
       </button>
     </div>
   </header>
 
   @if (error(); as message) {
-    <div class="alert alert-error">{{ message }}</div>
+    <div class="alert alert-error">{{ message | translate }}</div>
   }
 
   <div class="grid grid-3">
     <article class="stat-card">
       <span class="stat-icon"><mat-icon>bolt</mat-icon></span>
       <span class="stat-value">{{ count() }}</span>
-      <span class="stat-label">Accessible supply points</span>
+      <span class="stat-label">{{ 'ui.accessibleSupplyPoints' | translate }}</span>
     </article>
     <article class="stat-card">
       <span class="stat-icon"><mat-icon>home_work</mat-icon></span>
       <span class="stat-value">{{ propertyCount() }}</span>
-      <span class="stat-label">Properties represented</span>
+      <span class="stat-label">{{ 'ui.propertiesRepresented' | translate }}</span>
     </article>
     <article class="stat-card">
       <span class="stat-icon"><mat-icon>verified_user</mat-icon></span>
-      <span class="stat-value">Scoped</span>
-      <span class="stat-label">Access controlled by grants</span>
+      <span class="stat-value">{{ 'ui.scoped' | translate }}</span>
+      <span class="stat-label">{{ 'ui.accessControlledByGrants' | translate }}</span>
     </article>
   </div>
 
   @if (loading()) {
-    <div class="card"><div class="loading-row"><span class="spinner"></span>Loading supply points...</div></div>
+    <div class="card"><div class="loading-row"><span class="spinner"></span>{{ 'ui.loadingSupplyPoints' | translate }}</div></div>
   } @else if (items().length === 0) {
     <div class="card">
       <div class="empty">
         <mat-icon>bolt</mat-icon>
-        <span class="empty-title">No supply points available</span>
+        <span class="empty-title">{{ 'ui.noSupplyPointsAvailable' | translate }}</span>
         <span class="empty-text">
-          If you are a delegated user, ask the principal account to grant access to a meter.
+          {{ 'ui.ifYouAreADelegatedUserAsk' | translate }}
         </span>
       </div>
     </div>
@@ -59,30 +58,30 @@
               <h2 class="card-title">{{ meter.displayName }}</h2>
               <p class="cell-muted">{{ meter.propertyName }}</p>
             </div>
-            <span class="chip chip-green">Active</span>
+            <span class="chip chip-green">{{ 'ui.active' | translate }}</span>
           </div>
 
           <div class="meter-facts">
             <div>
-              <span class="fact-label">Serial number</span>
+              <span class="fact-label">{{ 'ui.serialNumber' | translate }}</span>
               <span class="mono">{{ meter.serialNumber }}</span>
             </div>
             <div>
-              <span class="fact-label">Supply point ID</span>
+              <span class="fact-label">{{ 'ui.supplyPointId' | translate }}</span>
               <span class="mono">{{ meter.id }}</span>
             </div>
           </div>
 
           <div class="permissions">
             @for (permission of meter.permissions; track permission) {
-              <span class="chip chip-blue">{{ permissionLabels[permission] }}</span>
+              <span class="chip chip-blue">{{ ('meterPermission.' + permission) | translate }}</span>
             }
           </div>
 
           <div class="meter-actions">
             <a class="btn btn-secondary btn-sm" [routerLink]="['/support/tickets']" [queryParams]="{ meterId: meter.id }">
               <mat-icon>support_agent</mat-icon>
-              Open support ticket
+              {{ 'ui.openSupportTicket' | translate }}
             </a>
           </div>
         </article>

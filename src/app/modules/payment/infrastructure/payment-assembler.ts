@@ -46,7 +46,8 @@ export class PaymentOrderAssembler {
       reason: resource.reason,
       amount: resource.amount,
       currency: resource.currency,
-      status: resource.status,
+      status: resource.status === 'CONFIRMED' ? 'PAID' :
+        resource.status === 'DECLINED' ? 'FAILED' : resource.status,
       createdAt: resource.created_at,
       confirmedAt: resource.confirmed_at,
       lines: (resource.lines ?? []).map(

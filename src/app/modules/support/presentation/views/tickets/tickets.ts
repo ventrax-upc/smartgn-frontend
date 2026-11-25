@@ -1,3 +1,5 @@
+import { LanguageService } from '../../../../../shared/application/language.service';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { DatePipe, SlicePipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -10,11 +12,12 @@ import { AuthStore } from '../../../../iam/application/auth.store';
 
 @Component({
   selector: 'app-tickets',
-  imports: [ReactiveFormsModule, DatePipe, SlicePipe, RouterLink, MatIcon],
+  imports: [TranslatePipe, ReactiveFormsModule, DatePipe, SlicePipe, RouterLink, MatIcon],
   templateUrl: './tickets.html',
   styleUrl: './tickets.css',
 })
 export class TicketsPage implements OnInit {
+  protected readonly lang = inject(LanguageService).lang;
   private readonly store = inject(TicketsStore);
   private readonly metersStore = inject(MetersStore);
   private readonly authStore = inject(AuthStore);
@@ -87,7 +90,7 @@ export class TicketsPage implements OnInit {
       {
         onSuccess: (ticket) => {
           this.showForm.set(false);
-          this.success.set('Ticket opened. Our team will reply shortly.');
+          this.success.set('ui.ticketOpenedOurTeamWillReplyShortly');
           this.router.navigate(['/support/tickets', ticket.id]);
         },
       },
@@ -100,6 +103,6 @@ export class TicketsPage implements OnInit {
   }
 
   protected statusLabel(status: TicketStatus): string {
-    return status.replaceAll('_', ' ').toLowerCase();
+    return 'supportStatus.' + status;
   }
 }

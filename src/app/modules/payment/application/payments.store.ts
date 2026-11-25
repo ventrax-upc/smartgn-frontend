@@ -54,8 +54,8 @@ export class PaymentsStore {
   ): void {
     this.savingSignal.set(true);
     this.api.payOrder(order.id, paymentMethodId).subscribe({
-      next: (updated) => {
-        this.replace(updated);
+      next: () => {
+        this.load();
         this.savingSignal.set(false);
         callbacks?.onSuccess?.();
       },
@@ -73,8 +73,8 @@ export class PaymentsStore {
   ): void {
     this.savingSignal.set(true);
     this.api.retryOrder(order.id, paymentMethodId).subscribe({
-      next: (updated) => {
-        this.replace(updated);
+      next: () => {
+        this.load();
         this.savingSignal.set(false);
         callbacks?.onSuccess?.();
       },
@@ -100,11 +100,6 @@ export class PaymentsStore {
     });
   }
 
-  private replace(updated: PaymentOrder): void {
-    this.itemsSignal.update((items) =>
-      items.map((item) => (item.id === updated.id ? updated : item)),
-    );
-  }
 
   private messageFrom(err: unknown): string {
     if (err instanceof Error && err.message) {

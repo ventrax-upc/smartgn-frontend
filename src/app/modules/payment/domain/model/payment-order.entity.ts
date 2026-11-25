@@ -2,7 +2,7 @@ import { BaseEntity } from '../../../../shared/domain/model/base-entity';
 import { BillingDocument } from './billing-document.entity';
 
 export type PaymentReason = 'INSTALLATION' | 'PRO' | 'TECHNICAL_VISIT';
-export type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED';
+export type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED' | 'UNKNOWN';
 
 export class PaymentLine {
   constructor(

@@ -49,15 +49,15 @@
 
         <div class="price-row">
           <span class="price">
-            {{ current.monthlyProPrice | currency: current.currency : 'symbol-narrow' : '1.2-2' }}
+            {{ current.monthlyProPrice | currency: current.currency : 'symbol-narrow' : '1.2-2' : lang() }}
           </span>
           <span class="muted">{{ 'subscription.perMonth' | translate }}</span>
         </div>
         <p class="card-subtitle">
           {{ 'subscription.priceComparisonPrefix' | translate }}
-          <strong>{{ current.technicalBasePriceReference | currency: current.currency : 'symbol-narrow' : '1.2-2' }}</strong>.
+          <strong>{{ current.technicalBasePriceReference | currency: current.currency : 'symbol-narrow' : '1.2-2' : lang() }}</strong>.
           {{ 'subscription.priceComparisonMiddle' | translate }}
-          <strong>{{ current.savings | currency: current.currency : 'symbol-narrow' : '1.2-2' }}</strong>
+          <strong>{{ current.savings | currency: current.currency : 'symbol-narrow' : '1.2-2' : lang() }}</strong>
           {{ 'subscription.priceComparisonSuffix' | translate }}
         </p>
 
@@ -67,8 +67,8 @@
           <div>
             <dt>{{ 'subscription.billingPeriod' | translate }}</dt>
             <dd>
-              {{ current.periodStartsAt | date: 'dd MMM yyyy' }} —
-              {{ current.periodEndsAt | date: 'dd MMM yyyy' }}
+              {{ current.periodStartsAt | date: 'dd MMM yyyy' : undefined : lang() }} —
+              {{ current.periodEndsAt | date: 'dd MMM yyyy' : undefined : lang() }}
             </dd>
           </div>
           <div>
@@ -178,7 +178,7 @@
               <div class="alert alert-warning auto-renew-warning">
                 {{
                   'subscription.expirationWarning'
-                    | translate: { date: (current.periodEndsAt | date: 'dd MMM yyyy') }
+                    | translate: { date: (current.periodEndsAt | date: 'dd MMM yyyy' : undefined : lang()) }
                 }}
               </div>
             }

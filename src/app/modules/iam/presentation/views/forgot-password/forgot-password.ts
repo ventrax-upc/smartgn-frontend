@@ -1,3 +1,4 @@
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -6,7 +7,7 @@ import { AuthStore } from '../../../application/auth.store';
 
 @Component({
   selector: 'app-forgot-password',
-  imports: [ReactiveFormsModule, RouterLink, MatIcon],
+  imports: [TranslatePipe, ReactiveFormsModule, RouterLink, MatIcon],
   templateUrl: './forgot-password.html',
   styleUrl: './forgot-password.css',
 })

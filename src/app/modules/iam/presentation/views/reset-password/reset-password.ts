@@ -1,3 +1,4 @@
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -6,7 +7,7 @@ import { AuthStore } from '../../../application/auth.store';
 
 @Component({
   selector: 'app-reset-password',
-  imports: [ReactiveFormsModule, RouterLink, MatIcon],
+  imports: [TranslatePipe, ReactiveFormsModule, RouterLink, MatIcon],
   templateUrl: './reset-password.html',
   styleUrl: './reset-password.css',
 })
@@ -38,7 +39,7 @@ export class ResetPassword {
     }
     const { token, newPassword, confirmPassword } = this.form.getRawValue();
     if (newPassword !== confirmPassword) {
-      this.error.set('Passwords do not match.');
+      this.error.set('ui.passwordsDoNotMatch');
       return;
     }
 

@@ -1,15 +1,12 @@
 import { Injectable } from '@angular/core';
-import { BaseAssembler } from '../../../shared/infrastructure/base-assembler';
 import { Subuser } from '../domain/model/subuser.entity';
 import { SubuserResource } from './subuser-response';
 
 @Injectable({ providedIn: 'root' })
-export class SubuserAssembler
-  implements BaseAssembler<Subuser, SubuserResource, SubuserResource[]>
-{
+export class SubuserAssembler {
   toEntityFromResource(resource: SubuserResource): Subuser {
     return new Subuser({
-      id: String(resource.id),
+      id: String(resource.id ?? resource.accountId),
       email: resource.email,
       firstName: resource.firstName,
       lastName: resource.lastName,

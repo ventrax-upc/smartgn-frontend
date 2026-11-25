@@ -1,0 +1,68 @@
+services:
+  config:
+    image: "${SMARTGN_DOCKERHUB_NAMESPACE:?Set SMARTGN_DOCKERHUB_NAMESPACE}/smartgn:${SMARTGN_IMAGE_TAG:?Set SMARTGN_IMAGE_TAG}-config"
+    build: !reset null
+    ports: !reset []
+    restart: unless-stopped
+  admin:
+    image: "${SMARTGN_DOCKERHUB_NAMESPACE:?Set SMARTGN_DOCKERHUB_NAMESPACE}/smartgn:${SMARTGN_IMAGE_TAG:?Set SMARTGN_IMAGE_TAG}-admin"
+    build: !reset null
+    ports: !reset []
+    restart: unless-stopped
+  message-broker:
+    image: "${SMARTGN_DOCKERHUB_NAMESPACE:?Set SMARTGN_DOCKERHUB_NAMESPACE}/smartgn:${SMARTGN_IMAGE_TAG:?Set SMARTGN_IMAGE_TAG}-message-broker"
+    build: !reset null
+    ports: !reset []
+    restart: unless-stopped
+  iam:
+    image: "${SMARTGN_DOCKERHUB_NAMESPACE:?Set SMARTGN_DOCKERHUB_NAMESPACE}/smartgn:${SMARTGN_IMAGE_TAG:?Set SMARTGN_IMAGE_TAG}-iam"
+    build: !reset null
+    ports: !reset []
+    restart: unless-stopped
+  installation:
+    image: "${SMARTGN_DOCKERHUB_NAMESPACE:?Set SMARTGN_DOCKERHUB_NAMESPACE}/smartgn:${SMARTGN_IMAGE_TAG:?Set SMARTGN_IMAGE_TAG}-installation"
+    build: !reset null
+    ports: !reset []
+    restart: unless-stopped
+  support:
+    image: "${SMARTGN_DOCKERHUB_NAMESPACE:?Set SMARTGN_DOCKERHUB_NAMESPACE}/smartgn:${SMARTGN_IMAGE_TAG:?Set SMARTGN_IMAGE_TAG}-support"
+    build: !reset null
+    ports: !reset []
+    restart: unless-stopped
+  billing:
+    image: "${SMARTGN_DOCKERHUB_NAMESPACE:?Set SMARTGN_DOCKERHUB_NAMESPACE}/smartgn:${SMARTGN_IMAGE_TAG:?Set SMARTGN_IMAGE_TAG}-billing"
+    build: !reset null
+    ports: !reset []
+    restart: unless-stopped
+  alerting:
+    image: "${SMARTGN_DOCKERHUB_NAMESPACE:?Set SMARTGN_DOCKERHUB_NAMESPACE}/smartgn:${SMARTGN_IMAGE_TAG:?Set SMARTGN_IMAGE_TAG}-alerting"
+    build: !reset null
+    ports: !reset []
+    restart: unless-stopped
+  telemetry:
+    image: "${SMARTGN_DOCKERHUB_NAMESPACE:?Set SMARTGN_DOCKERHUB_NAMESPACE}/smartgn:${SMARTGN_IMAGE_TAG:?Set SMARTGN_IMAGE_TAG}-telemetry"
+    build: !reset null
+    ports: !reset []
+    restart: unless-stopped
+  monitoring:
+    image: "${SMARTGN_DOCKERHUB_NAMESPACE:?Set SMARTGN_DOCKERHUB_NAMESPACE}/smartgn:${SMARTGN_IMAGE_TAG:?Set SMARTGN_IMAGE_TAG}-monitoring"
+    build: !reset null
+    ports: !reset []
+    restart: unless-stopped
+  api-gateway:
+    image: "${SMARTGN_DOCKERHUB_NAMESPACE:?Set SMARTGN_DOCKERHUB_NAMESPACE}/smartgn:${SMARTGN_IMAGE_TAG:?Set SMARTGN_IMAGE_TAG}-api-gateway"
+    build: !reset null
+    ports: !reset []
+    restart: unless-stopped
+  postgres:
+    restart: unless-stopped
+  redis:
+    restart: unless-stopped
+  influxdb:
+    restart: unless-stopped
+  emqx:
+    restart: unless-stopped
+  delivery:
+    restart: unless-stopped
+  frontend:
+    image: "${SMARTGN_DOCKERHUB_NAMESPACE:?Set SMARTGN_DOCKERHUB_NAMESPACE}/smartgn:${SMARTGN_IMAGE_TAG:?Set SMARTGN_IMAGE_TAG}-frontend"

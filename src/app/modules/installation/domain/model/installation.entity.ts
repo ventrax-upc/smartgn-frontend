@@ -117,7 +117,7 @@ export class Installation implements BaseEntity {
   }
 
   get canAssign(): boolean {
-    return ['PROVISIONAL', 'PENDING', 'ASSIGNED'].includes(this._status);
+    return this._status === 'PENDING' && Boolean(this._accountId && this._propertyId && this._pointId);
   }
 
   get canStart(): boolean {

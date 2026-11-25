@@ -18,9 +18,4 @@ export interface InstallationResource extends BaseResource {
   deviceSerialNumber?: string;
 }
 
-export interface CreateInstallationResource {
-  propertyId: string;
-  pointId: string;
-}
-
 export type InstallationResponse = InstallationResource[];

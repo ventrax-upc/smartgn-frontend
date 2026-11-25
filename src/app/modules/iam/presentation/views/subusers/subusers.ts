@@ -1,3 +1,4 @@
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
@@ -7,7 +8,7 @@ import { MetersStore } from '../../../../installation/application/meters.store';
 
 @Component({
   selector: 'app-subusers',
-  imports: [ReactiveFormsModule, MatIcon],
+  imports: [TranslatePipe, ReactiveFormsModule, MatIcon],
   templateUrl: './subusers.html',
   styleUrl: './subusers.css',
 })
@@ -32,12 +33,12 @@ export class SubusersPage implements OnInit {
   protected readonly selectedPermissions = signal<MeterPermission[]>([]);
 
   protected readonly permissions: Array<{ value: MeterPermission; label: string }> = [
-    { value: 'VIEW_CONSUMPTION', label: 'View consumption' },
-    { value: 'VIEW_HISTORY', label: 'View history' },
-    { value: 'VIEW_ALERTS', label: 'View alerts' },
-    { value: 'USE_REPORTS', label: 'Use reports' },
-    { value: 'USE_TICKETS', label: 'Open tickets' },
-    { value: 'USE_VISITS', label: 'Request visits' },
+    { value: 'VIEW_CONSUMPTION', label: 'ui.viewConsumption' },
+    { value: 'VIEW_HISTORY', label: 'ui.viewHistory' },
+    { value: 'VIEW_ALERTS', label: 'ui.viewAlerts' },
+    { value: 'USE_REPORTS', label: 'ui.useReports' },
+    { value: 'USE_TICKETS', label: 'ui.openTickets' },
+    { value: 'USE_VISITS', label: 'ui.requestVisits' },
   ];
 
   protected readonly form = new FormGroup({
@@ -71,7 +72,7 @@ export class SubusersPage implements OnInit {
       {
         onSuccess: (subuser) => {
           this.form.reset({ email: '', firstName: '', lastName: '' });
-          this.success.set('Subuser invited. Share the activation link privately.');
+          this.success.set('ui.subuserInvitedShareTheActivationLinkPrivately');
           this.activationLink.set(
             subuser.activationToken
               ? `${window.location.origin}/activate-password?token=${subuser.activationToken}`
@@ -111,7 +112,7 @@ export class SubusersPage implements OnInit {
     const meterId = this.selectedMeterId();
     if (!subuserId || !meterId) return;
     this.store.updateGrants(subuserId, meterId, this.selectedPermissions(), {
-      onSuccess: () => this.success.set('Access grant saved.'),
+      onSuccess: () => this.success.set('ui.accessGrantSaved'),
     });
   }
 

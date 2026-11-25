@@ -1,3 +1,5 @@
+import { LanguageService } from '../../../../../shared/application/language.service';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
@@ -10,11 +12,12 @@ import { ConfirmDialog } from '../../../../../shared/presentation/components/con
 
 @Component({
   selector: 'app-installations',
-  imports: [FormsModule, DatePipe, MatIcon],
+  imports: [TranslatePipe, FormsModule, DatePipe, MatIcon],
   templateUrl: './installations.html',
   styleUrl: './installations.css',
 })
 export class InstallationsPage implements OnInit {
+  protected readonly lang = inject(LanguageService).lang;
   private readonly store = inject(InstallationsStore);
   private readonly installersStore = inject(InstallersStore);
   private readonly dialog = inject(MatDialog);
@@ -64,21 +67,21 @@ export class InstallationsPage implements OnInit {
 
   protected assign(installation: Installation): void {
     const installerId = this.selectedInstaller(installation);
-    if (!installerId) return;
+    if (!installation.canAssign || !installerId) return;
     this.store.assign(installation, installerId, {
-      onSuccess: () => this.success.set('Installer assigned.'),
+      onSuccess: () => this.success.set('ui.installerAssigned'),
     });
   }
 
   protected start(installation: Installation): void {
     this.store.changeStatus(installation, 'IN_PROGRESS', {
-      onSuccess: () => this.success.set('Installation moved to in progress.'),
+      onSuccess: () => this.success.set('ui.installationMovedToInProgress'),
     });
   }
 
   protected complete(installation: Installation): void {
     this.store.changeStatus(installation, 'COMPLETED', {
-      onSuccess: () => this.success.set('Installation completed.'),
+      onSuccess: () => this.success.set('ui.installationCompleted'),
     });
   }
 
@@ -94,14 +97,20 @@ export class InstallationsPage implements OnInit {
     ref.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
         this.store.cancel(installation, 'Cancelled from the SmartGN operations console', {
-          onSuccess: () => this.success.set('Installation cancelled.'),
+          onSuccess: () => this.success.set('ui.installationCancelled'),
         });
       }
     });
   }
 
+  protected installerLabel(installation: Installation): string {
+    return installation.installerName ||
+      this.installers().find((installer) => installer.id === installation.installerId)?.fullName ||
+      installation.installerId || '';
+  }
+
   protected availableInstallers() {
-    return this.installers().filter((installer) => installer.enabled);
+    return this.installers().filter((installer) => installer.enabled && installer.available);
   }
 
   protected showChip(status: InstallationStatus, value: string): boolean {

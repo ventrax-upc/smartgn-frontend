@@ -1,32 +1,31 @@
 <div class="page">
   <header class="page-header">
     <div class="page-heading">
-      <span class="eyebrow">Support</span>
-      <h1 class="page-title">Help center</h1>
+      <span class="eyebrow">{{ 'ui.support' | translate }}</span>
+      <h1 class="page-title">{{ 'ui.helpCenter' | translate }}</h1>
       <p class="page-subtitle">
-        Knowledge articles for devices, consumption, installation and account management.
-        Most questions are answered here before opening a ticket.
+        {{ 'ui.knowledgeArticlesForDevicesConsumptionInstallationAnd' | translate }}
       </p>
     </div>
     <div class="header-actions">
       <button class="btn btn-secondary" type="button" (click)="reload()">
         <mat-icon>refresh</mat-icon>
-        Refresh
+        {{ 'ui.refresh' | translate }}
       </button>
       @if (isSuperAdmin()) {
         <button class="btn btn-primary" type="button" (click)="startCreate()">
           <mat-icon>post_add</mat-icon>
-          New article
+          {{ 'ui.newArticle' | translate }}
         </button>
       }
     </div>
   </header>
 
   @if (success(); as message) {
-    <div class="alert alert-success">{{ message }}</div>
+    <div class="alert alert-success">{{ message | translate }}</div>
   }
   @if (error(); as message) {
-    <div class="alert alert-error">{{ message }}</div>
+    <div class="alert alert-error">{{ message | translate }}</div>
   }
 
   <div class="filter-chips">
@@ -37,7 +36,7 @@
         [class.active]="activeFilter() === category"
         (click)="filter(category)"
       >
-        {{ category === 'ALL' ? 'All articles' : categoryLabel(category) }}
+        {{ category === 'ALL' ? ('ui.allArticles' | translate) : categoryLabel(category) }}
       </button>
     }
   </div>
@@ -45,13 +44,13 @@
   <div class="split" [class.single]="!showForm()">
     <section>
       @if (loading()) {
-        <div class="loading-row"><span class="spinner"></span>Loading articles...</div>
+        <div class="loading-row"><span class="spinner"></span>{{ 'ui.loadingArticles' | translate }}</div>
       } @else if (items().length === 0) {
         <div class="card">
           <div class="empty">
             <mat-icon>menu_book</mat-icon>
-            <span class="empty-title">No articles in this category</span>
-            <span class="empty-text">Try another category or contact support.</span>
+            <span class="empty-title">{{ 'ui.noArticlesInThisCategory' | translate }}</span>
+            <span class="empty-text">{{ 'ui.tryAnotherCategoryOrContactSupport' | translate }}</span>
           </div>
         </div>
       } @else {
@@ -61,7 +60,7 @@
               <div class="guide-meta">
                 <span class="chip chip-green">{{ categoryLabel(article.category) }}</span>
                 @if (article.publishedAt) {
-                  <span class="cell-muted">Published {{ article.publishedAt | date: 'dd MMM yyyy' }}</span>
+                  <span class="cell-muted">{{ 'ui.published' | translate }} {{ article.publishedAt | date: 'dd MMM yyyy' : undefined : lang() }}</span>
                 }
               </div>
               <h2 class="card-title">{{ article.title }}</h2>
@@ -69,13 +68,13 @@
                 <mat-icon>link</mat-icon>
                 @if (article.isUrl) {
                   <a [href]="article.contentReference" target="_blank" rel="noopener">
-                    Open article
+                    {{ 'ui.openArticle' | translate }}
                   </a>
                 } @else {
                   <span class="mono">{{ article.contentReference }}</span>
                 }
               </div>
-              <span class="cell-muted mono">Article {{ article.id }}</span>
+              <span class="cell-muted mono">{{ 'ui.article' | translate }} {{ article.id }}</span>
             </article>
           }
         </div>
@@ -85,44 +84,44 @@
     @if (showForm()) {
       <aside class="card">
         <div class="section-title">
-          <h2>Publish an article</h2>
-          <button class="btn btn-ghost btn-sm" type="button" (click)="cancelForm()">Close</button>
+          <h2>{{ 'ui.publishAnArticle' | translate }}</h2>
+          <button class="btn btn-ghost btn-sm" type="button" (click)="cancelForm()">{{ 'ui.close' | translate }}</button>
         </div>
         <p class="card-subtitle">
-          The backend stores a content reference (URL or document key), not the article body.
+          {{ 'ui.theBackendStoresAContentReferenceUrl' | translate }}
         </p>
 
         <form [formGroup]="form" (ngSubmit)="submit()">
           <div class="field">
-            <label for="article-title">Title</label>
-            <input id="article-title" formControlName="title" placeholder="Understanding the LED indicators" />
+            <label for="article-title">{{ 'ui.title' | translate }}</label>
+            <input id="article-title" formControlName="title" [placeholder]="'ui.understandingTheLedIndicators' | translate" />
             @if (form.controls.title.touched && form.controls.title.invalid) {
-              <span class="field-error">The title is required.</span>
+              <span class="field-error">{{ 'ui.theTitleIsRequired' | translate }}</span>
             }
           </div>
           <div class="field">
-            <label for="article-category">Category</label>
-            <input id="article-category" formControlName="category" placeholder="Devices" />
+            <label for="article-category">{{ 'ui.category' | translate }}</label>
+            <input id="article-category" formControlName="category" [placeholder]="'ui.devices' | translate" />
             @if (form.controls.category.touched && form.controls.category.invalid) {
-              <span class="field-error">The category is required.</span>
+              <span class="field-error">{{ 'ui.theCategoryIsRequired' | translate }}</span>
             }
           </div>
           <div class="field">
-            <label for="article-reference">Content reference</label>
+            <label for="article-reference">{{ 'ui.contentReference' | translate }}</label>
             <input
               id="article-reference"
               formControlName="contentReference"
               placeholder="https://help.smartgn.pe/articles/led-indicators"
             />
             @if (form.controls.contentReference.touched && form.controls.contentReference.invalid) {
-              <span class="field-error">A URL or document key is required.</span>
+              <span class="field-error">{{ 'ui.aUrlOrDocumentKeyIsRequired' | translate }}</span>
             }
           </div>
 
           <div class="form-actions">
-            <button class="btn btn-secondary" type="button" (click)="cancelForm()">Cancel</button>
+            <button class="btn btn-secondary" type="button" (click)="cancelForm()">{{ 'ui.cancel' | translate }}</button>
             <button class="btn btn-primary" type="submit" [disabled]="saving()">
-              {{ saving() ? 'Publishing...' : 'Publish article' }}
+              {{ saving() ? ('ui.publishing' | translate) : ('ui.publishArticle' | translate) }}
             </button>
           </div>
         </form>

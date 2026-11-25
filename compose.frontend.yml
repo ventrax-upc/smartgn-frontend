@@ -1,0 +1,15 @@
+services:
+  iam:
+    environment:
+      PASSWORD_RESET_LINK_BASE_URL: "${SMARTGN_PUBLIC_ORIGIN:-http://localhost:${SMARTGN_FRONTEND_PORT:-4200}}/reset-password"
+  api-gateway:
+    environment:
+      CORS_ORIGINS: "${CORS_ORIGINS:-http://localhost:${SMARTGN_FRONTEND_PORT:-4200},http://127.0.0.1:${SMARTGN_FRONTEND_PORT:-4200}}"
+  frontend:
+    image: ${SMARTGN_FRONTEND_IMAGE:-smartgn-frontend:local}
+    ports:
+      - "${SMARTGN_FRONTEND_BIND:-127.0.0.1}:${SMARTGN_FRONTEND_PORT:-4200}:80"
+    restart: unless-stopped
+    depends_on:
+      api-gateway:
+        condition: service_healthy

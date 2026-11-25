@@ -1,0 +1,106 @@
+<main class="analytics">
+  <header>
+    <h1>{{ 'ui.alertsAndNotifications' | translate }}</h1>
+    <p>{{ 'ui.reviewDetectedConditionsAndNotificationsForYour' | translate }}</p>
+  </header>
+  <div class="actions">
+    <button
+      [disabled]="busy()"
+      [attr.aria-pressed]="mode() === 'alerts'"
+      (click)="load('alerts', 0)"
+    >
+      {{ 'ui.alerts' | translate }}
+    </button>
+    <button
+      [disabled]="busy()"
+      [attr.aria-pressed]="mode() === 'notices'"
+      (click)="load('notices', 0)"
+    >
+      {{ 'ui.notifications' | translate }}
+    </button>
+    <button [disabled]="busy()" (click)="load(mode(), page())">{{ 'ui.refresh' | translate }}</button>
+    <a routerLink="/support/guides">{{ 'ui.safetyGuides' | translate }}</a>
+  </div>
+  @if (error()) {
+    <p class="message" role="alert">{{ error() | translate }}</p>
+  }
+  @if (busy()) {
+    <p role="status">{{ 'ui.loading' | translate }}</p>
+  }
+  @if (mode() === 'alerts') {
+    <section class="stack" [attr.aria-label]="'ui.alerts' | translate">
+      @for (alert of alerts(); track alert.id) {
+        <article class="panel">
+          <h2>{{ alert.ruleName }}</h2>
+          <p>
+            {{ ('alertSeverity.' + alert.severity) | translate }} · {{ ('alertStatus.' + alert.status) | translate }} ·
+            {{ alert.createdAt | date: 'medium' : undefined : lang() }}
+          </p>
+          <button
+            [disabled]="busy()"
+            [attr.aria-expanded]="selected()?.id === alert.id"
+            (click)="open(alert)"
+          >
+            {{ 'ui.viewDetails' | translate }}
+          </button>
+          @if (selected()?.id === alert.id) {
+            <p>{{ alert.condition }}</p>
+            <p>
+              {{ alert.metric }} · {{ 'ui.reading' | translate }} {{ alert.measuredValue }} · {{ 'ui.threshold' | translate }} {{ alert.threshold }}
+            </p>
+            @if (alert.instructions) {
+              <p>{{ alert.instructions }}</p>
+            }
+            <div class="actions">
+              @if (alert.status === 'OPEN') {
+                <button [disabled]="busy()" (click)="transition(alert, 'acknowledge')">
+                  {{ 'ui.acknowledge' | translate }}
+                </button>
+              }
+              @if (alert.status === 'ACKNOWLEDGED') {
+                <button [disabled]="busy()" (click)="transition(alert, 'resolve')">{{ 'ui.resolve' | translate }}</button>
+              }
+            </div>
+            @if (deliveries().length) {
+              <h3>{{ 'ui.relatedNotifications' | translate }}</h3>
+              @for (notice of deliveries(); track notice.id) {
+                <p>{{ notice.subject }} · {{ ('deliveryChannel.' + notice.channel) | translate }} · {{ ('deliveryStatus.' + notice.status) | translate }}</p>
+              }
+            }
+          }
+        </article>
+      } @empty {
+        @if (!busy() && !error()) {
+          <p>{{ 'ui.thereAreNoAlertsOnThisPage' | translate }}</p>
+        }
+      }
+    </section>
+  } @else {
+    <section class="stack" [attr.aria-label]="'ui.notifications' | translate">
+      @for (notice of notices(); track notice.id) {
+        <article class="panel">
+          <h2>{{ notice.subject }}</h2>
+          <p>
+            {{ ('deliveryChannel.' + notice.channel) | translate }} · {{ ('deliveryStatus.' + notice.status) | translate }} ·
+            {{ notice.createdAt | date: 'medium' : undefined : lang() }}
+          </p>
+          <p>{{ notice.body }}</p>
+        </article>
+      } @empty {
+        @if (!busy() && !error()) {
+          <p>{{ 'ui.thereAreNoNotificationsOnThisPage' | translate }}</p>
+        }
+      }
+    </section>
+  }
+  <nav class="actions" [attr.aria-label]="'ui.pagination' | translate">
+    <button [disabled]="busy() || page() === 0" (click)="load(mode(), page() - 1)">{{ 'ui.previous' | translate }}</button>
+    <span>{{ 'ui.page' | translate }} {{ page() + 1 }}</span>
+    <button
+      [disabled]="busy() || (mode() === 'alerts' ? alerts().length : notices().length) < 20"
+      (click)="load(mode(), page() + 1)"
+    >
+      {{ 'ui.next' | translate }}
+    </button>
+  </nav>
+</main>

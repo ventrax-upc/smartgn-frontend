@@ -131,7 +131,7 @@ export interface ProvisioningReceipt {
     clientId: string;
     username: string;
     password: string;
-    expiresAt: string;
+    expiresAt?: string;
   };
   testMode: boolean;
 }

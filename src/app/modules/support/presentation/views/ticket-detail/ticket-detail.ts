@@ -1,3 +1,5 @@
+import { LanguageService } from '../../../../../shared/application/language.service';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -13,14 +15,15 @@ import { AuthStore } from '../../../../iam/application/auth.store';
 
 @Component({
   selector: 'app-ticket-detail',
-  imports: [ReactiveFormsModule, DatePipe, CurrencyPipe, RouterLink, MatIcon],
+  imports: [TranslatePipe, ReactiveFormsModule, DatePipe, CurrencyPipe, RouterLink, MatIcon],
   templateUrl: './ticket-detail.html',
   styleUrl: './ticket-detail.css',
 })
 export class TicketDetailPage implements OnInit {
+  protected readonly lang = inject(LanguageService).lang;
   private readonly store = inject(TicketsStore);
   private readonly techniciansStore = inject(TechniciansStore);
-  private readonly visitsStore = inject(VisitsStore);
+  protected readonly visitsStore = inject(VisitsStore);
   private readonly authStore = inject(AuthStore);
   private readonly route = inject(ActivatedRoute);
 
@@ -44,9 +47,6 @@ export class TicketDetailPage implements OnInit {
 
   protected readonly replyForm = new FormGroup({
     body: new FormControl('', [Validators.required, Validators.maxLength(4000)]),
-  });
-  protected readonly photoForm = new FormGroup({
-    objectReference: new FormControl('', [Validators.required, Validators.maxLength(500)]),
   });
   protected readonly visitForm = new FormGroup({
     requestedWindowStart: new FormControl('', [Validators.required]),
@@ -90,24 +90,20 @@ export class TicketDetailPage implements OnInit {
     this.store.sendReply(current.id, body, {
       onSuccess: () => {
         this.replyForm.reset({ body: '' });
-        this.success.set('Reply sent.');
+        this.success.set('ui.replySent');
       },
     });
   }
 
-  protected addPhoto(): void {
+  protected addPhoto(input: HTMLInputElement): void {
     const current = this.ticket();
-    if (!current) return;
-    if (this.photoForm.invalid) {
-      this.photoForm.markAsTouched();
-      return;
-    }
-    const reference = this.photoForm.controls.objectReference.value?.trim() ?? '';
-    if (!reference) return;
-    this.store.addPhoto(current.id, reference, {
+    const file = input.files?.[0];
+    if (!current || !file) return;
+    this.success.set(null);
+    this.store.addPhoto(current.id, file, {
       onSuccess: () => {
-        this.photoForm.reset({ objectReference: '' });
-        this.success.set('Photo reference attached.');
+        input.value = '';
+        this.success.set('ui.photoAttached');
       },
     });
   }
@@ -133,7 +129,7 @@ export class TicketDetailPage implements OnInit {
         this.visitForm.reset({ requestedWindowStart: '', requestedWindowEnd: '' });
         this.store.loadTicket(current.id);
         this.visitsStore.loadForTicket(current.id);
-        this.success.set('Visit requested. Our team will confirm the technician.');
+        this.success.set('ui.visitRequestedOurTeamWillConfirmThe');
       },
     });
   }
@@ -154,7 +150,7 @@ export class TicketDetailPage implements OnInit {
             [visit.id]: technician.fullName,
           }));
         }
-        this.success.set('Technician assigned.');
+        this.success.set('ui.technicianAssigned');
       },
     });
   }
@@ -182,39 +178,39 @@ export class TicketDetailPage implements OnInit {
           this.store.loadTicket(current.id);
           this.visitsStore.loadForTicket(current.id);
         }
-        this.success.set('Visit completed and the ticket marked as resolved.');
+        this.success.set('ui.visitCompletedAndTheTicketMarkedAs');
       },
     });
   }
 
   protected closeTicket(): void {
     const current = this.ticket();
-    if (!current) return;
+    if (current?.status !== 'RESOLVED') return;
     this.store.close(current, {
-      onSuccess: () => this.success.set('Ticket closed.'),
+      onSuccess: () => this.success.set('ui.ticketClosed'),
     });
   }
 
   protected submitRating(): void {
     const current = this.ticket();
-    if (!current) return;
+    if (!current?.canBeRated) return;
     if (this.ratingForm.invalid) {
       this.ratingForm.markAllAsTouched();
       return;
     }
     const value = this.ratingForm.getRawValue();
     this.store.submitRating(current.id, Number(value.score ?? 5), value.comment?.trim() ?? '', {
-      onSuccess: () => this.success.set('Thanks for rating the service.'),
+      onSuccess: () => this.success.set('ui.thanksForRatingTheService'),
     });
   }
 
   protected statusLabel(status: TicketStatus | VisitStatus): string {
-    return status.replaceAll('_', ' ').toLowerCase();
+    return 'supportStatus.' + status;
   }
 
   protected authorLabel(reply: TicketReply): string {
-    if (reply.authorAccountId === this.currentUser()?.id) return 'You';
-    return this.isSuperAdmin() ? 'Customer' : 'Support team';
+    if (reply.authorAccountId === this.currentUser()?.id) return 'ui.you';
+    return this.isSuperAdmin() ? 'ui.customer' : 'ui.supportTeam';
   }
 
   protected technicianName(visit: Visit): string {

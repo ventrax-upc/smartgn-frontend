@@ -1,3 +1,5 @@
+import { LanguageService } from '../../../../../shared/application/language.service';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -11,12 +13,13 @@ import { AuthStore } from '../../../../iam/application/auth.store';
 
 @Component({
   selector: 'app-visits',
-  imports: [ReactiveFormsModule, DatePipe, CurrencyPipe, RouterLink, MatIcon],
+  imports: [TranslatePipe, ReactiveFormsModule, DatePipe, CurrencyPipe, RouterLink, MatIcon],
   templateUrl: './visits.html',
   styleUrl: './visits.css',
 })
 export class VisitsPage implements OnInit {
-  private readonly store = inject(VisitsStore);
+  protected readonly lang = inject(LanguageService).lang;
+  protected readonly store = inject(VisitsStore);
   private readonly techniciansStore = inject(TechniciansStore);
   private readonly authStore = inject(AuthStore);
 
@@ -91,7 +94,7 @@ export class VisitsPage implements OnInit {
     const start = value.requestedWindowStart ?? '';
     const end = value.requestedWindowEnd ?? '';
     if (!start || !end || new Date(end) <= new Date(start)) {
-      this.formError.set('The end of the visit window must be after the start.');
+      this.formError.set('ui.theEndOfTheVisitWindowMust');
       return;
     }
 
@@ -99,7 +102,7 @@ export class VisitsPage implements OnInit {
       onSuccess: () => {
         this.showForm.set(false);
         this.formError.set(null);
-        this.success.set('Visit requested. A technician can now be assigned.');
+        this.success.set('ui.visitRequestedATechnicianCanNowBe');
       },
       onError: (message) => this.formError.set(message),
     });
@@ -121,7 +124,7 @@ export class VisitsPage implements OnInit {
             [visit.id]: technician.fullName,
           }));
         }
-        this.success.set('Technician assigned to the visit.');
+        this.success.set('ui.technicianAssignedToTheVisit');
       },
     });
   }
@@ -148,7 +151,7 @@ export class VisitsPage implements OnInit {
       {
         onSuccess: () => {
           this.diagnosingVisitId.set(null);
-          this.success.set('Visit completed. Its ticket is now resolved.');
+          this.success.set('ui.visitCompletedItsTicketIsNowResolved');
         },
       },
     );
@@ -174,7 +177,7 @@ export class VisitsPage implements OnInit {
   }
 
   protected statusLabel(status: VisitStatus): string {
-    return status.toLowerCase();
+    return 'supportStatus.' + status;
   }
 
   private localDateTime(hoursFromNow: number): string {

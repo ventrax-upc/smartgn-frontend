@@ -1,3 +1,5 @@
+import { LanguageService } from '../../../../../shared/application/language.service';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -7,11 +9,12 @@ import { AuthStore } from '../../../../iam/application/auth.store';
 
 @Component({
   selector: 'app-guides',
-  imports: [ReactiveFormsModule, DatePipe, MatIcon],
+  imports: [TranslatePipe, ReactiveFormsModule, DatePipe, MatIcon],
   templateUrl: './guides.html',
   styleUrl: './guides.css',
 })
 export class GuidesPage implements OnInit {
+  protected readonly lang = inject(LanguageService).lang;
   private readonly store = inject(ArticlesStore);
   private readonly authStore = inject(AuthStore);
 
@@ -68,7 +71,7 @@ export class GuidesPage implements OnInit {
       {
         onSuccess: () => {
           this.showForm.set(false);
-          this.success.set('Article published to the help center.');
+          this.success.set('ui.articlePublishedToTheHelpCenter');
         },
       },
     );

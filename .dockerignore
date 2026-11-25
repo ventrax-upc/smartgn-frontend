@@ -1,0 +1,6 @@
+.git
+.angular
+node_modules
+dist
+fake-api
+.env*

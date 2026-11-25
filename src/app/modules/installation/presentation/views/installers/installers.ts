@@ -1,3 +1,4 @@
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
@@ -9,7 +10,7 @@ import { ConfirmDialog } from '../../../../../shared/presentation/components/con
 
 @Component({
   selector: 'app-installers',
-  imports: [ReactiveFormsModule, MatIcon],
+  imports: [TranslatePipe, ReactiveFormsModule, MatIcon],
   templateUrl: './installers.html',
   styleUrl: './installers.css',
 })

@@ -54,24 +54,6 @@ export class InstallationsStore {
     this.statusFilterSignal.set(status);
   }
 
-  create(
-    payload: { propertyId: string; pointId: string },
-    callbacks?: { onSuccess?: (installation: Installation) => void; onError?: (message: string) => void },
-  ): void {
-    this.savingSignal.set(true);
-    this.api.create(payload).subscribe({
-      next: (installation) => {
-        this.itemsSignal.update((items) => [installation, ...items]);
-        this.savingSignal.set(false);
-        callbacks?.onSuccess?.(installation);
-      },
-      error: (err) => {
-        this.savingSignal.set(false);
-        callbacks?.onError?.(this.messageFrom(err));
-      },
-    });
-  }
-
   assign(
     installation: Installation,
     installerId: string,

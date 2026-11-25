@@ -5,7 +5,7 @@ import { BaseEntity } from '../../../../shared/domain/model/base-entity';
   the support service exposes GET /support/tickets/{ticketId}/visits, not a
   global visits collection.
 */
-export type VisitStatus = 'REQUESTED' | 'ASSIGNED' | 'COMPLETED' | 'CANCELLED';
+export type VisitStatus = 'REQUESTED' | 'ASSIGNED' | 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
 
 export class Visit implements BaseEntity {
   private readonly _id: string;
@@ -56,7 +56,7 @@ export class Visit implements BaseEntity {
   }
 
   get isOpen(): boolean {
-    return this._status === 'REQUESTED' || this._status === 'ASSIGNED';
+    return this._status !== 'COMPLETED' && this._status !== 'CANCELLED';
   }
 
   get isCompleted(): boolean {

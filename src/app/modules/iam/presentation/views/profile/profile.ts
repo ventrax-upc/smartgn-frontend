@@ -1,3 +1,4 @@
+import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
@@ -7,7 +8,7 @@ import { ChangePasswordDialog } from '../change-password-dialog/change-password-
 
 @Component({
   selector: 'app-profile',
-  imports: [ReactiveFormsModule, MatIcon],
+  imports: [TranslatePipe, ReactiveFormsModule, MatIcon],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })
@@ -27,8 +28,8 @@ export class ProfilePage implements OnInit {
   protected readonly accessLabel = computed(() => {
     const user = this.user();
     if (!user) return '';
-    if (user.isSuperAdmin) return 'SuperAdmin';
-    return user.isDelegated ? 'Delegated user' : 'Principal user';
+    if (user.isSuperAdmin) return 'accountRole.SUPERADMIN';
+    return user.isDelegated ? 'accountRole.DELEGATED' : 'accountRole.PRINCIPAL';
   });
 
   protected readonly form = new FormGroup({
@@ -64,7 +65,7 @@ export class ProfilePage implements OnInit {
       {
         onSuccess: () => {
           this.saving.set(false);
-          this.success.set('Your profile was saved.');
+          this.success.set('ui.yourProfileWasSaved');
           this.patchFromProfile();
         },
         onError: (message) => {

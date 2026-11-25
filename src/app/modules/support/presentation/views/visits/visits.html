@@ -1,69 +1,68 @@
 <div class="page">
   <header class="page-header">
     <div class="page-heading">
-      <span class="eyebrow">Support</span>
-      <h1 class="page-title">Technician visits</h1>
+      <span class="eyebrow">{{ 'ui.support' | translate }}</span>
+      <h1 class="page-title">{{ 'ui.technicianVisits' | translate }}</h1>
       <p class="page-subtitle">
-        Follow requested windows, technician assignments and the diagnosis recorded after
-        each on-site visit.
+        {{ 'ui.followRequestedWindowsTechnicianAssignmentsAndThe' | translate }}
       </p>
     </div>
     <div class="header-actions">
       <button class="btn btn-secondary" type="button" (click)="reload()">
         <mat-icon>refresh</mat-icon>
-        Refresh
+        {{ 'ui.refresh' | translate }}
       </button>
       @if (requestableTickets().length > 0 && !showForm()) {
         <button class="btn btn-primary" type="button" (click)="startCreate()">
           <mat-icon>event</mat-icon>
-          Request visit
+          {{ 'ui.requestVisit' | translate }}
         </button>
       }
     </div>
   </header>
 
   @if (success(); as message) {
-    <div class="alert alert-success">{{ message }}</div>
+    <div class="alert alert-success">{{ message | translate }}</div>
   }
   @if (formError(); as message) {
-    <div class="alert alert-error">{{ message }}</div>
+    <div class="alert alert-error">{{ message | translate }}</div>
   }
   @if (error(); as message) {
-    <div class="alert alert-error">{{ message }}</div>
+    <div class="alert alert-error">{{ message | translate }}</div>
   }
 
   <div class="grid grid-3">
     <article class="stat-card">
       <span class="stat-icon"><mat-icon>event</mat-icon></span>
       <span class="stat-value">{{ items().length }}</span>
-      <span class="stat-label">Total visits</span>
+      <span class="stat-label">{{ 'ui.totalVisits' | translate }}</span>
     </article>
     <article class="stat-card">
       <span class="stat-icon"><mat-icon>schedule</mat-icon></span>
       <span class="stat-value">{{ scheduledCount() }}</span>
-      <span class="stat-label">Open visits</span>
+      <span class="stat-label">{{ 'ui.openVisits' | translate }}</span>
     </article>
     <article class="stat-card">
       <span class="stat-icon"><mat-icon>task_alt</mat-icon></span>
       <span class="stat-value">{{ completedCount() }}</span>
-      <span class="stat-label">Completed</span>
+      <span class="stat-label">{{ 'ui.completed' | translate }}</span>
     </article>
   </div>
 
   <div class="split" [class.single]="!showForm()">
     <section class="card">
       <div class="section-title">
-        <h2>Visit timeline</h2>
-        <span class="chip">{{ items().length }} records</span>
+        <h2>{{ 'ui.visitTimeline' | translate }}</h2>
+        <span class="chip">{{ items().length }} {{ 'ui.records' | translate }}</span>
       </div>
 
       @if (loading()) {
-        <div class="loading-row"><span class="spinner"></span>Loading visits...</div>
+        <div class="loading-row"><span class="spinner"></span>{{ 'ui.loadingVisits' | translate }}</div>
       } @else if (items().length === 0) {
         <div class="empty">
           <mat-icon>event_busy</mat-icon>
-          <span class="empty-title">No visits requested</span>
-          <span class="empty-text">Request a visit from a ticket when remote support is not enough.</span>
+          <span class="empty-title">{{ 'ui.noVisitsRequested' | translate }}</span>
+          <span class="empty-text">{{ 'ui.requestAVisitFromATicketWhen' | translate }}</span>
         </div>
       } @else {
         <ul class="visit-list">
@@ -87,32 +86,32 @@
                     [class.chip-amber]="visit.status === 'REQUESTED'"
                     [class.chip-red]="visit.status === 'CANCELLED'"
                   >
-                    {{ statusLabel(visit.status) }}
+                    {{ statusLabel(visit.status) | translate }}
                   </span>
                   <span class="cell-muted">
                     @if (visit.requestedWindowStart) {
-                      {{ visit.requestedWindowStart | date: 'dd MMM yyyy, HH:mm' }}
+                      {{ visit.requestedWindowStart | date: 'dd MMM yyyy, HH:mm' : undefined : lang() }}
                     } @else {
                       —
                     }
                     @if (visit.requestedWindowEnd) {
-                      → {{ visit.requestedWindowEnd | date: 'dd MMM yyyy, HH:mm' }}
+                      → {{ visit.requestedWindowEnd | date: 'dd MMM yyyy, HH:mm' : undefined : lang() }}
                     }
                   </span>
                   @if (technicianName(visit)) {
-                    <span class="cell-muted">Technician: {{ technicianName(visit) }}</span>
+                    <span class="cell-muted">{{ 'ui.technician' | translate }}: {{ technicianName(visit) }}</span>
                   }
                 </div>
               </div>
 
               @if (diagnosisFor(visit); as diagnosis) {
                 <div class="diagnosis">
-                  <span class="diagnosis-title">Diagnosis</span>
+                  <span class="diagnosis-title">{{ 'ui.diagnosis' | translate }}</span>
                   <p>{{ diagnosis.summary }}</p>
                   <span class="cell-muted">
-                    Final cost {{ diagnosis.finalCost | currency: 'PEN' : 'symbol-narrow' : '1.2-2' }}
+                    {{ 'ui.finalCost' | translate }} {{ diagnosis.finalCost | currency: 'PEN' : 'symbol-narrow' : '1.2-2' : lang() }}
                     @if (diagnosis.billingReferenceId) {
-                      · Billing ref <span class="mono">{{ diagnosis.billingReferenceId }}</span>
+                      {{ 'ui.billingRef' | translate }} <span class="mono">{{ diagnosis.billingReferenceId }}</span>
                     }
                   </span>
                 </div>
@@ -124,9 +123,9 @@
                     <select
                       [value]="technicianSelection()[visit.id] || ''"
                       (change)="setTechnician(visit.id, $any($event.target).value)"
-                      aria-label="Technician"
+                      [attr.aria-label]="'ui.technician' | translate"
                     >
-                      <option value="">Select a technician</option>
+                      <option value="">{{ 'ui.selectATechnician' | translate }}</option>
                       @for (technician of technicians(); track technician.id) {
                         <option [value]="technician.id">
                           {{ technician.fullName }} · {{ technician.accreditationCode }}
@@ -139,26 +138,31 @@
                       [disabled]="saving() || !technicianSelection()[visit.id]"
                       (click)="assign(visit)"
                     >
-                      Assign
+                      {{ 'ui.assign' | translate }}
                     </button>
                   }
 
-                  @if (visit.status === 'REQUESTED' || visit.status === 'ASSIGNED') {
+                  @if (visit.status === 'ASSIGNED' || visit.status === 'SCHEDULED') {
+                      <button type="button" class="btn btn-secondary" [disabled]="store.saving()" (click)="store.advanceVisit(visit)">
+                        {{ visit.status === 'ASSIGNED' ? ('ui.scheduleVisit' | translate) : ('ui.startVisit' | translate) }}
+                      </button>
+                    }
+                    @if (visit.status === 'IN_PROGRESS') {
                     @if (diagnosingVisitId() === visit.id) {
                       <form class="diagnosis-form" [formGroup]="diagnosisForm" (ngSubmit)="complete(visit)">
                         <div class="field">
-                          <label [for]="'visit-summary-' + visit.id">Diagnosis summary</label>
+                          <label [for]="'visit-summary-' + visit.id">{{ 'ui.diagnosisSummary' | translate }}</label>
                           <textarea
                             [id]="'visit-summary-' + visit.id"
                             formControlName="summary"
-                            placeholder="What was found and what was fixed."
+                            [placeholder]="'ui.whatWasFoundAndWhatWasFixed' | translate"
                           ></textarea>
                           @if (diagnosisForm.controls.summary.touched && diagnosisForm.controls.summary.invalid) {
-                            <span class="field-error">A summary is required.</span>
+                            <span class="field-error">{{ 'ui.aSummaryIsRequired' | translate }}</span>
                           }
                         </div>
                         <div class="field">
-                          <label [for]="'visit-cost-' + visit.id">Final cost (PEN)</label>
+                          <label [for]="'visit-cost-' + visit.id">{{ 'ui.finalCostPen' | translate }}</label>
                           <input
                             [id]="'visit-cost-' + visit.id"
                             type="number"
@@ -169,17 +173,17 @@
                         </div>
                         <div class="form-actions">
                           <button class="btn btn-secondary btn-sm" type="button" (click)="cancelDiagnosis()">
-                            Cancel
+                            {{ 'ui.cancel' | translate }}
                           </button>
                           <button class="btn btn-primary btn-sm" type="submit" [disabled]="saving()">
-                            Complete visit
+                            {{ 'ui.completeVisit' | translate }}
                           </button>
                         </div>
                       </form>
                     } @else {
                       <button class="btn btn-secondary btn-sm" type="button" (click)="startDiagnosis(visit.id)">
                         <mat-icon>fact_check</mat-icon>
-                        Complete visit
+                        {{ 'ui.completeVisit' | translate }}
                       </button>
                     }
                   }
@@ -194,49 +198,48 @@
     @if (showForm()) {
       <aside class="card">
         <div class="section-title">
-          <h2>Request a visit</h2>
-          <button class="btn btn-ghost btn-sm" type="button" (click)="cancelForm()">Close</button>
+          <h2>{{ 'ui.requestAVisit' | translate }}</h2>
+          <button class="btn btn-ghost btn-sm" type="button" (click)="cancelForm()">{{ 'ui.close' | translate }}</button>
         </div>
         <p class="card-subtitle">
-          Request an on-site window for an open ticket. A SuperAdmin assigns the technician
-          and records the diagnosis afterwards.
+          {{ 'ui.requestAnOnSiteWindowForAn' | translate }}
         </p>
 
         @if (requestableTickets().length === 0) {
-          <p class="cell-muted">Every open ticket already has a visit in progress.</p>
+          <p class="cell-muted">{{ 'ui.everyOpenTicketAlreadyHasAVisit' | translate }}</p>
         } @else {
           <form [formGroup]="form" (ngSubmit)="submit()">
             <div class="field">
-              <label for="visit-ticket">Ticket</label>
+              <label for="visit-ticket">{{ 'ui.ticket' | translate }}</label>
               <select id="visit-ticket" formControlName="ticketId">
-                <option value="">Select an open ticket</option>
+                <option value="">{{ 'ui.selectAnOpenTicket' | translate }}</option>
                 @for (ticket of requestableTickets(); track ticket.id) {
                   <option [value]="ticket.id">{{ ticket.subject }}</option>
                 }
               </select>
               @if (form.controls.ticketId.touched && form.controls.ticketId.invalid) {
-                <span class="field-error">Select a ticket.</span>
+                <span class="field-error">{{ 'ui.selectATicket' | translate }}</span>
               }
             </div>
             <div class="field">
-              <label for="visit-start">Window start</label>
+              <label for="visit-start">{{ 'ui.windowStart' | translate }}</label>
               <input id="visit-start" type="datetime-local" formControlName="requestedWindowStart" />
               @if (form.controls.requestedWindowStart.touched && form.controls.requestedWindowStart.invalid) {
-                <span class="field-error">Choose the start of the window.</span>
+                <span class="field-error">{{ 'ui.chooseTheStartOfTheWindow' | translate }}</span>
               }
             </div>
             <div class="field">
-              <label for="visit-end">Window end</label>
+              <label for="visit-end">{{ 'ui.windowEnd' | translate }}</label>
               <input id="visit-end" type="datetime-local" formControlName="requestedWindowEnd" />
               @if (form.controls.requestedWindowEnd.touched && form.controls.requestedWindowEnd.invalid) {
-                <span class="field-error">Choose the end of the window.</span>
+                <span class="field-error">{{ 'ui.chooseTheEndOfTheWindow' | translate }}</span>
               }
             </div>
 
             <div class="form-actions">
-              <button class="btn btn-secondary" type="button" (click)="cancelForm()">Cancel</button>
+              <button class="btn btn-secondary" type="button" (click)="cancelForm()">{{ 'ui.cancel' | translate }}</button>
               <button class="btn btn-primary" type="submit" [disabled]="saving()">
-                {{ saving() ? 'Requesting...' : 'Request visit' }}
+                {{ saving() ? 'Requesting...' : ('ui.requestVisit' | translate) }}
               </button>
             </div>
           </form>

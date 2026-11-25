@@ -54,10 +54,9 @@ export interface TicketResource {
 }
 
 export interface TicketInputResource {
-  principalAccountId: string;
   meterId: string;
   subject: string;
-  message: string;
+  description: string;
 }
 
 export interface ReplyResource {
@@ -82,7 +81,7 @@ export interface PhotoResource {
 }
 
 export interface PhotoInputResource {
-  objectReference: string;
+  file: File;
   uploadedByAccountId: string;
 }
 

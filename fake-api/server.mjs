@@ -858,7 +858,7 @@ function requireTicketAccess(req, res, ticket) {
 
 /* Knowledge articles ------------------------------------------------ */
 
-app.get('/api/v1/support/articles', authenticate, (_req, res) => {
+app.get(['/api/v1/support/knowledge-articles', '/api/v1/support/articles'], authenticate, (_req, res) => {
   res.json(
     db.articles
       .filter((article) => article.active)
@@ -866,7 +866,7 @@ app.get('/api/v1/support/articles', authenticate, (_req, res) => {
   );
 });
 
-app.post('/api/v1/support/articles', authenticate, requireSuperAdmin, (req, res) => {
+app.post(['/api/v1/support/knowledge-articles', '/api/v1/support/articles'], authenticate, requireSuperAdmin, (req, res) => {
   const title = String(req.body?.title ?? '').trim();
   const category = String(req.body?.category ?? '').trim();
   const contentReference = String(req.body?.contentReference ?? '').trim();
@@ -932,7 +932,7 @@ app.post('/api/v1/support/tickets', authenticate, (req, res) => {
   }
   const meterId = String(req.body?.meterId ?? '').trim();
   const subject = String(req.body?.subject ?? '').trim();
-  const message = String(req.body?.message ?? '').trim();
+  const message = String(req.body?.description ?? req.body?.message ?? '').trim();
   if (!meterId || !subject || !message) {
     return fail(res, 400, 'INVALID_INPUT', 'Meter, subject and message are required');
   }
@@ -963,7 +963,7 @@ app.get('/api/v1/support/tickets/:ticketId', authenticate, (req, res) => {
   res.json(ticket);
 });
 
-app.put('/api/v1/support/tickets/:ticketId/close', authenticate, (req, res) => {
+const closeTicket = (req, res) => {
   const ticket = ticketById(req.params.ticketId);
   if (!ticket) return fail(res, 404, 'NOT_FOUND', 'Ticket not found');
   if (!requireTicketAccess(req, res, ticket)) return;
@@ -973,7 +973,9 @@ app.put('/api/v1/support/tickets/:ticketId/close', authenticate, (req, res) => {
   if (!ticket.resolvedAt) ticket.resolvedAt = now;
   persist();
   res.json(ticket);
-});
+};
+app.post('/api/v1/support/tickets/:ticketId/close', authenticate, closeTicket);
+app.put('/api/v1/support/tickets/:ticketId/close', authenticate, closeTicket);
 
 /* Replies ----------------------------------------------------------- */
 
@@ -1060,10 +1062,8 @@ app.post('/api/v1/support/tickets/:ticketId/rating', authenticate, (req, res) =>
   if (db.serviceRatings.some((item) => item.ticketId === ticket.ticketId)) {
     return fail(res, 409, 'ALREADY_RATED', 'The ticket already has a rating');
   }
+  if (ticket.status !== 'CLOSED') return fail(res, 409, 'INVALID_STATUS', 'Close ticket before rating');
   const now = new Date().toISOString();
-  ticket.status = 'CLOSED';
-  ticket.closedAt = now;
-  if (!ticket.resolvedAt) ticket.resolvedAt = now;
   const rating = {
     ratingId: `rat-${randomUUID()}`,
     ticketId: ticket.ticketId,
@@ -1111,7 +1111,7 @@ app.post('/api/v1/support/tickets/:ticketId/visits', authenticate, (req, res) =>
   res.status(201).json(visit);
 });
 
-app.post('/api/v1/support/visits/:visitId/assignments', authenticate, requireSuperAdmin, (req, res) => {
+app.post(['/api/v1/support/visits/:visitId/assign', '/api/v1/support/visits/:visitId/assignments'], authenticate, requireSuperAdmin, (req, res) => {
   const visit = visitById(req.params.visitId);
   if (!visit) return fail(res, 404, 'NOT_FOUND', 'Visit not found');
   const technician = db.technicians.find(
@@ -1132,6 +1132,17 @@ app.post('/api/v1/support/visits/:visitId/assignments', authenticate, requireSup
   res.status(201).json(assignment);
 });
 
+for (const [action, from, to] of [['schedule', 'ASSIGNED', 'SCHEDULED'], ['start', 'SCHEDULED', 'IN_PROGRESS']]) {
+  app.post('/api/v1/support/visits/:visitId/' + action, authenticate, requireSuperAdmin, (req, res) => {
+    const visit = visitById(req.params.visitId);
+    if (!visit) return fail(res, 404, 'NOT_FOUND', 'Visit not found');
+    if (visit.status !== from) return fail(res, 409, 'INVALID_STATUS', 'Visit status does not allow this action');
+    visit.status = to;
+    persist();
+    res.json(visit);
+  });
+}
+
 app.get('/api/v1/support/visits/:visitId/diagnosis', authenticate, (req, res) => {
   const visit = visitById(req.params.visitId);
   if (!visit) return fail(res, 404, 'NOT_FOUND', 'Visit not found');
@@ -1143,10 +1154,10 @@ app.get('/api/v1/support/visits/:visitId/diagnosis', authenticate, (req, res) =>
   res.json(diagnosis);
 });
 
-app.post('/api/v1/support/visits/:visitId/diagnosis', authenticate, requireSuperAdmin, (req, res) => {
+app.post(['/api/v1/support/visits/:visitId/complete', '/api/v1/support/visits/:visitId/diagnosis'], authenticate, requireSuperAdmin, (req, res) => {
   const visit = visitById(req.params.visitId);
   if (!visit) return fail(res, 404, 'NOT_FOUND', 'Visit not found');
-  const summary = String(req.body?.summary ?? '').trim();
+  const summary = String(req.body?.diagnosis ?? req.body?.summary ?? '').trim();
   const finalCost = Number(req.body?.finalCost);
   if (!summary || !Number.isFinite(finalCost) || finalCost < 0) {
     return fail(res, 400, 'INVALID_INPUT', 'A summary and a non-negative final cost are required');
