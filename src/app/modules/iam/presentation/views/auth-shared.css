@@ -49,10 +49,6 @@
   letter-spacing: -0.01em;
 }
 
-.brand-name span {
-  color: var(--smartgn-primary);
-}
-
 .topbar-actions {
   display: flex;
   align-items: center;
@@ -231,12 +227,6 @@
   flex-shrink: 0;
 }
 
-.toggle-visibility mat-icon {
-  width: 20px;
-  height: 20px;
-  font-size: 20px;
-}
-
 .field-error {
   display: block;
   font-size: 12px;
@@ -245,45 +235,13 @@
 }
 
 .form-error {
-  font-size: 13px;
-  color: var(--smartgn-danger);
-  background-color: var(--smartgn-danger-soft);
-  border-radius: 8px;
-  padding: 10px 12px;
   margin-bottom: 14px;
 }
 
 .submit-button {
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 13px 16px;
-  margin-top: 14px;
-  border: none;
-  border-radius: 10px;
-  background-color: var(--smartgn-primary-strong);
-  color: #ffffff;
-  font-size: 14.5px;
-  font-weight: 650;
-  font-family: inherit;
-  cursor: pointer;
-}
-
-.submit-button:hover {
-  background-color: var(--smartgn-primary-dark);
-}
-
-.submit-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.submit-button mat-icon {
-  width: 20px;
-  height: 20px;
-  font-size: 20px;
+  min-height: 46px;
+  margin-block-start: 16px;
 }
 
 .demo-box {
@@ -403,5 +361,15 @@
 
   .auth-hero-panel {
     padding: 46px 32px;
+  }
+}
+
+@media (max-width: 520px) {
+  .auth-topbar {
+    padding-inline: 16px;
+  }
+
+  .auth-topbar .topbar-link {
+    display: none;
   }
 }

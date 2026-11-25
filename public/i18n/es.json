@@ -1,4 +1,14 @@
 {
+  "apiErrors": {
+    "unexpected": "No se pudo completar la solicitud. Inténtalo de nuevo.",
+    "offline": "No se pudo establecer la conexión. Comprueba tu conexión e inténtalo de nuevo.",
+    "invalidRequest": "Revisa los datos e inténtalo de nuevo.",
+    "forbidden": "No tienes permiso para realizar esta acción.",
+    "notFound": "La información solicitada no está disponible.",
+    "conflict": "No se pudo aplicar el cambio. Recarga la página e inténtalo de nuevo.",
+    "rateLimited": "Demasiados intentos. Espera un momento e inténtalo de nuevo.",
+    "activationFailed": "El enlace de activación no es válido o ha vencido. Pide una nueva invitación."
+  },
   "toolbar": {
     "account": "Cuenta",
     "profile": "Perfil",
@@ -13,7 +23,8 @@
       "delegated": "Usuario delegado",
       "owner": "Propietario de la cuenta",
       "home": "Inicio de SmartGN"
-    }
+    },
+    "home": "Inicio"
   },
   "sidebar": {
     "monitoring": "Consumo",
@@ -44,6 +55,7 @@
     "refresh": "Actualizar"
   },
   "payments": {
+    "backToSubscription": "Volver a suscripción",
     "methods": "Métodos de pago",
     "methodLabel": "Método de pago",
     "useDefaultCard": "Usar tarjeta predeterminada",
@@ -54,6 +66,12 @@
     }
   },
   "subscription": {
+    "renewalOn": "Se renovará automáticamente",
+    "renewalOff": "No se renovará",
+    "activeUntil": "Pro seguirá activo hasta el {{ date }}.",
+    "cancelRenewal": "Cancelar renovación",
+    "enableRenewal": "Activar renovación automática",
+    "cancelRenewalConfirmation": "Se detendrán los cobros automáticos. Conservarás Pro hasta el final del periodo pagado.",
     "eyebrow": "Facturación",
     "title": "Suscripción",
     "subtitle": "Administra tu plan SmartGN, revisa lo que incluye y controla la renovación automática.",
@@ -85,9 +103,6 @@
     "activateAction": "Activar Pro",
     "autoRenewTitle": "Renovación automática",
     "autoRenewDescription": "Mantén Pro activo sin pagos manuales. La renovación requiere una tarjeta recurrente autorizada.",
-    "expirationWarning": "Pro vencerá el {{ date }} a menos que renueves manualmente.",
-    "billingActivityTitle": "Actividad de facturación",
-    "billingActivityDescription": "Las facturas, comprobantes y cargos pendientes de visitas técnicas están en tu historial de pagos.",
     "viewPayments": "Ver pagos",
     "emptyTitle": "No se encontró ninguna suscripción",
     "emptyText": "La suscripción de tu cuenta se inicializa después de la compra.",
@@ -206,10 +221,55 @@
         "title": "Desactivar propiedad",
         "message": "¿Deseas desactivar esta propiedad? Su historial y puntos de suministro se conservarán.",
         "confirm": "Desactivar"
+      },
+      "subtitle": "Registra las viviendas, locales comerciales o edificios donde se instalarán dispositivos SmartGN. Cada propiedad agrupa sus propios puntos de suministro.",
+      "actions": {
+        "new": "Nueva propiedad",
+        "cancel": "Cancelar",
+        "saving": "Guardando...",
+        "save": "Guardar propiedad",
+        "supplyPoints": "Puntos de suministro",
+        "edit": "Editar",
+        "deactivate": "Desactivar"
+      },
+      "types": {
+        "HOUSE": "Vivienda",
+        "COMMERCIAL": "Local comercial",
+        "BUILDING": "Edificio"
+      },
+      "table": {
+        "property": "Propiedad",
+        "type": "Tipo",
+        "address": "Dirección",
+        "status": "Estado"
+      },
+      "status": {
+        "active": "Activa"
+      },
+      "validation": {
+        "nameRequired": "Ingresa el nombre de la propiedad.",
+        "nameMaxLength": "El nombre debe tener como máximo 150 caracteres.",
+        "typeRequired": "Selecciona un tipo de propiedad.",
+        "addressRequired": "Ingresa una dirección.",
+        "addressMaxLength": "La dirección debe tener como máximo 500 caracteres."
       }
     }
   },
   "ui": {
+    "inactive": "Inactivo",
+    "editInstaller": "Editar instalador",
+    "registerAnInstaller": "Registrar instalador",
+    "noVisitAccessForThisTicket": "Tu cuenta no tiene acceso a las visitas de este punto de suministro.",
+    "visitAccessUnavailable": "No se pudo comprobar el acceso a las visitas técnicas.",
+    "delegatedVisitsHelp": "Tu cuenta delegada solo muestra las visitas de los puntos de suministro donde tienes ese permiso.",
+    "addASupplyPoint": "Agregar punto de suministro",
+    "removeSubuser": "Eliminar subusuario",
+    "confirmRemoveSubuser": "Esta acción revoca el acceso a todos los puntos de suministro e invalida las invitaciones pendientes.",
+    "subuserRemoved": "Se eliminó el subusuario.",
+    "removeSubuserFailed": "No se pudo eliminar el subusuario.",
+    "resendInvitation": "Reenviar invitación",
+    "invitationResent": "Se encoló una nueva invitación. El enlace anterior quedó invalidado.",
+    "resendInvitationFailed": "No se pudo reenviar la invitación. Comprueba que la cuenta sigue pendiente.",
     "accessControlledByGrants": "Acceso controlado por permisos",
     "accessGrantSaved": "Se guardaron los permisos de acceso.",
     "accessibleSupplyPoints": "Puntos de suministro accesibles",
@@ -501,7 +561,7 @@
     "paymentMethodRemoved": "Se eliminó el método de pago.",
     "paymentMethods": "Métodos de pago",
     "paymentOrders": "Órdenes de pago",
-    "paymentRequestedRefreshToCheckConfirmation": "Pago solicitado. Actualiza la página para consultar la confirmación.",
+    "paymentRequestedRefreshToCheckConfirmation": "Pago solicitado. La confirmación aparecerá automáticamente.",
     "payments": "Pagos",
     "payOrder": "Pagar",
     "pendingActivation": "Pendiente de activación",
@@ -644,10 +704,10 @@
     "technicians": "Técnicos",
     "technicianVisits": "Visitas técnicas",
     "telemetry": "Telemetría",
-    "testModeUseAnyFourDigitsThe": "Modo de prueba. Usa cuatro dígitos para guardar un token local.",
+    "testModeUseAnyFourDigitsThe": "Usa un token de prueba emitido para esta cuenta. Selecciona la marca e ingresa los cuatro dígitos asociados al token.",
     "thanksForRatingTheService": "Gracias por calificar el servicio.",
     "theAccreditationCodeIsRequired": "El código de acreditación es obligatorio.",
-    "theAlertStatusChangedRefreshTheList": "La alerta cambió de estado. Actualiza la lista.",
+    "theAlertStatusChangedRefreshTheList": "La alerta cambió de estado. La lista se actualiza automáticamente.",
     "theBackendCreatesTheTechnicianAsAvailable": "El técnico se registra como activo y disponible. Al asignarle una visita, su disponibilidad cambia.",
     "theBackendStoresAContentReferenceUrl": "Ingresa el enlace o identificador del documento que contiene el artículo.",
     "theCategoryIsRequired": "La categoría es obligatoria.",
@@ -715,7 +775,27 @@
     "yourPasswordHasBeenChangedAllPrevious": "Se actualizó tu contraseña y se cerraron las sesiones anteriores. Ya puedes iniciar sesión con la contraseña nueva.",
     "yourProfileWasSaved": "Se guardó tu perfil.",
     "yourProperties": "Tus propiedades.",
-    "yourVisibilityIsLimitedToTheSupply": "Puedes ver los puntos de suministro que te concede la cuenta principal."
+    "yourVisibilityIsLimitedToTheSupply": "Puedes ver los puntos de suministro que te concede la cuenta principal.",
+    "switchToSpanish": "Cambiar a español",
+    "switchToEnglish": "Cambiar a inglés",
+    "guideAlertTitle": "Entiende las alertas",
+    "guideAlertBody": "Abre una alerta para consultar su severidad, el valor medido, el umbral y las instrucciones adjuntas. Usa Soporte si necesitas ayuda para interpretar lo que ves.",
+    "guideReadingTitle": "Comprueba cuándo se registró una lectura",
+    "guideReadingBody": "Abre Consumo y revisa la fecha y hora junto a la última lectura. Una lectura demorada muestra el último valor registrado. Si el retraso persiste, avisa a Soporte e indica el punto de suministro y la fecha y hora.",
+    "alertInstructions": "Instrucciones",
+    "alertCondition": "Condición detectada",
+    "hideDetails": "Ocultar detalle",
+    "metric": "Métrica",
+    "guideMeterTitle": "Identifica el punto de suministro",
+    "guideMeterBody": "Abre Puntos de suministro y revisa la propiedad y el nombre de la ubicación antes de consultar una lectura o abrir un ticket. Incluye el nombre del punto de suministro en el ticket para que Soporte pueda ubicar el registro.",
+    "guideDeliveryTitle": "Comprueba la entrega de una notificación",
+    "guideDeliveryBody": "Abre la pestaña Notificaciones de Alertas para consultar el canal, el estado y la hora. Aceptado indica que el proveedor recibió la solicitud. Entregado indica que SmartGN registró una confirmación de entrega. Puedes consultar la alerta original en la pestaña Alertas.",
+    "sessionExpired": "Tu sesión ha vencido. Vuelve a iniciar sesión para continuar.",
+    "personalInformation": "Información personal",
+    "completeYourProfile": "Completa tu perfil",
+    "couldNotLoadYourProfile": "No se pudo cargar tu perfil.",
+    "couldNotCreateYourProfile": "No se pudo crear tu perfil.",
+    "requestingVisit": "Solicitando…"
   },
   "alertSeverity": {
     "INFO": "Informativa",
@@ -775,6 +855,7 @@
     "DELEGATED": "Usuario delegado"
   },
   "billingDocument": {
+    "GENERIC": "Comprobante de pago",
     "INVOICE": "Factura",
     "RECEIPT": "Boleta",
     "CREDIT_NOTE": "Nota de crédito"

@@ -57,11 +57,6 @@
   color: var(--smartgn-primary);
 }
 
-.side-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
 
 .check-field {
   display: flex;
@@ -82,3 +77,25 @@
 .auto-renew-warning {
   margin-top: 10px;
 }
+
+.plan-card { gap: 12px; }
+.plan-card .divider { margin: 8px 0; }
+.price-row { margin: 0; flex-wrap: wrap; }
+.price-reference { margin: 0; }
+.fact-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  gap: 10px;
+  margin: 0;
+}
+.fact-list div {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  background: var(--smartgn-surface-raised);
+  border: 1px solid var(--smartgn-border);
+  border-radius: 10px;
+  padding: 12px;
+}
+.fact-list dt { color: var(--smartgn-muted); font-size: 12px; }
+.fact-list dd { margin: 0; color: var(--smartgn-ink-strong); font-weight: 650; }

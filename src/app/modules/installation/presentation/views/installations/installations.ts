@@ -1,7 +1,10 @@
+import { SmartgnSelect } from '../../../../../shared/presentation/components/smartgn-select';
+import { EmptyState, LoadingState } from '../../../../../shared/presentation/components/view-state';
+import { MatSelectModule } from '@angular/material/select';
+import { pollWhileVisible } from '../../../../../shared/application/visible-polling';
 import { LanguageService } from '../../../../../shared/application/language.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
@@ -12,7 +15,7 @@ import { ConfirmDialog } from '../../../../../shared/presentation/components/con
 
 @Component({
   selector: 'app-installations',
-  imports: [TranslatePipe, FormsModule, DatePipe, MatIcon],
+  imports: [SmartgnSelect, EmptyState, LoadingState, MatSelectModule, TranslatePipe, DatePipe, MatIcon],
   templateUrl: './installations.html',
   styleUrl: './installations.css',
 })
@@ -43,16 +46,23 @@ export class InstallationsPage implements OnInit {
     'CANCELLED',
   ];
 
+  constructor() {
+    pollWhileVisible(30000, () => this.reload());
+  }
+
   ngOnInit(): void {
     this.store.load();
     this.installersStore.load();
   }
 
+  protected readonly statusFilter = this.store.statusFilter;
+
   protected filterStatus(status: InstallationStatus | 'ALL'): void {
     this.store.setStatusFilter(status);
   }
 
-  protected reload(): void {
+  private reload(): void {
+    if (this.loading() || this.saving()) return;
     this.store.load();
     this.installersStore.load();
   }

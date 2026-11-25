@@ -7,19 +7,13 @@
         {{ 'ui.assignAccreditedInstallersMoveWorkThroughIts' | translate }}
       </p>
     </div>
-    <div class="header-actions">
-      <button class="btn btn-secondary" type="button" (click)="reload()">
-        <mat-icon>refresh</mat-icon>
-        {{ 'ui.refresh' | translate }}
-      </button>
-    </div>
   </header>
 
   @if (success(); as message) {
-    <div class="alert alert-success">{{ message | translate }}</div>
+    <div class="alert alert-success" role="status">{{ message | translate }}</div>
   }
   @if (error(); as message) {
-    <div class="alert alert-error">{{ message | translate }}</div>
+    <div class="alert alert-error" role="alert">{{ message | translate }}</div>
   }
 
   <div class="grid grid-4">
@@ -49,34 +43,30 @@
     <div class="section-title">
       <h2>{{ 'ui.installationQueue' | translate }}</h2>
       <div class="filter-row">
-        <label for="status-filter">{{ 'ui.status' | translate }}</label>
-        <select id="status-filter" (change)="filterStatus($any($event.target).value)">
+        <label id="status-filter-label">{{ 'ui.status' | translate }}</label>
+        <mat-select smartgnSelect id="status-filter" aria-labelledby="status-filter-label" [value]="statusFilter()" (selectionChange)="filterStatus($event.value)">
           @for (status of statuses; track status) {
-            <option [value]="status">{{ status === 'ALL' ? ('ui.allStatuses' | translate) : status }}</option>
+            <mat-option [value]="status">{{ status === 'ALL' ? ('ui.allStatuses' | translate) : status }}</mat-option>
           }
-        </select>
+        </mat-select>
       </div>
     </div>
 
-    @if (loading()) {
-      <div class="loading-row"><span class="spinner"></span>{{ 'ui.loadingInstallations' | translate }}</div>
+    @if (loading() && !items().length) {
+      <app-loading-state messageKey="ui.loadingInstallations" />
     } @else if (items().length === 0) {
-      <div class="empty">
-        <mat-icon>home_repair_service</mat-icon>
-        <span class="empty-title">{{ 'ui.noInstallationsForThisFilter' | translate }}</span>
-        <span class="empty-text">{{ 'ui.provisionalRequestsAppearHereAfterCheckout' | translate }}</span>
-      </div>
+      <app-empty-state icon="home_repair_service" titleKey="ui.noInstallationsForThisFilter" descriptionKey="ui.provisionalRequestsAppearHereAfterCheckout" />
     } @else {
       <div class="table-wrap">
         <table class="table">
           <thead>
             <tr>
-              <th>{{ 'ui.target' | translate }}</th>
-              <th>{{ 'ui.installer' | translate }}</th>
-              <th>{{ 'ui.status' | translate }}</th>
-              <th>{{ 'ui.device' | translate }}</th>
-              <th>{{ 'ui.created' | translate }}</th>
-              <th>{{ 'ui.actions' | translate }}</th>
+              <th scope="col">{{ 'ui.target' | translate }}</th>
+              <th scope="col">{{ 'ui.installer' | translate }}</th>
+              <th scope="col">{{ 'ui.status' | translate }}</th>
+              <th scope="col">{{ 'ui.device' | translate }}</th>
+              <th scope="col">{{ 'ui.created' | translate }}</th>
+              <th scope="col">{{ 'ui.actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -92,24 +82,25 @@
                     <span>{{ installerLabel(installation) }}</span>
                   } @else if (installation.canAssign) {
                     <div class="assign-row">
-                      <select
-                        [ngModel]="selectedInstaller(installation)"
-                        (ngModelChange)="selectInstaller(installation, $event)"
+                      <mat-select smartgnSelect
+                        [aria-label]="'ui.selectInstaller' | translate"
+                        [value]="selectedInstaller(installation)"
+                        (selectionChange)="selectInstaller(installation, $event.value)"
                       >
-                        <option value="">{{ 'ui.selectInstaller' | translate }}</option>
+                        <mat-option value="">{{ 'ui.selectInstaller' | translate }}</mat-option>
                         @for (installer of availableInstallers(); track installer.id) {
-                          <option [value]="installer.id">
+                          <mat-option [value]="installer.id">
                             {{ installer.fullName }} · {{ installer.accreditationCode }}
-                          </option>
+                          </mat-option>
                         }
-                      </select>
+                      </mat-select>
                       <button
                         class="btn btn-secondary btn-sm"
                         type="button"
                         [disabled]="saving() || !selectedInstaller(installation)"
                         (click)="assign(installation)"
                       >
-                        {{ 'ui.assign' | translate }}
+                        <mat-icon>person_add</mat-icon> {{ 'ui.assign' | translate }}
                       </button>
                     </div>
                   } @else {
@@ -133,17 +124,18 @@
                   <div class="row-actions">
                     @if (installation.canStart) {
                       <button class="btn btn-primary btn-sm" type="button" (click)="start(installation)">
+                        <mat-icon>play_arrow</mat-icon>
                         {{ 'ui.start' | translate }}
                       </button>
                     }
                     @if (installation.canComplete) {
                       <button class="btn btn-primary btn-sm" type="button" (click)="complete(installation)">
-                        {{ 'ui.complete' | translate }}
+                        <mat-icon>task_alt</mat-icon> {{ 'ui.complete' | translate }}
                       </button>
                     }
                     @if (installation.isOpen) {
                       <button class="btn btn-danger btn-sm" type="button" (click)="cancel(installation)">
-                        {{ 'ui.cancel' | translate }}
+                        <mat-icon>close</mat-icon> {{ 'ui.cancel' | translate }}
                       </button>
                     }
                     @if (!installation.isOpen) {

@@ -8,18 +8,17 @@
       </p>
     </div>
     <div class="header-actions">
-      <button class="btn btn-secondary" type="button" (click)="reload()">
-        <mat-icon>refresh</mat-icon>
-        {{ 'ui.refresh' | translate }}
+      <button class="btn btn-primary" type="button" (click)="startInvite()">
+        <mat-icon>person_add</mat-icon> {{ 'ui.inviteASubuser' | translate }}
       </button>
     </div>
   </header>
 
   @if (success(); as message) {
-    <div class="alert alert-success">{{ message | translate }}</div>
+    <div class="alert alert-success" role="status">{{ message | translate }}</div>
   }
   @if (error(); as message) {
-    <div class="alert alert-error">{{ message | translate }}</div>
+    <div class="alert alert-error" role="alert">{{ message | translate }}</div>
   }
 
   @if (activationLink(); as link) {
@@ -53,30 +52,26 @@
     </article>
   </div>
 
-  <div class="split">
+  <div>
     <section class="card">
       <div class="section-title">
         <h2>{{ 'ui.delegatedAccounts' | translate }}</h2>
         <span class="chip">{{ count() }} {{ 'ui.records' | translate }}</span>
       </div>
 
-      @if (loading()) {
-        <div class="loading-row"><span class="spinner"></span>{{ 'ui.loadingSubusers' | translate }}</div>
+      @if (loading() && !items().length) {
+        <app-loading-state messageKey="ui.loadingSubusers" />
       } @else if (items().length === 0) {
-        <div class="empty">
-          <mat-icon>group_off</mat-icon>
-          <span class="empty-title">{{ 'ui.noSubusersYet' | translate }}</span>
-          <span class="empty-text">{{ 'ui.inviteASubuserFromTheFormTo' | translate }}</span>
-        </div>
+        <app-empty-state icon="group_off" titleKey="ui.noSubusersYet" descriptionKey="ui.inviteASubuserFromTheFormTo" />
       } @else {
         <div class="table-wrap">
           <table class="table">
             <thead>
               <tr>
-                <th>{{ 'ui.subuser' | translate }}</th>
-                <th>{{ 'ui.status' | translate }}</th>
-                <th>{{ 'ui.grantedPoints' | translate }}</th>
-                <th>{{ 'ui.actions' | translate }}</th>
+                <th scope="col">{{ 'ui.subuser' | translate }}</th>
+                <th scope="col">{{ 'ui.status' | translate }}</th>
+                <th scope="col">{{ 'ui.grantedPoints' | translate }}</th>
+                <th scope="col">{{ 'ui.actions' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -93,9 +88,19 @@
                   </td>
                   <td>{{ subuser.grantedMeters }} {{ 'ui.meters2' | translate }}</td>
                   <td>
-                    <button class="btn btn-ghost btn-sm" type="button" (click)="selectSubuser(subuser.id)">
-                      {{ 'ui.manageAccess' | translate }}
+                    <div class="row-actions">
+                    @if (subuser.status === 'PENDING_ACTIVATION') {
+                      <button class="btn btn-ghost btn-sm" type="button" [disabled]="saving()" (click)="resendInvitation(subuser.id)">
+                        <mat-icon>forward_to_inbox</mat-icon> {{ 'ui.resendInvitation' | translate }}
+                      </button>
+                    }
+                    <button class="btn btn-ghost btn-sm" type="button" (click)="startGrant(subuser.id)">
+                      <mat-icon>manage_accounts</mat-icon> {{ 'ui.manageAccess' | translate }}
                     </button>
+                    <button class="btn btn-danger btn-sm" type="button" [disabled]="saving()" (click)="removeSubuser(subuser.id)">
+                      <mat-icon>person_remove</mat-icon> {{ 'ui.removeSubuser' | translate }}
+                    </button>
+                    </div>
                   </td>
                 </tr>
               }
@@ -105,101 +110,115 @@
       }
     </section>
 
-    <aside class="side-stack">
-      <section class="card">
-        <h2 class="card-title">{{ 'ui.inviteASubuser' | translate }}</h2>
-        <p class="card-subtitle">
-          {{ 'ui.theInvitedPersonActivatesTheirOwnPassword' | translate }}
-        </p>
+    @if (openForm() === 'invite') {
+      <ng-template appFormDialog (dismissed)="closeForm()">
+        <section class="secondary-form-dialog">
+          <h2 id="secondary-form-title" class="card-title">{{ 'ui.inviteASubuser' | translate }}</h2>
+          <p class="card-subtitle">
+            {{ 'ui.theInvitedPersonActivatesTheirOwnPassword' | translate }}
+          </p>
 
-        <form [formGroup]="form" (ngSubmit)="submit()">
+          @if (error(); as message) {
+            <div class="alert alert-error" role="alert">{{ message | translate }}</div>
+          }
+          <form [formGroup]="form" (ngSubmit)="submit()">
+            <div class="field">
+              <label for="subuser-email">{{ 'ui.email' | translate }}</label>
+              <input id="subuser-email" type="email" formControlName="email" placeholder="name@example.com" />
+              @if (form.controls.email.touched && form.controls.email.invalid) {
+                <span class="field-error">{{ 'ui.aValidEmailIsRequired' | translate }}</span>
+              }
+            </div>
+            <div class="form-grid">
+              <div class="field">
+                <label for="subuser-first-name">{{ 'ui.firstName' | translate }}</label>
+                <input id="subuser-first-name" formControlName="firstName" />
+              </div>
+              <div class="field">
+                <label for="subuser-last-name">{{ 'ui.lastName' | translate }}</label>
+                <input id="subuser-last-name" formControlName="lastName" />
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-secondary" type="button" (click)="closeForm()"><mat-icon>close</mat-icon> {{ 'ui.cancel' | translate }}</button>
+              <button class="btn btn-primary" type="submit" [disabled]="saving()">
+                <mat-icon>person_add</mat-icon>
+                {{ saving() ? ('ui.inviting' | translate) : ('ui.inviteSubuser' | translate) }}
+              </button>
+            </div>
+          </form>
+        </section>
+      </ng-template>
+    }
+
+    @if (openForm() === 'grant') {
+      <ng-template appFormDialog (dismissed)="closeForm()">
+        <section class="secondary-form-dialog">
+          <h2 id="secondary-form-title" class="card-title">{{ 'ui.grantAccess' | translate }}</h2>
+          <p class="card-subtitle">
+            {{ 'ui.selectASubuserAndASupplyPoint' | translate }}
+          </p>
+
+          @if (error(); as message) {
+            <div class="alert alert-error" role="alert">{{ message | translate }}</div>
+          }
           <div class="field">
-            <label for="subuser-email">{{ 'ui.email' | translate }}</label>
-            <input id="subuser-email" type="email" formControlName="email" placeholder="name@example.com" />
-            @if (form.controls.email.touched && form.controls.email.invalid) {
-              <span class="field-error">{{ 'ui.aValidEmailIsRequired' | translate }}</span>
-            }
+            <label id="grant-subuser-label">{{ 'ui.subuser' | translate }}</label>
+            <mat-select smartgnSelect
+              id="grant-subuser" aria-labelledby="grant-subuser-label"
+              [value]="selectedSubuserId()"
+              (selectionChange)="selectSubuser($event.value)"
+            >
+              <mat-option value="">{{ 'ui.selectASubuser' | translate }}</mat-option>
+              @for (subuser of items(); track subuser.id) {
+                <mat-option [value]="subuser.id">{{ subuser.fullName }}</mat-option>
+              }
+            </mat-select>
           </div>
-          <div class="form-grid">
-            <div class="field">
-              <label for="subuser-first-name">{{ 'ui.firstName' | translate }}</label>
-              <input id="subuser-first-name" formControlName="firstName" />
-            </div>
-            <div class="field">
-              <label for="subuser-last-name">{{ 'ui.lastName' | translate }}</label>
-              <input id="subuser-last-name" formControlName="lastName" />
-            </div>
+
+          <div class="field">
+            <label id="grant-meter-label">{{ 'ui.supplyPoint' | translate }}</label>
+            <mat-select smartgnSelect
+              id="grant-meter" aria-labelledby="grant-meter-label"
+              [value]="selectedMeterId()"
+              (selectionChange)="selectMeter($event.value)"
+            >
+              <mat-option value="">{{ 'ui.selectASupplyPoint' | translate }}</mat-option>
+              @for (meter of meters(); track meter.id) {
+                <mat-option [value]="meter.id">{{ meter.displayName }}@if (meter.propertyName) { {{ meter.displayName ? ' · ' : '' }}{{ meter.propertyName }} }</mat-option>
+              }
+            </mat-select>
           </div>
+
+          @if (selectedMeterId()) {
+            <div class="permission-list">
+              @for (permission of permissions; track permission.value) {
+                <label class="check-field" [for]="'perm-' + permission.value">
+                  <input
+                    [id]="'perm-' + permission.value"
+                    type="checkbox"
+                    [checked]="hasPermission(permission.value)"
+                    (change)="togglePermission(permission.value, $any($event.target).checked)"
+                  />
+                  <span>{{ permission.label | translate }}</span>
+                </label>
+              }
+            </div>
+          }
+
           <div class="form-actions">
-            <button class="btn btn-primary" type="submit" [disabled]="saving()">
-              <mat-icon>person_add</mat-icon>
-              {{ saving() ? ('ui.inviting' | translate) : ('ui.inviteSubuser' | translate) }}
+              <button class="btn btn-secondary" type="button" (click)="closeForm()"><mat-icon>close</mat-icon> {{ 'ui.cancel' | translate }}</button>
+            <button
+              class="btn btn-primary"
+              type="button"
+              [disabled]="saving() || !selectedSubuserId() || !selectedMeterId()"
+              (click)="saveGrants()"
+            >
+              <mat-icon>check</mat-icon> {{ 'ui.saveAccess' | translate }}
             </button>
           </div>
-        </form>
-      </section>
-
-      <section class="card">
-        <h2 class="card-title">{{ 'ui.grantAccess' | translate }}</h2>
-        <p class="card-subtitle">
-          {{ 'ui.selectASubuserAndASupplyPoint' | translate }}
-        </p>
-
-        <div class="field">
-          <label for="grant-subuser">{{ 'ui.subuser' | translate }}</label>
-          <select
-            id="grant-subuser"
-            [value]="selectedSubuserId()"
-            (change)="selectSubuser($any($event.target).value)"
-          >
-            <option value="">{{ 'ui.selectASubuser' | translate }}</option>
-            @for (subuser of items(); track subuser.id) {
-              <option [value]="subuser.id">{{ subuser.fullName }}</option>
-            }
-          </select>
-        </div>
-
-        <div class="field">
-          <label for="grant-meter">{{ 'ui.supplyPoint' | translate }}</label>
-          <select
-            id="grant-meter"
-            [value]="selectedMeterId()"
-            (change)="selectMeter($any($event.target).value)"
-          >
-            <option value="">{{ 'ui.selectASupplyPoint' | translate }}</option>
-            @for (meter of meters(); track meter.id) {
-              <option [value]="meter.id">{{ meter.displayName }} · {{ meter.propertyName }}</option>
-            }
-          </select>
-        </div>
-
-        @if (selectedMeterId()) {
-          <div class="permission-list">
-            @for (permission of permissions; track permission.value) {
-              <label class="check-field" [for]="'perm-' + permission.value">
-                <input
-                  [id]="'perm-' + permission.value"
-                  type="checkbox"
-                  [checked]="hasPermission(permission.value)"
-                  (change)="togglePermission(permission.value, $any($event.target).checked)"
-                />
-                <span>{{ permission.label | translate }}</span>
-              </label>
-            }
-          </div>
-        }
-
-        <div class="form-actions">
-          <button
-            class="btn btn-primary"
-            type="button"
-            [disabled]="saving() || !selectedSubuserId() || !selectedMeterId()"
-            (click)="saveGrants()"
-          >
-            {{ 'ui.saveAccess' | translate }}
-          </button>
-        </div>
-      </section>
-    </aside>
+        </section>
+      </ng-template>
+    }
   </div>
 </div>

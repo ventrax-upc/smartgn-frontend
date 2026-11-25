@@ -16,105 +16,65 @@
   </header>
 
   @if (success(); as message) {
-    <div class="alert alert-success">{{ message | translate }}</div>
+    <div class="alert alert-success" role="status">{{ message | translate }}</div>
   }
   @if (error(); as message) {
-    <div class="alert alert-error">{{ message | translate }}</div>
+    <div class="alert alert-error" role="alert">{{ message | translate }}</div>
   }
 
-  <div class="split">
-    <section class="card">
-      <h2 class="card-title">{{ profile() ? 'Personal information' : 'Complete your profile' }}</h2>
-      <p class="card-subtitle">
-        @if (profile()) {
-          {{ 'ui.thisInformationAppearsOnTicketsVisitsAnd' | translate }}
-        } @else {
-          {{ 'ui.yourAccountHasNoProfileYetAdd' | translate }}
-        }
-      </p>
+  <section class="card">
+    <h2 class="card-title">{{ (profile() ? 'ui.personalInformation' : 'ui.completeYourProfile') | translate }}</h2>
+    <p class="card-subtitle">
+      @if (profile()) {
+        {{ 'ui.thisInformationAppearsOnTicketsVisitsAnd' | translate }}
+      } @else {
+        {{ 'ui.yourAccountHasNoProfileYetAdd' | translate }}
+      }
+    </p>
 
-      <form [formGroup]="form" (ngSubmit)="save()">
-        <div class="form-grid">
-          <div class="field">
-            <label for="profile-first-name">{{ 'ui.firstName' | translate }}</label>
-            <input id="profile-first-name" formControlName="firstName" placeholder="Ana" />
-            @if (form.controls.firstName.touched && form.controls.firstName.invalid) {
-              <span class="field-error">{{ 'ui.firstNameIsRequired' | translate }}</span>
-            }
-          </div>
-          <div class="field">
-            <label for="profile-last-name">{{ 'ui.lastName' | translate }}</label>
-            <input id="profile-last-name" formControlName="lastName" placeholder="Torres" />
-            @if (form.controls.lastName.touched && form.controls.lastName.invalid) {
-              <span class="field-error">{{ 'ui.lastNameIsRequired' | translate }}</span>
-            }
-          </div>
-          <div class="field">
-            <label for="profile-phone">{{ 'ui.phone' | translate }}</label>
-            <input id="profile-phone" formControlName="phone" placeholder="+51 987 654 321" />
-            @if (form.controls.phone.touched && form.controls.phone.invalid) {
-              <span class="field-error">{{ 'ui.use7To20DigitsSpacesParentheses' | translate }}</span>
-            }
-          </div>
-          <div class="field">
-            <label for="profile-email">{{ 'ui.email' | translate }}</label>
-            <input id="profile-email" [value]="user()?.email ?? ''" disabled />
-          </div>
-          <div class="field full">
-            <label for="profile-address">{{ 'ui.address' | translate }}</label>
-            <input
-              id="profile-address"
-              formControlName="address"
-              placeholder="Av. Arequipa 1234, Lima"
-            />
-          </div>
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <div class="form-grid">
+        <div class="field">
+          <label for="profile-first-name">{{ 'ui.firstName' | translate }}</label>
+          <input id="profile-first-name" formControlName="firstName" placeholder="Ana" />
+          @if (form.controls.firstName.touched && form.controls.firstName.invalid) {
+            <span class="field-error">{{ 'ui.firstNameIsRequired' | translate }}</span>
+          }
         </div>
-
-        <div class="form-actions">
-          <button class="btn btn-primary" type="submit" [disabled]="saving()">
-            <mat-icon>save</mat-icon>
-            {{ saving() ? ('ui.saving' | translate) : ('ui.saveProfile' | translate) }}
-          </button>
+        <div class="field">
+          <label for="profile-last-name">{{ 'ui.lastName' | translate }}</label>
+          <input id="profile-last-name" formControlName="lastName" placeholder="Torres" />
+          @if (form.controls.lastName.touched && form.controls.lastName.invalid) {
+            <span class="field-error">{{ 'ui.lastNameIsRequired' | translate }}</span>
+          }
         </div>
-      </form>
-    </section>
-
-    <aside class="card account-card">
-      <div class="avatar">{{ initials() }}</div>
-      <h2 class="account-name">{{ displayName() }}</h2>
-      <p class="account-email">{{ user()?.email }}</p>
-
-      <span class="chip chip-green">{{ accessLabel() | translate }}</span>
-
-      <div class="divider"></div>
-
-      <dl class="account-facts">
-        <div>
-          <dt>{{ 'ui.role' | translate }}</dt>
-          <dd>{{ ('accountRole.' + user()?.role) | translate }}</dd>
+        <div class="field">
+          <label for="profile-phone">{{ 'ui.phone' | translate }}</label>
+          <input id="profile-phone" formControlName="phone" placeholder="+51 987 654 321" />
+          @if (form.controls.phone.touched && form.controls.phone.invalid) {
+            <span class="field-error">{{ 'ui.use7To20DigitsSpacesParentheses' | translate }}</span>
+          }
         </div>
-        <div>
-          <dt>{{ 'ui.accountKind' | translate }}</dt>
-          <dd>{{ user()?.accountKind }}</dd>
+        <div class="field">
+          <label for="profile-email">{{ 'ui.email' | translate }}</label>
+          <input id="profile-email" [value]="user()?.email ?? ''" disabled />
         </div>
-        <div>
-          <dt>{{ 'ui.profile' | translate }}</dt>
-          <dd>{{ profile() ? ('ui.created' | translate) : 'Pending' }}</dd>
+        <div class="field full">
+          <label for="profile-address">{{ 'ui.address' | translate }}</label>
+          <input
+            id="profile-address"
+            formControlName="address"
+            placeholder="Av. Arequipa 1234, Lima"
+          />
         </div>
-      </dl>
+      </div>
 
-      <div class="divider"></div>
-
-      <p class="hint">
-        <mat-icon>info</mat-icon>
-        @if (user()?.isDelegated) {
-          {{ 'ui.yourVisibilityIsLimitedToTheSupply' | translate }}
-        } @else if (user()?.isSuperAdmin) {
-          {{ 'ui.superadminAccountsOperateInstallationsDevicesInstallersAnd' | translate }}
-        } @else {
-          {{ 'ui.asAPrincipalUserYouCanManage' | translate }}
-        }
-      </p>
-    </aside>
-  </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" type="submit" [disabled]="saving()">
+          <mat-icon>save</mat-icon>
+          {{ saving() ? ('ui.saving' | translate) : ('ui.saveProfile' | translate) }}
+        </button>
+      </div>
+    </form>
+  </section>
 </div>

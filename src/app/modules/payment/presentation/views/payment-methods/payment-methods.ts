@@ -1,6 +1,12 @@
+import { RouterLink } from '@angular/router';
+import { FormDialog } from '../../../../../shared/presentation/components/form-dialog';
+import { SmartgnSelect } from '../../../../../shared/presentation/components/smartgn-select';
+import { EmptyState, LoadingState } from '../../../../../shared/presentation/components/view-state';
+import { MatSelectModule } from '@angular/material/select';
+import { pollWhileVisible } from '../../../../../shared/application/visible-polling';
 import { TranslatePipe } from '@ngx-translate/core';
 import { environment } from '../../../../../../environments/environment';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
@@ -10,7 +16,7 @@ import { ConfirmDialog } from '../../../../../shared/presentation/components/con
 
 @Component({
   selector: 'app-payment-methods',
-  imports: [TranslatePipe, ReactiveFormsModule, MatIcon],
+  imports: [RouterLink, FormDialog, SmartgnSelect, EmptyState, LoadingState, MatSelectModule, TranslatePipe, ReactiveFormsModule, MatIcon],
   templateUrl: './payment-methods.html',
   styleUrl: './payment-methods.css',
 })
@@ -18,7 +24,9 @@ export class PaymentMethodsPage implements OnInit {
   private readonly store = inject(PaymentMethodsStore);
   private readonly dialog = inject(MatDialog);
 
-  protected readonly items = this.store.items;
+  protected readonly items = computed(() =>
+    [...this.store.items()].sort((left, right) => Number(right.isDefault) - Number(left.isDefault)),
+  );
   protected readonly loading = this.store.loading;
   protected readonly saving = this.store.saving;
   protected readonly error = this.store.error;
@@ -37,11 +45,16 @@ export class PaymentMethodsPage implements OnInit {
     providerToken: new FormControl('', this.tokenRequired ? [Validators.required, Validators.pattern(/\S/)] : []),
   });
 
+  constructor() {
+    pollWhileVisible(null, () => this.reload());
+  }
+
   ngOnInit(): void {
     this.store.load();
   }
 
-  protected reload(): void {
+  private reload(): void {
+    if (this.loading() || this.showForm() || this.saving()) return;
     this.store.load();
   }
 

@@ -1,6 +1,11 @@
+import { FormDialog } from '../../../../../shared/presentation/components/form-dialog';
+import { SmartgnSelect } from '../../../../../shared/presentation/components/smartgn-select';
+import { LoadingState } from '../../../../../shared/presentation/components/view-state';
+import { MatSelectModule } from '@angular/material/select';
 import { LanguageService } from '../../../../../shared/application/language.service';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -15,7 +20,7 @@ import { AuthStore } from '../../../../iam/application/auth.store';
 
 @Component({
   selector: 'app-ticket-detail',
-  imports: [TranslatePipe, ReactiveFormsModule, DatePipe, CurrencyPipe, RouterLink, MatIcon],
+  imports: [FormDialog, SmartgnSelect, LoadingState, MatSelectModule, TranslatePipe, ReactiveFormsModule, DatePipe, CurrencyPipe, RouterLink, MatIcon],
   templateUrl: './ticket-detail.html',
   styleUrl: './ticket-detail.css',
 })
@@ -25,6 +30,7 @@ export class TicketDetailPage implements OnInit {
   private readonly techniciansStore = inject(TechniciansStore);
   protected readonly visitsStore = inject(VisitsStore);
   private readonly authStore = inject(AuthStore);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly route = inject(ActivatedRoute);
 
   protected readonly ticket = this.store.selected;
@@ -35,9 +41,12 @@ export class TicketDetailPage implements OnInit {
   protected readonly photos = this.store.photos;
   protected readonly rating = this.store.rating;
   protected readonly isSuperAdmin = this.authStore.isSuperAdmin;
+  protected readonly isPrincipal = this.authStore.isPrincipalUser;
   protected readonly currentUser = this.authStore.currentUser;
   protected readonly technicians = this.techniciansStore.items;
   protected readonly success = signal<string | null>(null);
+
+  protected readonly visitAccess = signal<'pending' | 'allowed' | 'denied' | 'unavailable'>('pending');
 
   protected readonly visits = computed(() => {
     const current = this.ticket();
@@ -56,6 +65,10 @@ export class TicketDetailPage implements OnInit {
     score: new FormControl(5, [Validators.required, Validators.min(1), Validators.max(5)]),
     comment: new FormControl('', [Validators.maxLength(1000)]),
   });
+  protected readonly showPhotoForm = signal(false);
+  protected readonly showVisitForm = signal(false);
+  protected readonly showRatingForm = signal(false);
+
   protected readonly diagnosisForm = new FormGroup({
     summary: new FormControl('', [Validators.required, Validators.maxLength(2000)]),
     finalCost: new FormControl(0, [Validators.required, Validators.min(0)]),
@@ -69,8 +82,26 @@ export class TicketDetailPage implements OnInit {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (!id) return;
-      this.store.loadTicket(id);
-      this.visitsStore.loadForTicket(id);
+      this.visitAccess.set('pending');
+      this.showVisitForm.set(false);
+      this.store.loadTicket(id, (ticket) => {
+        if (this.route.snapshot.paramMap.get('id') !== id) return;
+        if (!this.authStore.isDelegated()) {
+          this.visitAccess.set('allowed');
+          this.visitsStore.loadForTicket(id);
+          return;
+        }
+        this.visitsStore.eligibleTickets([ticket]).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+          next: (eligible) => {
+            if (this.route.snapshot.paramMap.get('id') !== id) return;
+            this.visitAccess.set(eligible.length ? 'allowed' : 'denied');
+            if (eligible.length) this.visitsStore.loadForTicket(id);
+          },
+          error: () => {
+            if (this.route.snapshot.paramMap.get('id') === id) this.visitAccess.set('unavailable');
+          },
+        });
+      });
     });
 
     if (this.isSuperAdmin()) {
@@ -102,7 +133,7 @@ export class TicketDetailPage implements OnInit {
     this.success.set(null);
     this.store.addPhoto(current.id, file, {
       onSuccess: () => {
-        input.value = '';
+        this.showPhotoForm.set(false);
         this.success.set('ui.photoAttached');
       },
     });
@@ -110,7 +141,7 @@ export class TicketDetailPage implements OnInit {
 
   protected requestVisit(): void {
     const current = this.ticket();
-    if (!current) return;
+    if (!current || this.visitAccess() !== 'allowed') return;
     if (this.visitForm.invalid) {
       this.visitForm.markAllAsTouched();
       return;
@@ -126,6 +157,7 @@ export class TicketDetailPage implements OnInit {
 
     this.visitsStore.requestVisit(current.id, start, end, {
       onSuccess: () => {
+        this.showVisitForm.set(false);
         this.visitForm.reset({ requestedWindowStart: '', requestedWindowEnd: '' });
         this.store.loadTicket(current.id);
         this.visitsStore.loadForTicket(current.id);
@@ -185,7 +217,7 @@ export class TicketDetailPage implements OnInit {
 
   protected closeTicket(): void {
     const current = this.ticket();
-    if (current?.status !== 'RESOLVED') return;
+    if (!this.isPrincipal() || current?.status !== 'RESOLVED') return;
     this.store.close(current, {
       onSuccess: () => this.success.set('ui.ticketClosed'),
     });
@@ -193,14 +225,17 @@ export class TicketDetailPage implements OnInit {
 
   protected submitRating(): void {
     const current = this.ticket();
-    if (!current?.canBeRated) return;
+    if (!this.isPrincipal() || !current?.canBeRated) return;
     if (this.ratingForm.invalid) {
       this.ratingForm.markAllAsTouched();
       return;
     }
     const value = this.ratingForm.getRawValue();
     this.store.submitRating(current.id, Number(value.score ?? 5), value.comment?.trim() ?? '', {
-      onSuccess: () => this.success.set('ui.thanksForRatingTheService'),
+      onSuccess: () => {
+        this.showRatingForm.set(false);
+        this.success.set('ui.thanksForRatingTheService');
+      },
     });
   }
 

@@ -3,11 +3,12 @@
     <div class="logo-container">
       <img src="assets/smartgn-logo.png" [alt]="'ui.smartgnLogo' | translate" class="logo-image" />
     </div>
-    <span class="brand-name">Smart<span>GN</span></span>
+    <span class="brand-name">Smart<span class="brand-accent">GN</span></span>
   </a>
 
   <div class="topbar-actions">
     <span class="topbar-link">{{ 'ui.smartEnergyClearlyManaged' | translate }}</span>
+    <app-language-toggle />
   </div>
 </header>
 
@@ -18,6 +19,10 @@
 
       <h1 class="auth-title">{{ 'ui.signInToSmartgn' | translate }}</h1>
       <p class="auth-subtitle">{{ 'ui.enterTheCredentialsOfYourSmartgnAccount' | translate }}</p>
+
+      @if (sessionExpired()) {
+        <p class="alert alert-error form-error" role="alert">{{ 'ui.sessionExpired' | translate }}</p>
+      }
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
         <label class="field-label" for="login-email">{{ 'ui.email' | translate }}</label>
@@ -48,24 +53,17 @@
             placeholder="••••••••"
             autocomplete="current-password"
           />
-          <button
-            type="button"
-            class="toggle-visibility"
-            (click)="toggleShowPassword()"
-            [attr.aria-label]="showPassword() ? ('ui.hidePassword' | translate) : ('ui.showPassword' | translate)"
-          >
-            <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
-          </button>
+          <button appPasswordToggle class="toggle-visibility" [visible]="showPassword()" (click)="toggleShowPassword()"></button>
         </div>
         @if (getError('password'); as message) {
           <span class="field-error">{{ message | translate }}</span>
         }
 
         @if (error(); as message) {
-          <div class="form-error">{{ message | translate }}</div>
+          <div class="alert alert-error form-error" role="alert">{{ message | translate }}</div>
         }
 
-        <button type="submit" class="submit-button" [disabled]="loading()">
+        <button type="submit" class="btn btn-primary submit-button" [disabled]="loading()">
           <span>{{ loading() ? ('ui.signingIn' | translate) : ('ui.signIn' | translate) }}</span>
           <mat-icon>arrow_forward</mat-icon>
         </button>
@@ -81,8 +79,8 @@
           ]; track account.email) {
             <div class="demo-account">
               <span>{{ ('accountRole.' + account.role) | translate }}</span>
-              <button type="button" class="link-inline" (click)="useDemo(account.email)">
-                {{ account.email }}
+              <button type="button" class="btn btn-secondary btn-sm link-inline" (click)="useDemo(account.email)">
+                <mat-icon>mail</mat-icon> {{ account.email }}
               </button>
             </div>
           }

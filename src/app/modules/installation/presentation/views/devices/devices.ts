@@ -1,5 +1,10 @@
+import { FormDialog } from '../../../../../shared/presentation/components/form-dialog';
+import { SmartgnSelect } from '../../../../../shared/presentation/components/smartgn-select';
+import { EmptyState, LoadingState } from '../../../../../shared/presentation/components/view-state';
+import { MatSelectModule } from '@angular/material/select';
+import { pollWhileVisible } from '../../../../../shared/application/visible-polling';
 import { TranslatePipe } from '@ngx-translate/core';
-import { Component, OnInit, computed, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
@@ -11,7 +16,7 @@ import { AuthStore } from '../../../../iam/application/auth.store';
 
 @Component({
   selector: 'app-devices',
-  imports: [TranslatePipe, ReactiveFormsModule, MatIcon],
+  imports: [FormDialog, SmartgnSelect, EmptyState, LoadingState, MatSelectModule, TranslatePipe, ReactiveFormsModule, MatIcon],
   templateUrl: './devices.html',
   styleUrl: './devices.css',
 })
@@ -26,6 +31,7 @@ export class DevicesPage implements OnInit {
   protected readonly loading = this.store.loading;
   protected readonly saving = this.store.saving;
   protected readonly error = this.store.error;
+  protected readonly showForm = signal(false);
   protected readonly receipt = this.store.receipt;
 
   protected readonly installations = computed(() =>
@@ -41,6 +47,10 @@ export class DevicesPage implements OnInit {
     installedAt: new FormControl(this.localDateTime(), [Validators.required]),
   });
 
+  constructor() {
+    pollWhileVisible(30000, () => this.reload());
+  }
+
   ngOnInit(): void {
     this.store.load();
     if (this.isSuperAdmin()) {
@@ -48,11 +58,26 @@ export class DevicesPage implements OnInit {
     }
   }
 
-  protected reload(): void {
+  private reload(): void {
+    if (this.loading() || this.showForm() || this.saving()) return;
     this.store.load();
     if (this.isSuperAdmin()) {
       this.installationsStore.load();
     }
+  }
+
+  protected startCreate(): void {
+    this.showForm.set(true);
+  }
+
+  protected cancelForm(): void {
+    this.showForm.set(false);
+    this.form.reset({
+      installationId: '',
+      serialNumber: '',
+      location: '',
+      installedAt: this.localDateTime(),
+    });
   }
 
   protected submit(): void {
@@ -75,14 +100,7 @@ export class DevicesPage implements OnInit {
         installedAt: new Date(value.installedAt ?? '').toISOString(),
       },
       {
-        onSuccess: () => {
-          this.form.reset({
-            installationId: '',
-            serialNumber: '',
-            location: '',
-            installedAt: this.localDateTime(),
-          });
-        },
+        onSuccess: () => this.cancelForm(),
       },
     );
   }

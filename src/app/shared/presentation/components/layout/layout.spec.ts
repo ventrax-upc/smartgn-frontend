@@ -1,3 +1,7 @@
+import { signal } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { provideTranslateService } from '@ngx-translate/core';
+import { AuthStore } from '../../../../modules/iam/application/auth.store';
 /*
   Imports tools to make testing Angular components easier, 
   such as creating a test module and component fixture.
@@ -38,6 +42,11 @@ describe('Layout', () => {
     */
     await TestBed.configureTestingModule({
       imports: [Layout],
+      providers: [
+        provideRouter([]),
+        provideTranslateService(),
+        { provide: AuthStore, useValue: { isSuperAdmin: () => false, isDelegated: () => false, currentUser: signal(null), profile: signal(null), initials: signal('') } },
+      ],
     }).compileComponents();
 
     /*

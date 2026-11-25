@@ -40,7 +40,7 @@ export interface PaymentMethodInputResource {
 export interface BillingDocumentResource extends BaseResource {
   id: string;
   orderId: string;
-  type: BillingDocumentType;
+  type?: BillingDocumentType;
   number: string;
   issuedAt: string;
   total: number;

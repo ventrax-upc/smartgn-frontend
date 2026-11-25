@@ -1,3 +1,8 @@
+import { FormDialog } from '../../../../../shared/presentation/components/form-dialog';
+import { SmartgnSelect } from '../../../../../shared/presentation/components/smartgn-select';
+import { EmptyState, LoadingState } from '../../../../../shared/presentation/components/view-state';
+import { MatSelectModule } from '@angular/material/select';
+import { pollWhileVisible } from '../../../../../shared/application/visible-polling';
 import { LanguageService } from '../../../../../shared/application/language.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
@@ -13,7 +18,7 @@ import { AuthStore } from '../../../../iam/application/auth.store';
 
 @Component({
   selector: 'app-visits',
-  imports: [TranslatePipe, ReactiveFormsModule, DatePipe, CurrencyPipe, RouterLink, MatIcon],
+  imports: [FormDialog, SmartgnSelect, EmptyState, LoadingState, MatSelectModule, TranslatePipe, ReactiveFormsModule, DatePipe, CurrencyPipe, RouterLink, MatIcon],
   templateUrl: './visits.html',
   styleUrl: './visits.css',
 })
@@ -30,6 +35,7 @@ export class VisitsPage implements OnInit {
   protected readonly error = this.store.error;
   protected readonly scheduledCount = this.store.scheduledCount;
   protected readonly completedCount = this.store.completedCount;
+  protected readonly isDelegated = this.authStore.isDelegated;
   protected readonly isSuperAdmin = this.authStore.isSuperAdmin;
   protected readonly technicians = this.techniciansStore.items;
 
@@ -59,15 +65,20 @@ export class VisitsPage implements OnInit {
     finalCost: new FormControl(0, [Validators.required, Validators.min(0)]),
   });
 
+  constructor() {
+    pollWhileVisible(null, () => this.reload());
+  }
+
   ngOnInit(): void {
-    this.store.load();
+    this.store.load(undefined, true, this.isDelegated());
     if (this.isSuperAdmin()) {
       this.techniciansStore.load();
     }
   }
 
-  protected reload(): void {
-    this.store.load();
+  private reload(): void {
+    if (this.loading() || this.showForm() || this.saving() || this.diagnosingVisitId()) return;
+    this.store.load(undefined, true, this.isDelegated());
   }
 
   protected startCreate(): void {

@@ -8,10 +8,6 @@
       </p>
     </div>
     <div class="header-actions">
-      <button class="btn btn-secondary" type="button" (click)="reload()">
-        <mat-icon>refresh</mat-icon>
-        {{ 'ui.refresh' | translate }}
-      </button>
       <button class="btn btn-primary" type="button" (click)="startCreate()">
         <mat-icon>person_add</mat-icon>
         {{ 'ui.newInstaller' | translate }}
@@ -20,10 +16,10 @@
   </header>
 
   @if (success(); as message) {
-    <div class="alert alert-success">{{ message | translate }}</div>
+    <div class="alert alert-success" role="status">{{ message | translate }}</div>
   }
   @if (error(); as message) {
-    <div class="alert alert-error">{{ message | translate }}</div>
+    <div class="alert alert-error" role="alert">{{ message | translate }}</div>
   }
 
   <div class="grid grid-3">
@@ -44,31 +40,27 @@
     </article>
   </div>
 
-  <div class="split">
+  <div>
     <section class="card">
       <div class="section-title">
         <h2>{{ 'ui.installerDirectory' | translate }}</h2>
         <span class="chip">{{ count() }} {{ 'ui.records' | translate }}</span>
       </div>
 
-      @if (loading()) {
-        <div class="loading-row"><span class="spinner"></span>{{ 'ui.loadingInstallers' | translate }}</div>
+      @if (loading() && !items().length) {
+        <app-loading-state messageKey="ui.loadingInstallers" />
       } @else if (items().length === 0) {
-        <div class="empty">
-          <mat-icon>engineering</mat-icon>
-          <span class="empty-title">{{ 'ui.noInstallersRegistered' | translate }}</span>
-          <span class="empty-text">{{ 'ui.registerAccreditedPersonnelToAssignInstallationWork' | translate }}</span>
-        </div>
+        <app-empty-state icon="engineering" titleKey="ui.noInstallersRegistered" descriptionKey="ui.registerAccreditedPersonnelToAssignInstallationWork" />
       } @else {
         <div class="table-wrap">
           <table class="table">
             <thead>
               <tr>
-                <th>{{ 'ui.installer' | translate }}</th>
-                <th>{{ 'ui.contact' | translate }}</th>
-                <th>{{ 'ui.accreditation' | translate }}</th>
-                <th>{{ 'ui.status' | translate }}</th>
-                <th></th>
+                <th scope="col">{{ 'ui.installer' | translate }}</th>
+                <th scope="col">{{ 'ui.contact' | translate }}</th>
+                <th scope="col">{{ 'ui.accreditation' | translate }}</th>
+                <th scope="col">{{ 'ui.status' | translate }}</th>
+                <th scope="col">{{ 'ui.actions' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -98,7 +90,7 @@
                   <td>
                     <div class="row-actions">
                       <button class="btn btn-ghost btn-sm" type="button" (click)="startEdit(installer)">
-                        {{ 'ui.edit' | translate }}
+                        <mat-icon>edit</mat-icon> {{ 'ui.edit' | translate }}
                       </button>
                       <button
                         class="btn btn-sm"
@@ -108,7 +100,7 @@
                         [disabled]="saving()"
                         (click)="toggleStatus(installer)"
                       >
-                        {{ installer.enabled ? ('ui.disable' | translate) : ('ui.enable' | translate) }}
+                        <mat-icon>{{ installer.enabled ? 'block' : 'check_circle' }}</mat-icon> {{ installer.enabled ? ('ui.disable' | translate) : ('ui.enable' | translate) }}
                       </button>
                     </div>
                   </td>
@@ -121,73 +113,75 @@
     </section>
 
     @if (showForm()) {
-      <aside class="card">
-        <div class="section-title">
-          <h2>{{ formTitle() }}</h2>
-          <button class="btn btn-ghost btn-sm" type="button" (click)="cancelForm()">{{ 'ui.close' | translate }}</button>
-        </div>
-        <p class="card-subtitle">
-          {{ 'ui.accreditationCodesAreValidatedByOperationsBefore' | translate }}
-        </p>
+      <ng-template appFormDialog (dismissed)="cancelForm()">
+        <section class="secondary-form-dialog">
+          <h2 id="secondary-form-title">{{ formTitle() | translate }}</h2>
+          <p class="card-subtitle">
+            {{ 'ui.accreditationCodesAreValidatedByOperationsBefore' | translate }}
+          </p>
 
-        <form [formGroup]="form" (ngSubmit)="submit()">
-          <div class="form-grid">
-            <div class="field">
-              <label for="installer-first-name">{{ 'ui.firstName' | translate }}</label>
-              <input id="installer-first-name" formControlName="firstName" />
-              @if (form.controls.firstName.touched && form.controls.firstName.invalid) {
-                <span class="field-error">{{ 'ui.firstNameIsRequired' | translate }}</span>
-              }
+          @if (error(); as message) {
+            <div class="alert alert-error" role="alert">{{ message | translate }}</div>
+          }
+          <form [formGroup]="form" (ngSubmit)="submit()">
+            <div class="form-grid">
+              <div class="field">
+                <label for="installer-first-name">{{ 'ui.firstName' | translate }}</label>
+                <input id="installer-first-name" formControlName="firstName" />
+                @if (form.controls.firstName.touched && form.controls.firstName.invalid) {
+                  <span class="field-error">{{ 'ui.firstNameIsRequired' | translate }}</span>
+                }
+              </div>
+              <div class="field">
+                <label for="installer-last-name">{{ 'ui.lastName' | translate }}</label>
+                <input id="installer-last-name" formControlName="lastName" />
+                @if (form.controls.lastName.touched && form.controls.lastName.invalid) {
+                  <span class="field-error">{{ 'ui.lastNameIsRequired' | translate }}</span>
+                }
+              </div>
+              <div class="field">
+                <label for="installer-identification">{{ 'ui.identification' | translate }}</label>
+                <input id="installer-identification" formControlName="identification" />
+                @if (form.controls.identification.touched && form.controls.identification.invalid) {
+                  <span class="field-error">{{ 'ui.identificationIsRequired' | translate }}</span>
+                }
+              </div>
+              <div class="field">
+                <label for="installer-phone">{{ 'ui.phone' | translate }}</label>
+                <input id="installer-phone" formControlName="phone" />
+                @if (form.controls.phone.touched && form.controls.phone.invalid) {
+                  <span class="field-error">{{ 'ui.phoneIsRequired' | translate }}</span>
+                }
+              </div>
+              <div class="field full">
+                <label for="installer-email">{{ 'ui.email' | translate }}</label>
+                <input id="installer-email" type="email" formControlName="email" />
+                @if (form.controls.email.touched && form.controls.email.invalid) {
+                  <span class="field-error">{{ 'ui.aValidEmailIsRequired' | translate }}</span>
+                }
+              </div>
+              <div class="field full">
+                <label for="installer-accreditation">{{ 'ui.accreditationCode' | translate }}</label>
+                <input id="installer-accreditation" formControlName="accreditationCode" />
+                @if (form.controls.accreditationCode.touched && form.controls.accreditationCode.invalid) {
+                  <span class="field-error">{{ 'ui.accreditationCodeIsRequired' | translate }}</span>
+                }
+              </div>
+              <label class="check-field full" for="installer-available">
+                <input id="installer-available" type="checkbox" formControlName="available" />
+                <span>{{ 'ui.availableForNewAssignments' | translate }}</span>
+              </label>
             </div>
-            <div class="field">
-              <label for="installer-last-name">{{ 'ui.lastName' | translate }}</label>
-              <input id="installer-last-name" formControlName="lastName" />
-              @if (form.controls.lastName.touched && form.controls.lastName.invalid) {
-                <span class="field-error">{{ 'ui.lastNameIsRequired' | translate }}</span>
-              }
-            </div>
-            <div class="field">
-              <label for="installer-identification">{{ 'ui.identification' | translate }}</label>
-              <input id="installer-identification" formControlName="identification" />
-              @if (form.controls.identification.touched && form.controls.identification.invalid) {
-                <span class="field-error">{{ 'ui.identificationIsRequired' | translate }}</span>
-              }
-            </div>
-            <div class="field">
-              <label for="installer-phone">{{ 'ui.phone' | translate }}</label>
-              <input id="installer-phone" formControlName="phone" />
-              @if (form.controls.phone.touched && form.controls.phone.invalid) {
-                <span class="field-error">{{ 'ui.phoneIsRequired' | translate }}</span>
-              }
-            </div>
-            <div class="field full">
-              <label for="installer-email">{{ 'ui.email' | translate }}</label>
-              <input id="installer-email" type="email" formControlName="email" />
-              @if (form.controls.email.touched && form.controls.email.invalid) {
-                <span class="field-error">{{ 'ui.aValidEmailIsRequired' | translate }}</span>
-              }
-            </div>
-            <div class="field full">
-              <label for="installer-accreditation">{{ 'ui.accreditationCode' | translate }}</label>
-              <input id="installer-accreditation" formControlName="accreditationCode" />
-              @if (form.controls.accreditationCode.touched && form.controls.accreditationCode.invalid) {
-                <span class="field-error">{{ 'ui.accreditationCodeIsRequired' | translate }}</span>
-              }
-            </div>
-            <label class="check-field full" for="installer-available">
-              <input id="installer-available" type="checkbox" formControlName="available" />
-              <span>{{ 'ui.availableForNewAssignments' | translate }}</span>
-            </label>
-          </div>
 
-          <div class="form-actions">
-            <button class="btn btn-secondary" type="button" (click)="cancelForm()">{{ 'ui.cancel' | translate }}</button>
-            <button class="btn btn-primary" type="submit" [disabled]="saving()">
-              {{ saving() ? ('ui.saving' | translate) : editing() ? ('ui.saveChanges' | translate) : ('ui.registerInstaller' | translate) }}
-            </button>
-          </div>
-        </form>
-      </aside>
+            <div class="form-actions">
+              <button class="btn btn-secondary" type="button" (click)="cancelForm()"><mat-icon>close</mat-icon> {{ 'ui.cancel' | translate }}</button>
+              <button class="btn btn-primary" type="submit" [disabled]="saving()">
+                <mat-icon>check</mat-icon> {{ saving() ? ('ui.saving' | translate) : editing() ? ('ui.saveChanges' | translate) : ('ui.registerInstaller' | translate) }}
+              </button>
+            </div>
+          </form>
+        </section>
+      </ng-template>
     }
   </div>
 </div>

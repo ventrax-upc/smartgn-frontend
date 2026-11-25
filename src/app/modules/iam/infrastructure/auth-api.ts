@@ -42,6 +42,12 @@ export class AuthApi {
       );
   }
 
+  renewSession(token: string): Observable<{ token: string }> {
+    return this.http.post<{ token: string }>(`${this.baseUrl}/renew-session`, null, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  }
+
   requestPasswordReset(email: string): Observable<ForgotPasswordResource> {
     return this.http
       .post<ForgotPasswordResource>(`${this.baseUrl}/forgot-password`, {

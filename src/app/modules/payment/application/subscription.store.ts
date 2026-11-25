@@ -56,6 +56,7 @@ export class SubscriptionStore {
     autoRenew: boolean,
     callbacks?: { onSuccess?: () => void; onError?: (message: string) => void },
   ): void {
+    this.errorSignal.set(null);
     this.savingSignal.set(true);
     this.api.setAutoRenew(autoRenew).subscribe({
       next: () => {
@@ -81,7 +82,9 @@ export class SubscriptionStore {
       },
       error: (err) => {
         this.savingSignal.set(false);
-        callbacks?.onError?.(this.messageFrom(err));
+        const message = this.messageFrom(err);
+        this.errorSignal.set(message);
+        callbacks?.onError?.(message);
       },
     });
   }

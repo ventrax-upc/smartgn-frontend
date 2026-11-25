@@ -8,10 +8,6 @@
       </p>
     </div>
     <div class="header-actions">
-      <button class="btn btn-secondary" type="button" (click)="reload()">
-        <mat-icon>refresh</mat-icon>
-        {{ 'ui.refresh' | translate }}
-      </button>
       <a class="btn btn-secondary" routerLink="/payments/subscription">
         <mat-icon>workspace_premium</mat-icon>
         {{ 'ui.subscription' | translate }}
@@ -20,10 +16,10 @@
   </header>
 
   @if (success(); as message) {
-    <div class="alert alert-success">{{ message | translate }}</div>
+    <div class="alert alert-success" role="status">{{ message | translate }}</div>
   }
   @if (error(); as message) {
-    <div class="alert alert-error">{{ message | translate }}</div>
+    <div class="alert alert-error" role="alert">{{ message | translate }}</div>
   }
 
   <div class="grid grid-3">
@@ -54,32 +50,28 @@
       <span class="chip">{{ items().length }} {{ 'ui.records' | translate }}</span>
     </div>
 
-    @if (loading()) {
-      <div class="loading-row"><span class="spinner"></span>{{ 'ui.loadingPayments' | translate }}</div>
+    @if (loading() && !items().length) {
+      <app-loading-state messageKey="ui.loadingPayments" />
     } @else if (items().length === 0) {
-      <div class="empty">
-        <mat-icon>receipt_long</mat-icon>
-        <span class="empty-title">{{ 'ui.noPaymentsYet' | translate }}</span>
-        <span class="empty-text">{{ 'ui.ordersAppearHereAfterInstallationProRenewal' | translate }}</span>
-      </div>
+      <app-empty-state icon="receipt_long" titleKey="ui.noPaymentsYet" descriptionKey="ui.ordersAppearHereAfterInstallationProRenewal" />
     } @else {
       <div class="table-wrap">
         <table class="table">
           <thead>
             <tr>
-              <th>{{ 'ui.order' | translate }}</th>
-              <th>{{ 'ui.date' | translate }}</th>
-              <th>{{ 'ui.amount' | translate }}</th>
-              <th>{{ 'ui.status' | translate }}</th>
-              <th>{{ 'ui.documents' | translate }}</th>
-              <th></th>
+              <th scope="col">{{ 'ui.order' | translate }}</th>
+              <th scope="col">{{ 'ui.date' | translate }}</th>
+              <th scope="col">{{ 'ui.amount' | translate }}</th>
+              <th scope="col">{{ 'ui.status' | translate }}</th>
+              <th scope="col">{{ 'ui.documents' | translate }}</th>
+              <th scope="col">{{ 'ui.actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
             @for (order of items(); track order.id) {
               <tr>
                 <td>
-                  <span class="cell-title">{{ reasonLabel(order) | translate }}</span>
+                  <span class="cell-title" #orderTitle>{{ reasonLabel(order) | translate }}</span>
                   <div class="cell-muted">{{ order.description }}</div>
                   <div class="cell-muted mono">{{ order.id }}</div>
                 </td>
@@ -104,15 +96,8 @@
                   } @else {
                     @for (document of order.documents; track document.id) {
                       <div class="document-row">
-                        <div>
-                          <span class="cell-title">{{ document.number }}</span>
-                          <div class="cell-muted">{{ ('billingDocument.' + document.type) | translate }}</div>
-                        </div>
-                        <div class="document-actions">
-                          <button class="btn btn-ghost btn-sm" type="button" (click)="download(order, document.id, 'pdf')">PDF</button>
-                          <button class="btn btn-ghost btn-sm" type="button" (click)="download(order, document.id, 'xml')">XML</button>
-                          <button class="btn btn-ghost btn-sm" type="button" (click)="download(order, document.id, 'cdr')">CDR</button>
-                        </div>
+                        <span class="cell-title">{{ document.number }}</span>
+                        <div class="cell-muted">{{ ('billingDocument.' + (document.type ?? 'GENERIC')) | translate }}</div>
                       </div>
                     }
                   }
@@ -120,26 +105,38 @@
                 <td>
                   @if (order.canPay) {
                     <div class="pay-row">
-                      <select
+                      <mat-select smartgnSelect
                         [value]="selectedMethod(order)"
-                        (change)="selectMethod(order, $any($event.target).value)"
-                        [attr.aria-label]="'ui.paymentMethod' | translate"
+                        (selectionChange)="selectMethod(order, $event.value)"
+                        [aria-label]="'ui.paymentMethod' | translate"
                       >
                         @for (method of methods(); track method.id) {
-                          <option [value]="method.id">{{ method.label }}</option>
+                          <mat-option [value]="method.id">{{ method.label }}</mat-option>
                         }
-                      </select>
+                      </mat-select>
                       <button
                         class="btn btn-primary btn-sm"
                         type="button"
                         [disabled]="saving() || methods().length === 0"
                         (click)="pay(order)"
                       >
-                        {{ order.status === 'FAILED' ? ('ui.retryPayment' | translate) : ('ui.payOrder' | translate) }}
+                        <mat-icon>{{ order.status === 'FAILED' ? 'replay' : 'payments' }}</mat-icon> {{ order.status === 'FAILED' ? ('ui.retryPayment' | translate) : ('ui.payOrder' | translate) }}
                       </button>
                     </div>
-                  } @else {
-                    <span class="cell-muted">{{ 'ui.closed' | translate }}</span>
+                  }
+                  @for (document of order.documents; track document.id; let index = $index) {
+                    <button
+                      class="btn btn-ghost btn-sm"
+                      type="button"
+                      (click)="download(order, document.id, orderTitle.textContent, index)"
+                    >
+                      <mat-icon>download</mat-icon> PDF
+                      @if (order.documents.length > 1) { {{ document.number }} }
+                    </button>
+                  } @empty {
+                    @if (!order.canPay) {
+                      <span class="cell-muted">{{ 'ui.closed' | translate }}</span>
+                    }
                   }
                 </td>
               </tr>

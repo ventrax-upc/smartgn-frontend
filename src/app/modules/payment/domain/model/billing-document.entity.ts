@@ -6,7 +6,7 @@ export type BillingDocumentStatus = 'ISSUED' | 'VOIDED';
 export class BillingDocument implements BaseEntity {
   private readonly _id: string;
   private readonly _orderId: string;
-  private readonly _type: BillingDocumentType;
+  private readonly _type: BillingDocumentType | undefined;
   private readonly _number: string;
   private readonly _issuedAt: string;
   private readonly _total: number;
@@ -16,7 +16,7 @@ export class BillingDocument implements BaseEntity {
   constructor(props: {
     id: string;
     orderId: string;
-    type: BillingDocumentType;
+    type?: BillingDocumentType;
     number: string;
     issuedAt: string;
     total: number;
@@ -41,7 +41,7 @@ export class BillingDocument implements BaseEntity {
     return this._orderId;
   }
 
-  get type(): BillingDocumentType {
+  get type(): BillingDocumentType | undefined {
     return this._type;
   }
 

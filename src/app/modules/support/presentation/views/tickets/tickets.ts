@@ -1,3 +1,8 @@
+import { FormDialog } from '../../../../../shared/presentation/components/form-dialog';
+import { SmartgnSelect } from '../../../../../shared/presentation/components/smartgn-select';
+import { EmptyState, LoadingState } from '../../../../../shared/presentation/components/view-state';
+import { MatSelectModule } from '@angular/material/select';
+import { pollWhileVisible } from '../../../../../shared/application/visible-polling';
 import { LanguageService } from '../../../../../shared/application/language.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject, signal } from '@angular/core';
@@ -12,7 +17,7 @@ import { AuthStore } from '../../../../iam/application/auth.store';
 
 @Component({
   selector: 'app-tickets',
-  imports: [TranslatePipe, ReactiveFormsModule, DatePipe, SlicePipe, RouterLink, MatIcon],
+  imports: [FormDialog, SmartgnSelect, EmptyState, LoadingState, MatSelectModule, TranslatePipe, ReactiveFormsModule, DatePipe, SlicePipe, RouterLink, MatIcon],
   templateUrl: './tickets.html',
   styleUrl: './tickets.css',
 })
@@ -43,6 +48,10 @@ export class TicketsPage implements OnInit {
     message: new FormControl('', [Validators.required, Validators.maxLength(4000)]),
   });
 
+  constructor() {
+    pollWhileVisible(30000, () => this.reload());
+  }
+
   ngOnInit(): void {
     this.store.load();
     if (!this.isSuperAdmin()) {
@@ -57,7 +66,8 @@ export class TicketsPage implements OnInit {
     }
   }
 
-  protected reload(): void {
+  private reload(): void {
+    if (this.loading() || this.showForm() || this.saving()) return;
     this.store.load();
   }
 

@@ -12,14 +12,15 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="confirm-dialog__actions">
-  <button mat-button type="button" (click)="cancel()">
-    {{ (data.cancelKey ?? defaults.cancelKey) | translate }}
+  <button class="btn btn-secondary" type="button" (click)="cancel()">
+    <mat-icon>close</mat-icon> {{ (data.cancelKey ?? defaults.cancelKey) | translate }}
   </button>
   <button
-    mat-flat-button
+    class="btn"
     type="button"
-    [color]="(data.tone ?? defaults.tone) === 'danger' ? 'warn' : 'primary'"
+    [class.btn-danger]="(data.tone ?? defaults.tone) === 'danger'"
+      [class.btn-primary]="(data.tone ?? defaults.tone) !== 'danger'"
     (click)="confirm()">
-    {{ (data.confirmKey ?? defaults.confirmKey) | translate }}
+    <mat-icon>check</mat-icon> {{ (data.confirmKey ?? defaults.confirmKey) | translate }}
   </button>
 </mat-dialog-actions>

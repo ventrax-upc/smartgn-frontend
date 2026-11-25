@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { IsActiveMatchOptions, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthStore } from '../../../../modules/iam/application/auth.store';
@@ -8,7 +8,7 @@ interface SidebarOption {
   link: string;
   label: string;
   icon: string;
-  exact?: boolean;
+  includeChildren?: boolean;
 }
 
 /*
@@ -26,7 +26,7 @@ export class SidebarContent {
   private readonly authStore = inject(AuthStore);
 
   private readonly principalOptions: SidebarOption[] = [
-    { link: '/home', label: 'sidebar.home', icon: 'grid_view', exact: true },
+    { link: '/home', label: 'sidebar.home', icon: 'grid_view' },
     { link: '/installation/properties', label: 'sidebar.properties', icon: 'home_work' },
     { link: '/installation/meters', label: 'sidebar.meters', icon: 'speed' },
     { link: '/monitoring', label: 'sidebar.monitoring', icon: 'show_chart' },
@@ -35,36 +35,45 @@ export class SidebarContent {
     { link: '/payments/subscription', label: 'sidebar.subscription', icon: 'workspace_premium' },
     { link: '/payments/history', label: 'sidebar.payments', icon: 'receipt_long' },
     { link: '/alerts', label: 'sidebar.alerts', icon: 'notifications' },
-    { link: '/support/tickets', label: 'sidebar.tickets', icon: 'support_agent' },
+    { link: '/support/tickets', label: 'sidebar.tickets', icon: 'support_agent', includeChildren: true },
     { link: '/support/visits', label: 'sidebar.visits', icon: 'event' },
     { link: '/support/guides', label: 'sidebar.guides', icon: 'menu_book' },
     { link: '/account/profile', label: 'sidebar.profile', icon: 'person' },
   ];
 
   private readonly delegatedOptions: SidebarOption[] = [
-    { link: '/home', label: 'sidebar.home', icon: 'grid_view', exact: true },
+    { link: '/home', label: 'sidebar.home', icon: 'grid_view' },
     { link: '/installation/meters', label: 'sidebar.meters', icon: 'speed' },
     { link: '/monitoring', label: 'sidebar.monitoring', icon: 'show_chart' },
     { link: '/installation/devices', label: 'sidebar.devices', icon: 'developer_board' },
     { link: '/alerts', label: 'sidebar.alerts', icon: 'notifications' },
-    { link: '/support/tickets', label: 'sidebar.tickets', icon: 'support_agent' },
+    { link: '/support/tickets', label: 'sidebar.tickets', icon: 'support_agent', includeChildren: true },
     { link: '/support/visits', label: 'sidebar.visits', icon: 'event' },
     { link: '/support/guides', label: 'sidebar.guides', icon: 'menu_book' },
     { link: '/account/profile', label: 'sidebar.profile', icon: 'person' },
   ];
 
   private readonly adminOptions: SidebarOption[] = [
-    { link: '/home', label: 'sidebar.home', icon: 'grid_view', exact: true },
+    { link: '/home', label: 'sidebar.home', icon: 'grid_view' },
     { link: '/installation/installations', label: 'sidebar.installations', icon: 'home_repair_service' },
     { link: '/installation/devices', label: 'sidebar.devices', icon: 'developer_board' },
     { link: '/installation/installers', label: 'sidebar.installers', icon: 'engineering' },
     { link: '/alerts', label: 'sidebar.alerts', icon: 'notifications' },
-    { link: '/support/tickets', label: 'sidebar.tickets', icon: 'support_agent' },
+    { link: '/support/tickets', label: 'sidebar.tickets', icon: 'support_agent', includeChildren: true },
     { link: '/support/visits', label: 'sidebar.visits', icon: 'event' },
     { link: '/support/technicians', label: 'sidebar.technicians', icon: 'badge' },
     { link: '/support/guides', label: 'sidebar.guides', icon: 'menu_book' },
     { link: '/account/profile', label: 'sidebar.profile', icon: 'person' },
   ];
+
+  protected readonly pageMatch: IsActiveMatchOptions = {
+    paths: 'exact',
+    queryParams: 'ignored',
+    matrixParams: 'ignored',
+    fragment: 'ignored',
+  };
+
+  protected readonly sectionMatch: IsActiveMatchOptions = { ...this.pageMatch, paths: 'subset' };
 
   protected readonly options = computed<SidebarOption[]>(() => {
     if (this.authStore.isSuperAdmin()) return this.adminOptions;

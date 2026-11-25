@@ -1,3 +1,5 @@
+import { EmptyState, LoadingState } from '../../../../../shared/presentation/components/view-state';
+import { pollWhileVisible } from '../../../../../shared/application/visible-polling';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -6,7 +8,7 @@ import { MetersStore } from '../../../application/meters.store';
 
 @Component({
   selector: 'app-meters',
-  imports: [TranslatePipe, RouterLink, MatIcon],
+  imports: [EmptyState, LoadingState, TranslatePipe, RouterLink, MatIcon],
   templateUrl: './meters.html',
   styleUrl: './meters.css',
 })
@@ -19,11 +21,16 @@ export class MetersPage implements OnInit {
   protected readonly count = this.store.count;
   protected readonly propertyCount = this.store.propertyCount;
 
+  constructor() {
+    pollWhileVisible(null, () => this.reload());
+  }
+
   ngOnInit(): void {
     this.store.load();
   }
 
-  protected reload(): void {
+  private reload(): void {
+    if (this.loading()) return;
     this.store.load();
   }
 }

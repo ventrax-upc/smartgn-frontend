@@ -11,7 +11,6 @@
 */
 import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -59,7 +58,7 @@ export interface ConfirmDialogData {
 
 @Component({
   selector: 'app-confirm-dialog',
-  imports: [MatDialogModule, MatButtonModule, MatIcon, TranslatePipe],
+  imports: [MatDialogModule, MatIcon, TranslatePipe],
   templateUrl: './confirm-dialog.html',
   styleUrl: './confirm-dialog.css',
 })

@@ -1,8 +1,10 @@
 <div class="page">
-  <header class="overview-header">
+  <header class="card overview-header">
     <div class="header-copy">
       <span class="eyebrow">{{ 'home.eyebrow' | translate }}</span>
-      <h1 class="page-title">{{ greetingKey() | translate }}, {{ displayName() }}</h1>
+      <h1 class="page-title">
+        {{ greetingKey() | translate }}@if (profile()?.fullName; as name) {, {{ name }}}
+      </h1>
       <p class="header-date">{{ todayLabel() }}</p>
       <p class="page-subtitle">
         @if (isSuperAdmin()) {
@@ -13,17 +15,6 @@
           {{ 'home.subtitle.delegated' | translate }}
         }
       </p>
-    </div>
-    <div class="header-side">
-      <div class="hero-tags">
-        <span class="chip chip-green">{{ roleKey() | translate }}</span>
-        @if (user(); as current) {
-          <span class="chip">{{ current.email }}</span>
-        }
-      </div>
-      <div class="hero-mark">
-        <img src="assets/smartgn-logo.png" alt="SmartGN" />
-      </div>
     </div>
   </header>
 
@@ -98,7 +89,7 @@
       <section class="card">
         <div class="section-title">
           <h2>{{ 'home.subusers.title' | translate }}</h2>
-          <a class="btn btn-ghost btn-sm" routerLink="/account/subusers">{{ 'home.subusers.manage' | translate }}</a>
+          <a class="btn btn-ghost btn-sm" routerLink="/account/subusers"><mat-icon>manage_accounts</mat-icon> {{ 'home.subusers.manage' | translate }}</a>
         </div>
         <p class="card-subtitle">{{ 'home.subusers.description' | translate }}</p>
         <div class="mini-stat">
@@ -112,7 +103,7 @@
       <section class="card">
         <div class="section-title">
           <h2>{{ 'home.support.title' | translate }}</h2>
-          <a class="btn btn-ghost btn-sm" routerLink="/support/visits">{{ 'home.support.visits' | translate }}</a>
+          <a class="btn btn-ghost btn-sm" routerLink="/support/visits"><mat-icon>arrow_forward</mat-icon> {{ 'home.latest.viewAll' | translate }}</a>
         </div>
         <div class="mini-stat">
           <span class="stat-value">{{ technicians() }}</span>
@@ -129,7 +120,7 @@
     <section class="card">
       <div class="section-title">
         <h2>{{ 'home.ticketStatus.title' | translate }}</h2>
-        <a class="btn btn-ghost btn-sm" routerLink="/support/tickets">{{ 'home.ticketStatus.open' | translate }}</a>
+        <a class="btn btn-ghost btn-sm" routerLink="/support/tickets"><mat-icon>arrow_forward</mat-icon> {{ 'home.latest.viewAll' | translate }}</a>
       </div>
       <div class="donut-wrap">
         <div class="donut">
@@ -155,24 +146,20 @@
   <section class="card">
     <div class="section-title">
       <h2>{{ 'home.latest.title' | translate }}</h2>
-      <a class="btn btn-ghost btn-sm" routerLink="/support/tickets">{{ 'home.latest.viewAll' | translate }}</a>
+      <a class="btn btn-ghost btn-sm" routerLink="/support/tickets"><mat-icon>arrow_forward</mat-icon> {{ 'home.latest.viewAll' | translate }}</a>
     </div>
 
     @if (recentTickets().length === 0) {
-      <div class="empty">
-        <mat-icon>support_agent</mat-icon>
-        <span class="empty-title">{{ 'home.latest.emptyTitle' | translate }}</span>
-        <span class="empty-text">{{ 'home.latest.emptyText' | translate }}</span>
-      </div>
+      <app-empty-state icon="support_agent" titleKey="home.latest.emptyTitle" descriptionKey="home.latest.emptyText" />
     } @else {
       <div class="table-wrap">
         <table class="table">
           <thead>
             <tr>
-              <th>{{ 'home.latest.subject' | translate }}</th>
-              <th>{{ 'home.latest.supplyPoint' | translate }}</th>
-              <th>{{ 'home.latest.status' | translate }}</th>
-              <th>{{ 'home.latest.created' | translate }}</th>
+              <th scope="col">{{ 'home.latest.subject' | translate }}</th>
+              <th scope="col">{{ 'home.latest.supplyPoint' | translate }}</th>
+              <th scope="col">{{ 'home.latest.status' | translate }}</th>
+              <th scope="col">{{ 'home.latest.created' | translate }}</th>
             </tr>
           </thead>
           <tbody>

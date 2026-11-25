@@ -29,9 +29,7 @@
   min-height: calc(100% - 0px);
   box-sizing: border-box;
   padding: 18px 12px;
-  background-color: var(--smartgn-glass);
-  -webkit-backdrop-filter: blur(var(--smartgn-blur));
-  backdrop-filter: blur(var(--smartgn-blur));
+  background-color: var(--smartgn-surface);
   border: 1px solid var(--smartgn-glass-border);
   border-radius: 20px;
   box-shadow: var(--smartgn-shadow);
@@ -140,4 +138,34 @@
   font-size: 24px;
   width: 24px;
   height: 24px;
+}
+
+@media (max-width: 720px) {
+  :host {
+    flex: none;
+    min-width: 0;
+    padding: 12px 16px 0;
+  }
+
+  .sidebar-content {
+    justify-content: flex-start;
+    padding: 4px;
+  }
+
+  .sidebar-menu {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 4px;
+  }
+
+  .sidebar-option {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    gap: 8px;
+    padding: 6px 10px;
+  }
+
+  .sidebar-option:hover {
+    transform: none;
+  }
 }

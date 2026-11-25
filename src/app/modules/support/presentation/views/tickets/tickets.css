@@ -8,15 +8,8 @@
   color: var(--smartgn-muted);
 }
 
-.filter-row select {
-  min-height: 34px;
-  border: 1px solid var(--smartgn-border);
-  border-radius: 8px;
-  padding: 5px 9px;
-  font-family: inherit;
-  font-size: 13px;
-  background: var(--smartgn-input);
-  color: var(--smartgn-ink);
+.filter-row .smartgn-select {
+  min-width: 150px;
 }
 
 .ticket-link {
@@ -27,8 +20,4 @@
 
 .ticket-link:hover {
   text-decoration: underline;
-}
-
-.split.single {
-  grid-template-columns: 1fr;
 }

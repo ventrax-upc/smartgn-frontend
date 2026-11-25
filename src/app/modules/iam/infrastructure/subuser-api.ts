@@ -38,6 +38,14 @@ export class SubuserApi {
       );
   }
 
+  remove(subuserId: string): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${subuserId}`);
+  }
+
+  resendInvitation(subuserId: string): Observable<void> {
+    return this.http.post<void>(`${this.url}/${subuserId}/resend-invitation`, {});
+  }
+
   updateGrants(subuserId: string, meterId: string, permissions: MeterPermission[]): Observable<void> {
     return this.http
       .put<void>(`${this.url}/${subuserId}/grants`, { meterId, permissions })

@@ -5,7 +5,8 @@
         class="sidebar-option"
         [routerLink]="option.link"
         routerLinkActive="selected"
-        [routerLinkActiveOptions]="{ exact: option.exact ?? true }"
+        [routerLinkActiveOptions]="option.includeChildren ? sectionMatch : pageMatch"
+        ariaCurrentWhenActive="page"
       >
         <mat-icon class="sidebar-icon">{{ option.icon }}</mat-icon>
         <span class="sidebar-label">{{ option.label | translate }}</span>

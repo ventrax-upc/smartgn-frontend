@@ -1,3 +1,6 @@
+import { FormDialog } from '../../../../../shared/presentation/components/form-dialog';
+import { EmptyState, LoadingState } from '../../../../../shared/presentation/components/view-state';
+import { pollWhileVisible } from '../../../../../shared/application/visible-polling';
 import { LanguageService } from '../../../../../shared/application/language.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject, signal } from '@angular/core';
@@ -9,11 +12,18 @@ import { AuthStore } from '../../../../iam/application/auth.store';
 
 @Component({
   selector: 'app-guides',
-  imports: [TranslatePipe, ReactiveFormsModule, DatePipe, MatIcon],
+  imports: [FormDialog, EmptyState, LoadingState, TranslatePipe, ReactiveFormsModule, DatePipe, MatIcon],
   templateUrl: './guides.html',
   styleUrl: './guides.css',
 })
 export class GuidesPage implements OnInit {
+  protected readonly safetyGuides = [
+    { title: 'ui.guideAlertTitle', body: 'ui.guideAlertBody' },
+    { title: 'ui.guideReadingTitle', body: 'ui.guideReadingBody' },
+    { title: 'ui.guideMeterTitle', body: 'ui.guideMeterBody' },
+    { title: 'ui.guideDeliveryTitle', body: 'ui.guideDeliveryBody' },
+  ];
+
   protected readonly lang = inject(LanguageService).lang;
   private readonly store = inject(ArticlesStore);
   private readonly authStore = inject(AuthStore);
@@ -34,11 +44,16 @@ export class GuidesPage implements OnInit {
     contentReference: new FormControl('', [Validators.required, Validators.maxLength(500)]),
   });
 
+  constructor() {
+    pollWhileVisible(null, () => this.reload());
+  }
+
   ngOnInit(): void {
     this.store.load();
   }
 
-  protected reload(): void {
+  private reload(): void {
+    if (this.loading() || this.showForm() || this.saving()) return;
     this.store.load();
   }
 

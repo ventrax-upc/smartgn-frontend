@@ -1,41 +1,41 @@
 <main class="analytics">
-  <header>
-    <h1>{{ 'ui.consumptionAndReports' | translate }}</h1>
-    <p>{{ 'ui.viewReadingsConsumptionAndEstimatedCostsFor' | translate }}</p>
-  </header>
-  <div class="actions" [attr.aria-label]="'ui.queryType' | translate">
-    <button [disabled]="busy()" [attr.aria-pressed]="mode() === 'live'" (click)="select('live')">
-      {{ 'ui.live' | translate }}
+  <header class="page-header"><div class="page-heading">
+    <h1 class="page-title">{{ 'ui.consumptionAndReports' | translate }}</h1>
+    <p class="page-subtitle">{{ 'ui.viewReadingsConsumptionAndEstimatedCostsFor' | translate }}</p>
+  </div></header>
+  <div class="actions" [aria-label]="'ui.queryType' | translate">
+    <button class="btn btn-secondary" [disabled]="busy()" [attr.aria-pressed]="mode() === 'live'" (click)="select('live')">
+      <mat-icon>sensors</mat-icon> {{ 'ui.live' | translate }}
     </button>
-    <button
+    <button class="btn btn-secondary"
       [disabled]="busy()"
       [attr.aria-pressed]="mode() === 'history'"
       (click)="select('history')"
     >
-      {{ 'ui.consumptionHistory' | translate }}
+      <mat-icon>history</mat-icon> {{ 'ui.consumptionHistory' | translate }}
     </button>
-    <button [disabled]="busy()" [attr.aria-pressed]="mode() === 'pro'" (click)="select('pro')">
-      {{ 'ui.proReports' | translate }}
+    <button class="btn btn-secondary" [disabled]="busy()" [attr.aria-pressed]="mode() === 'pro'" (click)="select('pro')">
+      <mat-icon>assessment</mat-icon> {{ 'ui.proReports' | translate }}
     </button>
   </div>
   @if (error()) {
-    <p class="message" role="alert">{{ error() | translate }}</p>
+    <p class="alert alert-error" role="alert">{{ error() | translate }}</p>
   }
   @if (eligible().length) {
-    <form (ngSubmit)="query()" class="panel">
+    <form (ngSubmit)="query()" class="card">
       <fieldset [disabled]="busy()">
         <legend>{{ 'ui.meters' | translate }}</legend>
         @if (mode() === 'live') {
-          <select
-            [attr.aria-label]="'ui.meter' | translate"
-            [ngModel]="ids[0]"
-            (ngModelChange)="ids = [$event]; clear()"
-            name="meter"
+          <mat-select smartgnSelect
+            [aria-label]="'ui.meter' | translate"
+            [value]="ids[0]"
+            (selectionChange)="selectLiveMeter($event.value)"
+            [disabled]="busy()"
           >
             @for (meter of eligible(); track meter.id) {
-              <option [value]="meter.id">{{ meter.displayName }}</option>
+              <mat-option [value]="meter.id">{{ meter.displayName }}</mat-option>
             }
-          </select>
+          </mat-select>
         } @else {
           <div class="choices">
             @for (meter of eligible(); track meter.id) {
@@ -50,7 +50,7 @@
               >
             }
           </div>
-          <div class="actions">
+          <div class="date-range">
             <label>{{ 'ui.from' | translate }} <input type="date" [(ngModel)]="from" name="from" required /></label>
             <label>{{ 'ui.to' | translate }} <input type="date" [(ngModel)]="to" name="to" required /></label>
           </div>
@@ -59,7 +59,7 @@
               ><input type="checkbox" [(ngModel)]="compare" name="compare" /> {{ 'ui.compareWithAnotherPeriod' | translate }}</label
             >
             @if (compare) {
-              <div class="actions">
+              <div class="date-range">
                 <label
                   >{{ 'ui.comparisonStart' | translate }}
                   <input type="date" [(ngModel)]="compareFrom" name="compareFrom" required
@@ -72,19 +72,21 @@
             }
           }
         }
-        <button type="submit" [disabled]="!ids.length">
-          {{ mode() === 'live' ? ('ui.refreshReading' | translate) : ('ui.runQuery' | translate) }}
-        </button>
+        @if (mode() !== 'live') {
+          <button class="btn btn-primary" type="submit" [disabled]="!ids.length">
+            <mat-icon>search</mat-icon> {{ 'ui.runQuery' | translate }}
+          </button>
+        }
       </fieldset>
     </form>
   } @else if (!busy() && !error()) {
     <p>{{ 'ui.noMetersAreAuthorizedForThisQuery' | translate }}</p>
   }
   @if (busy()) {
-    <p role="status">{{ 'ui.loading' | translate }}</p>
+    <app-loading-state messageKey="ui.loading" />
   }
   @if (reading(); as live) {
-    <section class="panel">
+    <section class="card">
       <h2>{{ label(ids[0]) }}</h2>
       @if (live.measuredAt) {
         <p>
@@ -122,20 +124,20 @@
     </section>
   }
   @if (history(); as result) {
-    <section class="panel">
+    <section class="card">
       <h2>{{ 'ui.consumptionForThePeriod' | translate }}</h2>
       <p>
         {{ result.totalVolumeM3 | number: undefined : lang() }} m³ ·
         {{ result.totalEstimatedCost | currency: result.currency : 'symbol' : undefined : lang() }} {{ 'ui.estimated' | translate }}
       </p>
-      <div class="table-scroll">
-        <table>
+      <div class="table-wrap">
+        <table class="table">
           <thead>
             <tr>
-              <th>{{ 'ui.meter' | translate }}</th>
-              <th>{{ 'ui.consumption' | translate }}</th>
-              <th>{{ 'ui.estimatedCost' | translate }}</th>
-              <th>{{ 'ui.monthlyEstimate' | translate }}</th>
+              <th scope="col">{{ 'ui.meter' | translate }}</th>
+              <th scope="col" class="table-number">{{ 'ui.consumption' | translate }}</th>
+              <th scope="col" class="table-number">{{ 'ui.estimatedCost' | translate }}</th>
+              <th scope="col" class="table-number">{{ 'ui.monthlyEstimate' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -147,9 +149,9 @@
                     <small>{{ 'ui.delayedData' | translate }}</small>
                   }
                 </td>
-                <td>{{ row.volumeM3 | number: undefined : lang() }} m³</td>
-                <td>{{ row.estimatedCost | currency: result.currency : 'symbol' : undefined : lang() }}</td>
-                <td>{{ (row.monthlyEstimateCost | currency: result.currency : 'symbol' : undefined : lang()) ?? '—' }}</td>
+                <td class="table-number">{{ row.volumeM3 | number: undefined : lang() }} m³</td>
+                <td class="table-number">{{ row.estimatedCost | currency: result.currency : 'symbol' : undefined : lang() }}</td>
+                <td class="table-number">{{ (row.monthlyEstimateCost | currency: result.currency : 'symbol' : undefined : lang()) ?? '—' }}</td>
               </tr>
             }
           </tbody>
@@ -158,7 +160,7 @@
     </section>
   }
   @if (report(); as result) {
-    <section class="panel">
+    <section class="card">
       <h2>{{ 'ui.proReport' | translate }}</h2>
       <p>
         {{ result.totalVolumeM3 | number: undefined : lang() }} m³ ·
@@ -173,15 +175,15 @@
           {{ 'ui.consumptionDifference' | translate }} · {{ result.totalVolumeM3 - previous.totalVolumeM3 | number: undefined : lang() }} m³
         </p>
       }
-      <div class="table-scroll">
-        <table>
+      <div class="table-wrap">
+        <table class="table">
           <thead>
             <tr>
-              <th>{{ 'ui.meter' | translate }}</th>
-              <th>{{ 'ui.consumption' | translate }}</th>
-              <th>{{ 'ui.estimatedCost' | translate }}</th>
+              <th scope="col">{{ 'ui.meter' | translate }}</th>
+              <th scope="col" class="table-number">{{ 'ui.consumption' | translate }}</th>
+              <th scope="col" class="table-number">{{ 'ui.estimatedCost' | translate }}</th>
               @if (comparison()) {
-                <th>{{ 'ui.comparisonConsumption' | translate }}</th>
+                <th scope="col" class="table-number">{{ 'ui.comparisonConsumption' | translate }}</th>
               }
             </tr>
           </thead>
@@ -189,10 +191,10 @@
             @for (row of result.meterRows; track row.meterId) {
               <tr>
                 <td>{{ label(row.meterId) }}</td>
-                <td>{{ row.volumeM3 | number: undefined : lang() }} m³</td>
-                <td>{{ row.estimatedCost | currency: result.currency : 'symbol' : undefined : lang() }}</td>
+                <td class="table-number">{{ row.volumeM3 | number: undefined : lang() }} m³</td>
+                <td class="table-number">{{ row.estimatedCost | currency: result.currency : 'symbol' : undefined : lang() }}</td>
                 @if (comparison()) {
-                  <td>{{ (comparedVolume(row.meterId) | number: undefined : lang()) ?? '—' }} m³</td>
+                  <td class="table-number">{{ (comparedVolume(row.meterId) | number: undefined : lang()) ?? '—' }} m³</td>
                 }
               </tr>
             }

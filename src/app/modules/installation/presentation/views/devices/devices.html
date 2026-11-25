@@ -12,23 +12,24 @@
       </p>
     </div>
     <div class="header-actions">
-      <button class="btn btn-secondary" type="button" (click)="reload()">
-        <mat-icon>refresh</mat-icon>
-        {{ 'ui.refresh' | translate }}
-      </button>
+      @if (isSuperAdmin()) {
+        <button class="btn btn-primary" type="button" (click)="startCreate()">
+          <mat-icon>add_link</mat-icon> {{ 'ui.registerDevice' | translate }}
+        </button>
+      }
     </div>
   </header>
 
   @if (error(); as message) {
-    <div class="alert alert-error">{{ message | translate }}</div>
+    <div class="alert alert-error" role="alert">{{ message | translate }}</div>
   }
 
   @if (isSuperAdmin()) {
     @if (receipt(); as current) {
-    <section class="card receipt-card">
+    <section class="card">
       <div class="section-title">
         <h2>{{ 'ui.provisioningReceipt' | translate }}</h2>
-        <button class="btn btn-ghost btn-sm" type="button" (click)="clearReceipt()">{{ 'ui.dismiss' | translate }}</button>
+        <button class="btn btn-ghost btn-sm" type="button" (click)="clearReceipt()"><mat-icon>close</mat-icon> {{ 'ui.dismiss' | translate }}</button>
       </div>
       <p class="card-subtitle">
         {{ 'ui.thisCredentialIsShownOnlyOnceConfigure' | translate }}
@@ -61,31 +62,27 @@
     }
   }
 
-  <div class="split" [class.single]="!isSuperAdmin()">
+  <div>
     <section class="card">
       <div class="section-title">
         <h2>{{ 'ui.fleet' | translate }}</h2>
         <span class="chip">{{ items().length }} {{ 'ui.devices2' | translate }}</span>
       </div>
 
-      @if (loading()) {
-        <div class="loading-row"><span class="spinner"></span>{{ 'ui.loadingDevices' | translate }}</div>
+      @if (loading() && !items().length) {
+        <app-loading-state messageKey="ui.loadingDevices" />
       } @else if (items().length === 0) {
-        <div class="empty">
-          <mat-icon>developer_board</mat-icon>
-          <span class="empty-title">{{ 'ui.noDevicesRegistered' | translate }}</span>
-          <span class="empty-text">{{ 'ui.registerHardwareFromACompletedInstallation' | translate }}</span>
-        </div>
+        <app-empty-state icon="developer_board" titleKey="ui.noDevicesRegistered" descriptionKey="ui.registerHardwareFromACompletedInstallation" />
       } @else {
         <div class="table-wrap">
           <table class="table">
             <thead>
               <tr>
-                <th>{{ 'ui.device' | translate }}</th>
-                <th>{{ 'ui.location' | translate }}</th>
-                <th>{{ 'ui.status' | translate }}</th>
-                <th>{{ 'ui.confirmations' | translate }}</th>
-                <th></th>
+                <th scope="col">{{ 'ui.device' | translate }}</th>
+                <th scope="col">{{ 'ui.location' | translate }}</th>
+                <th scope="col">{{ 'ui.status' | translate }}</th>
+                <th scope="col">{{ 'ui.confirmations' | translate }}</th>
+                <th scope="col">{{ 'ui.actions' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -97,7 +94,7 @@
                   </td>
                   <td>
                     <span>{{ device.location }}</span>
-                    <div class="cell-muted">{{ device.propertyName }} · {{ device.pointName }}</div>
+                    <div class="cell-muted">{{ device.propertyName }}@if (device.pointName) { {{ device.propertyName ? ' · ' : '' }}{{ device.pointName }} }</div>
                   </td>
                   <td>
                     <span
@@ -119,11 +116,11 @@
                     @if (isSuperAdmin()) {
                       <div class="row-actions">
                         <button class="btn btn-ghost btn-sm" type="button" (click)="rotate(device)">
-                          {{ 'ui.rotate' | translate }}
+                          <mat-icon>refresh</mat-icon> {{ 'ui.rotate' | translate }}
                         </button>
                         @if (device.status !== 'REVOKED') {
                           <button class="btn btn-danger btn-sm" type="button" (click)="revoke(device)">
-                            {{ 'ui.revoke' | translate }}
+                            <mat-icon>block</mat-icon> {{ 'ui.revoke' | translate }}
                           </button>
                         }
                       </div>
@@ -139,46 +136,54 @@
       }
     </section>
 
-    @if (isSuperAdmin()) {
-    <aside class="card">
-      <h2 class="card-title">{{ 'ui.registerADevice' | translate }}</h2>
-      <p class="card-subtitle">
-        {{ 'ui.registrationReturnsACredentialOnceAndLeaves' | translate }}
-      </p>
+    @if (isSuperAdmin() && showForm()) {
+    <ng-template appFormDialog (dismissed)="cancelForm()">
+      <section class="secondary-form-dialog">
+        <h2 id="secondary-form-title" class="card-title">{{ 'ui.registerADevice' | translate }}</h2>
+        <p class="card-subtitle">
+          {{ 'ui.registrationReturnsACredentialOnceAndLeaves' | translate }}
+        </p>
 
-      <form [formGroup]="form" (ngSubmit)="submit()">
-        <div class="field">
-          <label for="device-installation">{{ 'ui.installation' | translate }}</label>
-          <select id="device-installation" formControlName="installationId">
-            <option value="">{{ 'ui.selectAnInstallation' | translate }}</option>
-            @for (installation of installations(); track installation.id) {
-              <option [value]="installation.id">
-                {{ installation.pointName }} · {{ installation.installerName }}
-              </option>
-            }
-          </select>
-        </div>
-        <div class="field">
-          <label for="device-serial">{{ 'ui.serialNumber' | translate }}</label>
-          <input id="device-serial" formControlName="serialNumber" placeholder="GN-DEV-0003" />
-        </div>
-        <div class="field">
-          <label for="device-location">{{ 'ui.location' | translate }}</label>
-          <input id="device-location" formControlName="location" [placeholder]="'ui.mainKitchen' | translate" />
-        </div>
-        <div class="field">
-          <label for="device-date">{{ 'ui.installedAt' | translate }}</label>
-          <input id="device-date" type="datetime-local" formControlName="installedAt" />
-        </div>
+        @if (error(); as message) {
+          <div class="alert alert-error" role="alert">{{ message | translate }}</div>
+        }
+        <form [formGroup]="form" (ngSubmit)="submit()">
+          <div class="field">
+            <label id="device-installation-label">{{ 'ui.installation' | translate }}</label>
+            <mat-select smartgnSelect id="device-installation" aria-labelledby="device-installation-label" formControlName="installationId">
+              <mat-option value="">{{ 'ui.selectAnInstallation' | translate }}</mat-option>
+              @for (installation of installations(); track installation.id) {
+                <mat-option [value]="installation.id">
+                  {{ [installation.pointName, installation.installerName].join(installation.pointName && installation.installerName ? ' · ' : '').trim() || installation.id }}
+                </mat-option>
+              }
+            </mat-select>
+          </div>
+          <div class="field">
+            <label for="device-serial">{{ 'ui.serialNumber' | translate }}</label>
+            <input id="device-serial" formControlName="serialNumber" placeholder="GN-DEV-0003" />
+          </div>
+          <div class="field">
+            <label for="device-location">{{ 'ui.location' | translate }}</label>
+            <input id="device-location" formControlName="location" [placeholder]="'ui.mainKitchen' | translate" />
+          </div>
+          <div class="field">
+            <label for="device-date">{{ 'ui.installedAt' | translate }}</label>
+            <input id="device-date" type="datetime-local" formControlName="installedAt" />
+          </div>
 
-        <div class="form-actions">
-          <button class="btn btn-primary" type="submit" [disabled]="saving()">
-            <mat-icon>add_link</mat-icon>
-            {{ saving() ? ('ui.registering' | translate) : ('ui.registerDevice' | translate) }}
-          </button>
-        </div>
-      </form>
-    </aside>
+          <div class="form-actions">
+            <button class="btn btn-secondary" type="button" [disabled]="saving()" (click)="cancelForm()">
+              <mat-icon>close</mat-icon> {{ 'ui.cancel' | translate }}
+            </button>
+            <button class="btn btn-primary" type="submit" [disabled]="saving()">
+              <mat-icon>add_link</mat-icon>
+              {{ saving() ? ('ui.registering' | translate) : ('ui.registerDevice' | translate) }}
+            </button>
+          </div>
+        </form>
+      </section>
+    </ng-template>
     }
   </div>
 </div>

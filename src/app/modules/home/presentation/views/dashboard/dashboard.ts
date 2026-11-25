@@ -1,3 +1,4 @@
+import { EmptyState } from '../../../../../shared/presentation/components/view-state';
 import { Component, OnInit, computed, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -33,7 +34,7 @@ const STATUS_COLORS: Record<TicketStatus, string> = {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [DatePipe, RouterLink, MatIcon, TranslatePipe],
+  imports: [EmptyState, DatePipe, RouterLink, MatIcon, TranslatePipe],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
 })
@@ -50,11 +51,9 @@ export class DashboardPage implements OnInit {
   private readonly techniciansStore = inject(TechniciansStore);
   protected readonly lang = inject(LanguageService).lang;
 
-  protected readonly user = this.authStore.currentUser;
-  protected readonly displayName = this.authStore.displayName;
+  protected readonly profile = this.authStore.profile;
   protected readonly isSuperAdmin = this.authStore.isSuperAdmin;
   protected readonly isPrincipal = this.authStore.isPrincipalUser;
-  protected readonly isDelegated = this.authStore.isDelegated;
 
   protected readonly properties = this.propertiesStore.count;
   protected readonly supplyPoints = this.metersStore.count;
@@ -67,12 +66,6 @@ export class DashboardPage implements OnInit {
   protected readonly ticketsOpen = this.ticketsStore.openCount;
   protected readonly visitsScheduled = this.visitsStore.scheduledCount;
   protected readonly recentTickets = computed(() => this.ticketsStore.items().slice(0, 5));
-
-  protected readonly roleKey = computed(() => {
-    if (this.isSuperAdmin()) return 'home.role.admin';
-    if (this.isDelegated()) return 'home.role.delegated';
-    return 'home.role.principal';
-  });
 
   protected readonly greetingKey = computed(() => {
     const hour = new Date().getHours();
@@ -143,14 +136,12 @@ export class DashboardPage implements OnInit {
       this.installersStore.load();
       this.techniciansStore.load();
     } else if (this.isPrincipal()) {
-      this.propertiesStore.load();
+      this.propertiesStore.load((properties) => this.devicesStore.load(undefined, properties));
       this.metersStore.load();
       this.subusersStore.load();
-      this.devicesStore.load();
     } else {
       this.metersStore.load();
     }
-    this.ticketsStore.load();
-    this.visitsStore.load();
+    this.ticketsStore.load((tickets) => this.visitsStore.load(tickets, false, this.authStore.isDelegated()));
   }
 }

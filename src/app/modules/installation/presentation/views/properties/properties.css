@@ -8,3 +8,7 @@
 .property-link:hover {
   text-decoration: underline;
 }
+
+.form-grid-single {
+  grid-template-columns: minmax(0, 1fr);
+}

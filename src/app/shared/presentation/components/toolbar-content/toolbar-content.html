@@ -6,12 +6,10 @@
       [attr.aria-label]="'toolbar.home' | translate"
     >
       <img src="assets/smartgn-logo.png" [alt]="'ui.smartgnLogo' | translate" class="logo-image" />
-      <span class="brand-name">SmartGN</span>
+      <span class="brand-name">Smart<span class="brand-accent">GN</span></span>
     </a>
 
     <div class="toolbar-actions">
-      <span class="role-chip">{{ roleKey() | translate }}</span>
-
       <button
         mat-icon-button
         class="icon-button"
@@ -23,30 +21,7 @@
         <mat-icon>{{ themeMode() === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
       </button>
 
-      <button
-        mat-icon-button
-        class="icon-button"
-        type="button"
-        [attr.aria-label]="'toolbar.language' | translate"
-        [title]="'toolbar.language' | translate"
-        [matMenuTriggerFor]="languageMenu"
-      >
-        <mat-icon>translate</mat-icon>
-      </button>
-
-      <mat-menu #languageMenu="matMenu">
-        @for (language of languages; track language.code) {
-          <button
-            mat-menu-item
-            type="button"
-            [class.language-active]="language.code === currentLang()"
-            (click)="setLanguage(language.code)"
-          >
-            <mat-icon>{{ language.code === currentLang() ? 'check' : '' }}</mat-icon>
-            <span>{{ language.label }}</span>
-          </button>
-        }
-      </mat-menu>
+      <app-language-toggle />
 
       <button
         mat-icon-button
@@ -58,12 +33,16 @@
         <span class="avatar">{{ initials() }}</span>
       </button>
 
-      <mat-menu #accountMenu="matMenu">
-        <div class="account-menu-header">
-          <span class="account-menu-name">{{ displayName() }}</span>
-          <span class="account-menu-email">{{ currentUser()?.email }}</span>
-          <span class="account-menu-role">{{ roleKey() | translate }}</span>
-        </div>
+      <mat-menu #accountMenu="matMenu" class="smartgn-account-menu" xPosition="before">
+        @if (currentUser(); as user) {
+          <div class="account-menu-header">
+            @if (profile()?.fullName; as name) {
+              <span class="account-menu-name">{{ name }}</span>
+            }
+            <span class="account-menu-email">{{ user.email }}</span>
+            <span class="account-menu-role">{{ roleKey() | translate }}</span>
+          </div>
+        }
 
         <button mat-menu-item routerLink="/account/profile">
           <mat-icon>person</mat-icon>
@@ -75,7 +54,7 @@
           <span>{{ 'toolbar.change-password' | translate }}</span>
         </button>
 
-        <button mat-menu-item (click)="logout()">
+        <button mat-menu-item class="account-menu-logout" (click)="logout()">
           <mat-icon>logout</mat-icon>
           <span>{{ 'toolbar.logout' | translate }}</span>
         </button>

@@ -1,5 +1,1 @@
 @import '../../../../../shared/presentation/styles/page.css';
-
-.split.single {
-  grid-template-columns: 1fr;
-}

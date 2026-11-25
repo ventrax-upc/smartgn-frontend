@@ -1,6 +1,9 @@
 <div class="page">
   <header class="page-header">
     <div class="page-heading">
+      <a class="back-link" routerLink="/payments/subscription">
+        <mat-icon>arrow_back</mat-icon> {{ 'payments.backToSubscription' | translate }}
+      </a>
       <span class="eyebrow">{{ 'ui.billing' | translate }}</span>
       <h1 class="page-title">{{ 'ui.paymentMethods' | translate }}</h1>
       <p class="page-subtitle">
@@ -8,10 +11,6 @@
       </p>
     </div>
     <div class="header-actions">
-      <button class="btn btn-secondary" type="button" (click)="reload()">
-        <mat-icon>refresh</mat-icon>
-        {{ 'ui.refresh' | translate }}
-      </button>
       <button class="btn btn-primary" type="button" (click)="startCreate()">
         <mat-icon>add_card</mat-icon>
         {{ 'ui.addCard' | translate }}
@@ -20,31 +19,27 @@
   </header>
 
   @if (success(); as message) {
-    <div class="alert alert-success">{{ message | translate }}</div>
+    <div class="alert alert-success" role="status">{{ message | translate }}</div>
   }
   @if (error(); as message) {
-    <div class="alert alert-error">{{ message | translate }}</div>
+    <div class="alert alert-error" role="alert">{{ message | translate }}</div>
   }
 
-  <div class="split" [class.single]="!showForm()">
+  <div>
     <section class="card">
       <div class="section-title">
         <h2>{{ 'ui.savedCards' | translate }}</h2>
         <span class="chip">{{ items().length }} {{ 'ui.active2' | translate }}</span>
       </div>
 
-      @if (loading()) {
-        <div class="loading-row"><span class="spinner"></span>{{ 'ui.loadingPaymentMethods' | translate }}</div>
+      @if (loading() && !items().length) {
+        <app-loading-state messageKey="ui.loadingPaymentMethods" />
       } @else if (items().length === 0) {
-        <div class="empty">
-          <mat-icon>credit_card_off</mat-icon>
-          <span class="empty-title">{{ 'ui.noPaymentMethods' | translate }}</span>
-          <span class="empty-text">{{ 'ui.addACardToActivateProOr' | translate }}</span>
-        </div>
+        <app-empty-state icon="credit_card_off" titleKey="ui.noPaymentMethods" descriptionKey="ui.addACardToActivateProOr" />
       } @else {
         <div class="card-grid">
           @for (method of items(); track method.id) {
-            <article class="payment-card" [class.default]="method.isDefault">
+            <article class="card payment-card">
               <div class="payment-card-head">
                 <span class="brand">{{ method.brand }}</span>
                 @if (method.isDefault) {
@@ -60,7 +55,7 @@
                     [disabled]="saving()"
                     (click)="setDefault(method)"
                   >
-                    {{ 'ui.makeDefault' | translate }}
+                    <mat-icon>check</mat-icon> {{ 'ui.makeDefault' | translate }}
                   </button>
                 }
                 <button
@@ -69,7 +64,7 @@
                   [disabled]="saving()"
                   (click)="remove(method)"
                 >
-                  {{ 'ui.remove' | translate }}
+                  <mat-icon>add_card</mat-icon> {{ 'ui.remove' | translate }}
                 </button>
               </div>
             </article>
@@ -79,51 +74,53 @@
     </section>
 
     @if (showForm()) {
-      <aside class="card">
-        <div class="section-title">
-          <h2>{{ 'ui.addACard' | translate }}</h2>
-          <button class="btn btn-ghost btn-sm" type="button" (click)="cancelForm()">{{ 'ui.close' | translate }}</button>
-        </div>
-        <p class="card-subtitle">
-          {{ 'ui.thisEnvironmentUsesALocalTestGateway' | translate }}
-        </p>
+      <ng-template appFormDialog (dismissed)="cancelForm()">
+        <section class="secondary-form-dialog">
+          <h2 id="secondary-form-title">{{ 'ui.addACard' | translate }}</h2>
+          <p class="card-subtitle">
+            {{ 'ui.thisEnvironmentUsesALocalTestGateway' | translate }}
+          </p>
 
-        <div class="alert alert-info">
-          {{ 'ui.testModeUseAnyFourDigitsThe' | translate }}
-        </div>
+          <div class="alert alert-info">
+            {{ 'ui.testModeUseAnyFourDigitsThe' | translate }}
+          </div>
 
-        <form [formGroup]="form" (ngSubmit)="submit()">
-          <div class="field">
-            <label for="card-brand">{{ 'ui.brand' | translate }}</label>
-            <select id="card-brand" formControlName="brand">
-              @for (brand of brands; track brand) {
-                <option [value]="brand">{{ brand }}</option>
+          @if (error(); as message) {
+            <div class="alert alert-error" role="alert">{{ message | translate }}</div>
+          }
+          <form [formGroup]="form" (ngSubmit)="submit()">
+            <div class="field">
+              <label id="card-brand-label">{{ 'ui.brand' | translate }}</label>
+              <mat-select smartgnSelect id="card-brand" aria-labelledby="card-brand-label" formControlName="brand">
+                @for (brand of brands; track brand) {
+                  <mat-option [value]="brand">{{ brand }}</mat-option>
+                }
+              </mat-select>
+            </div>
+            <div class="field">
+              <label for="card-last-four">{{ 'ui.lastFourDigits' | translate }}</label>
+              <input id="card-last-four" formControlName="lastFour" maxlength="4" placeholder="4242" />
+              @if (form.controls.lastFour.touched && form.controls.lastFour.invalid) {
+                <span class="field-error">{{ 'ui.enterExactlyFourDigits' | translate }}</span>
               }
-            </select>
-          </div>
-          <div class="field">
-            <label for="card-last-four">{{ 'ui.lastFourDigits' | translate }}</label>
-            <input id="card-last-four" formControlName="lastFour" maxlength="4" placeholder="4242" />
-            @if (form.controls.lastFour.touched && form.controls.lastFour.invalid) {
-              <span class="field-error">{{ 'ui.enterExactlyFourDigits' | translate }}</span>
-            }
-          </div>
-          <div class="field">
-            <label for="card-token">{{ 'ui.providerToken' | translate }}{{ tokenRequired ? '' : ' (optional)' }}</label>
-            <input id="card-token" formControlName="providerToken" [required]="tokenRequired" />
-            @if (form.controls.providerToken.touched && form.controls.providerToken.invalid) {
-              <span class="field-error">{{ 'ui.enterTheTokenIssuedByThePayment' | translate }}</span>
-            }
-          </div>
+            </div>
+            <div class="field">
+              <label for="card-token">{{ 'ui.providerToken' | translate }}{{ tokenRequired ? '' : ' (optional)' }}</label>
+              <input id="card-token" formControlName="providerToken" [required]="tokenRequired" />
+              @if (form.controls.providerToken.touched && form.controls.providerToken.invalid) {
+                <span class="field-error">{{ 'ui.enterTheTokenIssuedByThePayment' | translate }}</span>
+              }
+            </div>
 
-          <div class="form-actions">
-            <button class="btn btn-secondary" type="button" (click)="cancelForm()">{{ 'ui.cancel' | translate }}</button>
-            <button class="btn btn-primary" type="submit" [disabled]="saving()">
-              {{ saving() ? ('ui.saving' | translate) : ('ui.addCard' | translate) }}
-            </button>
-          </div>
-        </form>
-      </aside>
+            <div class="form-actions">
+              <button class="btn btn-secondary" type="button" (click)="cancelForm()"><mat-icon>close</mat-icon> {{ 'ui.cancel' | translate }}</button>
+              <button class="btn btn-primary" type="submit" [disabled]="saving()">
+                <mat-icon>add_card</mat-icon> {{ saving() ? ('ui.saving' | translate) : ('ui.addCard' | translate) }}
+              </button>
+            </div>
+          </form>
+        </section>
+      </ng-template>
     }
   </div>
 </div>

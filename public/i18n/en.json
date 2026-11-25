@@ -1,4 +1,14 @@
 {
+  "apiErrors": {
+    "unexpected": "Could not complete the request. Try again.",
+    "offline": "Unable to connect. Check your connection and try again.",
+    "invalidRequest": "Check the information and try again.",
+    "forbidden": "You do not have permission to do this.",
+    "notFound": "The requested information is unavailable.",
+    "conflict": "This change could not be applied. Refresh the page and try again.",
+    "rateLimited": "Too many attempts. Wait a moment and try again.",
+    "activationFailed": "The activation link is invalid or has expired. Ask for a new invitation."
+  },
   "toolbar": {
     "account": "Account",
     "profile": "Profile",
@@ -13,7 +23,8 @@
       "delegated": "Delegated user",
       "owner": "Account owner",
       "home": "SmartGN home"
-    }
+    },
+    "home": "Home"
   },
   "sidebar": {
     "monitoring": "Consumption",
@@ -44,6 +55,7 @@
     "refresh": "Refresh"
   },
   "payments": {
+    "backToSubscription": "Back to subscription",
     "methods": "Payment methods",
     "methodLabel": "Payment method",
     "useDefaultCard": "Use default card",
@@ -54,6 +66,12 @@
     }
   },
   "subscription": {
+    "renewalOn": "Renews automatically",
+    "renewalOff": "Will not renew",
+    "activeUntil": "Pro remains active until {{ date }}.",
+    "cancelRenewal": "Cancel renewal",
+    "enableRenewal": "Enable auto-renewal",
+    "cancelRenewalConfirmation": "Automatic billing will stop. You will keep Pro until the end of your current paid period.",
     "eyebrow": "Billing",
     "title": "Subscription",
     "subtitle": "Manage your SmartGN plan, review what is included and control automatic renewal.",
@@ -85,9 +103,6 @@
     "activateAction": "Activate Pro",
     "autoRenewTitle": "Auto-renewal",
     "autoRenewDescription": "Keep Pro active without manual payments. Renewal requires an authorized recurring card.",
-    "expirationWarning": "Pro will expire on {{ date }} unless you renew manually.",
-    "billingActivityTitle": "Billing activity",
-    "billingActivityDescription": "Invoices, receipts and pending technical visit charges live in your payment history.",
     "viewPayments": "View payments",
     "emptyTitle": "No subscription found",
     "emptyText": "Your account subscription is initialized after purchase.",
@@ -206,10 +221,55 @@
         "title": "Deactivate property",
         "message": "Do you want to deactivate this property? Its history and supply points will be preserved.",
         "confirm": "Deactivate"
+      },
+      "subtitle": "Register the houses, commercial locations or buildings where SmartGN devices will be installed. Each property groups its own supply points.",
+      "actions": {
+        "new": "New property",
+        "cancel": "Cancel",
+        "saving": "Saving...",
+        "save": "Save property",
+        "supplyPoints": "Supply points",
+        "edit": "Edit",
+        "deactivate": "Deactivate"
+      },
+      "types": {
+        "HOUSE": "House",
+        "COMMERCIAL": "Commercial",
+        "BUILDING": "Building"
+      },
+      "table": {
+        "property": "Property",
+        "type": "Type",
+        "address": "Address",
+        "status": "Status"
+      },
+      "status": {
+        "active": "Active"
+      },
+      "validation": {
+        "nameRequired": "Enter a property name.",
+        "nameMaxLength": "The name must be at most 150 characters.",
+        "typeRequired": "Choose a property type.",
+        "addressRequired": "Enter an address.",
+        "addressMaxLength": "The address must be at most 500 characters."
       }
     }
   },
   "ui": {
+    "inactive": "Inactive",
+    "editInstaller": "Edit installer",
+    "registerAnInstaller": "Register an installer",
+    "noVisitAccessForThisTicket": "Your account does not have access to visits for this supply point.",
+    "visitAccessUnavailable": "Could not check access to technician visits.",
+    "delegatedVisitsHelp": "Your delegated account only shows visits for supply points where visit access is granted.",
+    "addASupplyPoint": "Add a supply point",
+    "removeSubuser": "Remove subuser",
+    "confirmRemoveSubuser": "This revokes access to all supply points and invalidates pending invitations.",
+    "subuserRemoved": "The subuser was removed.",
+    "removeSubuserFailed": "Could not remove the subuser.",
+    "resendInvitation": "Resend invitation",
+    "invitationResent": "A new invitation was queued. The previous link is invalid.",
+    "resendInvitationFailed": "Could not resend the invitation. Check that the account is still pending.",
     "accessControlledByGrants": "Access controlled by grants",
     "accessGrantSaved": "Access grant saved.",
     "accessibleSupplyPoints": "Accessible supply points",
@@ -501,7 +561,7 @@
     "paymentMethodRemoved": "Payment method removed.",
     "paymentMethods": "Payment methods",
     "paymentOrders": "Payment orders",
-    "paymentRequestedRefreshToCheckConfirmation": "Payment requested. Refresh to check confirmation.",
+    "paymentRequestedRefreshToCheckConfirmation": "Payment requested. The confirmation will appear automatically.",
     "payments": "Payments",
     "payOrder": "Pay",
     "pendingActivation": "Pending activation",
@@ -644,10 +704,10 @@
     "technicians": "Technicians",
     "technicianVisits": "Technician visits",
     "telemetry": "Telemetry",
-    "testModeUseAnyFourDigitsThe": "Test mode: use any four digits. The card is stored as a local token.",
+    "testModeUseAnyFourDigitsThe": "Use a test provider token issued for this account. Select the brand and enter the four digits associated with that token.",
     "thanksForRatingTheService": "Thanks for rating the service.",
     "theAccreditationCodeIsRequired": "The accreditation code is required.",
-    "theAlertStatusChangedRefreshTheList": "The alert status changed. Refresh the list.",
+    "theAlertStatusChangedRefreshTheList": "The alert status changed. The list updates automatically.",
     "theBackendCreatesTheTechnicianAsAvailable": "The backend creates the technician as available and active. Assignments make them unavailable until the operation is reset.",
     "theBackendStoresAContentReferenceUrl": "The backend stores a content reference (URL or document key), not the article body.",
     "theCategoryIsRequired": "The category is required.",
@@ -715,7 +775,27 @@
     "yourPasswordHasBeenChangedAllPrevious": "Your password has been changed. All previous sessions were invalidated. You can sign in with your new password now.",
     "yourProfileWasSaved": "Your profile was saved.",
     "yourProperties": "Your properties.",
-    "yourVisibilityIsLimitedToTheSupply": "Your visibility is limited to the supply points granted by the principal account."
+    "yourVisibilityIsLimitedToTheSupply": "Your visibility is limited to the supply points granted by the principal account.",
+    "switchToSpanish": "Switch to Spanish",
+    "switchToEnglish": "Switch to English",
+    "guideAlertTitle": "Understand alerts",
+    "guideAlertBody": "Open an alert to see its severity, the measured value, the threshold and any instructions attached to the alert. Use Support if you need help understanding what you see.",
+    "guideReadingTitle": "Check how recent a reading is",
+    "guideReadingBody": "Open Consumption and check the timestamp next to the latest reading. A delayed reading shows the last value recorded. Report a persistent delay to Support and include the supply point and timestamp.",
+    "alertInstructions": "Instructions",
+    "alertCondition": "Detected condition",
+    "hideDetails": "Hide details",
+    "metric": "Metric",
+    "guideMeterTitle": "Find the right supply point",
+    "guideMeterBody": "Open Supply points and check the property and location name before reviewing a reading or opening a ticket. Include the supply point name in your ticket so Support can find the matching record.",
+    "guideDeliveryTitle": "Check notification delivery",
+    "guideDeliveryBody": "Open the Notifications tab in Alerts to see the channel, status and time. Accepted means the provider received the request. Delivered indicates that SmartGN recorded a delivery confirmation. You can always review the original alert in the Alerts tab.",
+    "sessionExpired": "Your session has expired. Sign in again to continue.",
+    "personalInformation": "Personal information",
+    "completeYourProfile": "Complete your profile",
+    "couldNotLoadYourProfile": "Could not load your profile.",
+    "couldNotCreateYourProfile": "Could not create your profile.",
+    "requestingVisit": "Requesting…"
   },
   "alertSeverity": {
     "INFO": "Informational",
@@ -775,6 +855,7 @@
     "DELEGATED": "Delegated user"
   },
   "billingDocument": {
+    "GENERIC": "Billing document",
     "INVOICE": "Invoice",
     "RECEIPT": "Receipt",
     "CREDIT_NOTE": "Credit note"

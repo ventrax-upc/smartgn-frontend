@@ -7,16 +7,10 @@
         {{ 'ui.everyMeterYouCanAccessWithThe' | translate }}
       </p>
     </div>
-    <div class="header-actions">
-      <button class="btn btn-secondary" type="button" (click)="reload()">
-        <mat-icon>refresh</mat-icon>
-        {{ 'ui.refresh' | translate }}
-      </button>
-    </div>
   </header>
 
   @if (error(); as message) {
-    <div class="alert alert-error">{{ message | translate }}</div>
+    <div class="alert alert-error" role="alert">{{ message | translate }}</div>
   }
 
   <div class="grid grid-3">
@@ -37,17 +31,11 @@
     </article>
   </div>
 
-  @if (loading()) {
-    <div class="card"><div class="loading-row"><span class="spinner"></span>{{ 'ui.loadingSupplyPoints' | translate }}</div></div>
+  @if (loading() && !items().length) {
+    <div class="card"><app-loading-state messageKey="ui.loadingSupplyPoints" /></div>
   } @else if (items().length === 0) {
     <div class="card">
-      <div class="empty">
-        <mat-icon>bolt</mat-icon>
-        <span class="empty-title">{{ 'ui.noSupplyPointsAvailable' | translate }}</span>
-        <span class="empty-text">
-          {{ 'ui.ifYouAreADelegatedUserAsk' | translate }}
-        </span>
-      </div>
+      <app-empty-state icon="bolt" titleKey="ui.noSupplyPointsAvailable" descriptionKey="ui.ifYouAreADelegatedUserAsk" />
     </div>
   } @else {
     <div class="grid grid-2">

@@ -2,6 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, forkJoin, map, of, switchMap } from 'rxjs';
 import { DevicesApi } from '../infrastructure/devices-api';
 import { Device, DeviceStatus, ProvisioningReceipt } from '../domain/model/device.entity';
+import { Property } from '../domain/model/property.entity';
 import { SupplyPoint } from '../domain/model/supply-point.entity';
 import { RegisterDeviceResource } from '../infrastructure/device-response';
 import { MetersApi } from '../infrastructure/meters-api';
@@ -40,14 +41,14 @@ export class DevicesStore {
     () => this.itemsSignal().filter((device) => device.status === 'PENDING').length,
   );
 
-  load(status?: DeviceStatus): void {
+  load(status?: DeviceStatus, properties?: Property[]): void {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
     const request$ = this.auth.isSuperAdmin()
       ? this.api.getAll({ status })
       : this.auth.isDelegated()
         ? this.loadForDelegate(status)
-        : this.loadForOwner(status);
+        : this.loadForOwner(status, properties);
     request$.subscribe({
       next: (items) => {
         this.itemsSignal.set(items);
@@ -130,8 +131,9 @@ export class DevicesStore {
     The backend only lets SuperAdmin list every device. An account owner must
     query by supply point, so we walk properties -> supply points -> devices.
   */
-  private loadForOwner(status?: DeviceStatus): Observable<Device[]> {
-    return this.propertiesApi.getAll().pipe(
+  private loadForOwner(status?: DeviceStatus, properties?: Property[]): Observable<Device[]> {
+    const propertyList = properties ? of(properties) : this.propertiesApi.getAll();
+    return propertyList.pipe(
       switchMap((properties) =>
         properties.length
           ? forkJoin(properties.map((property) => this.supplyPointsApi.getAll(property.id)))

@@ -8,10 +8,6 @@
       </p>
     </div>
     <div class="header-actions">
-      <button class="btn btn-secondary" type="button" (click)="reload()">
-        <mat-icon>refresh</mat-icon>
-        {{ 'ui.refresh' | translate }}
-      </button>
       @if (isSuperAdmin()) {
         <button class="btn btn-primary" type="button" (click)="startCreate()">
           <mat-icon>post_add</mat-icon>
@@ -22,36 +18,49 @@
   </header>
 
   @if (success(); as message) {
-    <div class="alert alert-success">{{ message | translate }}</div>
+    <div class="alert alert-success" role="status">{{ message | translate }}</div>
   }
   @if (error(); as message) {
-    <div class="alert alert-error">{{ message | translate }}</div>
+    <div class="alert alert-error" role="alert">{{ message | translate }}</div>
   }
 
+  @if (activeFilter() === 'ALL') {
+    <section aria-labelledby="safety-guides">
+      <h2 id="safety-guides">{{ 'ui.safetyGuides' | translate }}</h2>
+      <div class="grid grid-2">
+        @for (guide of safetyGuides; track guide.title) {
+          <article class="card guide-card">
+            <h3 class="card-title">{{ guide.title | translate }}</h3>
+            <p class="card-subtitle">{{ guide.body | translate }}</p>
+          </article>
+        }
+      </div>
+    </section>
+  }
+
+  @if (categories().length > 1) {
   <div class="filter-chips">
     @for (category of categories(); track category) {
       <button
-        class="filter-chip"
+        class="btn btn-secondary btn-sm filter-chip"
         type="button"
         [class.active]="activeFilter() === category"
         (click)="filter(category)"
       >
-        {{ category === 'ALL' ? ('ui.allArticles' | translate) : categoryLabel(category) }}
+        <mat-icon>filter_list</mat-icon> {{ category === 'ALL' ? ('ui.allArticles' | translate) : categoryLabel(category) }}
       </button>
     }
   </div>
 
-  <div class="split" [class.single]="!showForm()">
+  }
+
+  <div>
     <section>
-      @if (loading()) {
-        <div class="loading-row"><span class="spinner"></span>{{ 'ui.loadingArticles' | translate }}</div>
-      } @else if (items().length === 0) {
+      @if (loading() && !items().length) {
+        <app-loading-state messageKey="ui.loadingArticles" />
+      } @else if (items().length === 0 && activeFilter() !== 'ALL') {
         <div class="card">
-          <div class="empty">
-            <mat-icon>menu_book</mat-icon>
-            <span class="empty-title">{{ 'ui.noArticlesInThisCategory' | translate }}</span>
-            <span class="empty-text">{{ 'ui.tryAnotherCategoryOrContactSupport' | translate }}</span>
-          </div>
+          <app-empty-state icon="menu_book" titleKey="ui.noArticlesInThisCategory" descriptionKey="ui.tryAnotherCategoryOrContactSupport" />
         </div>
       } @else {
         <div class="grid grid-2">
@@ -82,50 +91,52 @@
     </section>
 
     @if (showForm()) {
-      <aside class="card">
-        <div class="section-title">
-          <h2>{{ 'ui.publishAnArticle' | translate }}</h2>
-          <button class="btn btn-ghost btn-sm" type="button" (click)="cancelForm()">{{ 'ui.close' | translate }}</button>
-        </div>
-        <p class="card-subtitle">
-          {{ 'ui.theBackendStoresAContentReferenceUrl' | translate }}
-        </p>
+      <ng-template appFormDialog (dismissed)="cancelForm()">
+        <section class="secondary-form-dialog">
+          <h2 id="secondary-form-title">{{ 'ui.publishAnArticle' | translate }}</h2>
+          <p class="card-subtitle">
+            {{ 'ui.theBackendStoresAContentReferenceUrl' | translate }}
+          </p>
 
-        <form [formGroup]="form" (ngSubmit)="submit()">
-          <div class="field">
-            <label for="article-title">{{ 'ui.title' | translate }}</label>
-            <input id="article-title" formControlName="title" [placeholder]="'ui.understandingTheLedIndicators' | translate" />
-            @if (form.controls.title.touched && form.controls.title.invalid) {
-              <span class="field-error">{{ 'ui.theTitleIsRequired' | translate }}</span>
-            }
-          </div>
-          <div class="field">
-            <label for="article-category">{{ 'ui.category' | translate }}</label>
-            <input id="article-category" formControlName="category" [placeholder]="'ui.devices' | translate" />
-            @if (form.controls.category.touched && form.controls.category.invalid) {
-              <span class="field-error">{{ 'ui.theCategoryIsRequired' | translate }}</span>
-            }
-          </div>
-          <div class="field">
-            <label for="article-reference">{{ 'ui.contentReference' | translate }}</label>
-            <input
-              id="article-reference"
-              formControlName="contentReference"
-              placeholder="https://help.smartgn.pe/articles/led-indicators"
-            />
-            @if (form.controls.contentReference.touched && form.controls.contentReference.invalid) {
-              <span class="field-error">{{ 'ui.aUrlOrDocumentKeyIsRequired' | translate }}</span>
-            }
-          </div>
+          @if (error(); as message) {
+            <div class="alert alert-error" role="alert">{{ message | translate }}</div>
+          }
+          <form [formGroup]="form" (ngSubmit)="submit()">
+            <div class="field">
+              <label for="article-title">{{ 'ui.title' | translate }}</label>
+              <input id="article-title" formControlName="title" [placeholder]="'ui.understandingTheLedIndicators' | translate" />
+              @if (form.controls.title.touched && form.controls.title.invalid) {
+                <span class="field-error">{{ 'ui.theTitleIsRequired' | translate }}</span>
+              }
+            </div>
+            <div class="field">
+              <label for="article-category">{{ 'ui.category' | translate }}</label>
+              <input id="article-category" formControlName="category" [placeholder]="'ui.devices' | translate" />
+              @if (form.controls.category.touched && form.controls.category.invalid) {
+                <span class="field-error">{{ 'ui.theCategoryIsRequired' | translate }}</span>
+              }
+            </div>
+            <div class="field">
+              <label for="article-reference">{{ 'ui.contentReference' | translate }}</label>
+              <input
+                id="article-reference"
+                formControlName="contentReference"
+                placeholder="https://help.smartgn.pe/articles/led-indicators"
+              />
+              @if (form.controls.contentReference.touched && form.controls.contentReference.invalid) {
+                <span class="field-error">{{ 'ui.aUrlOrDocumentKeyIsRequired' | translate }}</span>
+              }
+            </div>
 
-          <div class="form-actions">
-            <button class="btn btn-secondary" type="button" (click)="cancelForm()">{{ 'ui.cancel' | translate }}</button>
-            <button class="btn btn-primary" type="submit" [disabled]="saving()">
-              {{ saving() ? ('ui.publishing' | translate) : ('ui.publishArticle' | translate) }}
-            </button>
-          </div>
-        </form>
-      </aside>
+            <div class="form-actions">
+              <button class="btn btn-secondary" type="button" (click)="cancelForm()"><mat-icon>close</mat-icon> {{ 'ui.cancel' | translate }}</button>
+              <button class="btn btn-primary" type="submit" [disabled]="saving()">
+                <mat-icon>publish</mat-icon> {{ saving() ? ('ui.publishing' | translate) : ('ui.publishArticle' | translate) }}
+              </button>
+            </div>
+          </form>
+        </section>
+      </ng-template>
     }
   </div>
 </div>

@@ -8,10 +8,6 @@
       </p>
     </div>
     <div class="header-actions">
-      <button class="btn btn-secondary" type="button" (click)="reload()">
-        <mat-icon>refresh</mat-icon>
-        {{ 'ui.refresh' | translate }}
-      </button>
       <button class="btn btn-primary" type="button" (click)="startCreate()">
         <mat-icon>person_add</mat-icon>
         {{ 'ui.newTechnician' | translate }}
@@ -20,10 +16,10 @@
   </header>
 
   @if (success(); as message) {
-    <div class="alert alert-success">{{ message | translate }}</div>
+    <div class="alert alert-success" role="status">{{ message | translate }}</div>
   }
   @if (error(); as message) {
-    <div class="alert alert-error">{{ message | translate }}</div>
+    <div class="alert alert-error" role="alert">{{ message | translate }}</div>
   }
 
   <div class="grid grid-2">
@@ -39,30 +35,26 @@
     </article>
   </div>
 
-  <div class="split" [class.single]="!showForm()">
+  <div>
     <section class="card">
       <div class="section-title">
         <h2>{{ 'ui.availableTechnicians' | translate }}</h2>
         <span class="chip">{{ count() }} {{ 'ui.records' | translate }}</span>
       </div>
 
-      @if (loading()) {
-        <div class="loading-row"><span class="spinner"></span>{{ 'ui.loadingTechnicians' | translate }}</div>
+      @if (loading() && !items().length) {
+        <app-loading-state messageKey="ui.loadingTechnicians" />
       } @else if (items().length === 0) {
-        <div class="empty">
-          <mat-icon>support_agent</mat-icon>
-          <span class="empty-title">{{ 'ui.noAvailableTechnicians' | translate }}</span>
-          <span class="empty-text">{{ 'ui.registerATechnicianSoVisitsCanBe' | translate }}</span>
-        </div>
+        <app-empty-state icon="support_agent" titleKey="ui.noAvailableTechnicians" descriptionKey="ui.registerATechnicianSoVisitsCanBe" />
       } @else {
         <div class="table-wrap">
           <table class="table">
             <thead>
               <tr>
-                <th>{{ 'ui.technician' | translate }}</th>
-                <th>{{ 'ui.accreditation' | translate }}</th>
-                <th>{{ 'ui.contact' | translate }}</th>
-                <th>{{ 'ui.status' | translate }}</th>
+                <th scope="col">{{ 'ui.technician' | translate }}</th>
+                <th scope="col">{{ 'ui.accreditation' | translate }}</th>
+                <th scope="col">{{ 'ui.contact' | translate }}</th>
+                <th scope="col">{{ 'ui.status' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -95,53 +87,55 @@
     </section>
 
     @if (showForm()) {
-      <aside class="card">
-        <div class="section-title">
-          <h2>{{ 'ui.registerATechnician' | translate }}</h2>
-          <button class="btn btn-ghost btn-sm" type="button" (click)="cancelForm()">{{ 'ui.close' | translate }}</button>
-        </div>
-        <p class="card-subtitle">
-          {{ 'ui.theBackendCreatesTheTechnicianAsAvailable' | translate }}
-        </p>
+      <ng-template appFormDialog (dismissed)="cancelForm()">
+        <section class="secondary-form-dialog">
+          <h2 id="secondary-form-title">{{ 'ui.registerATechnician' | translate }}</h2>
+          <p class="card-subtitle">
+            {{ 'ui.theBackendCreatesTheTechnicianAsAvailable' | translate }}
+          </p>
 
-        <form [formGroup]="form" (ngSubmit)="submit()">
-          <div class="field">
-            <label for="tech-full-name">{{ 'ui.fullName' | translate }}</label>
-            <input id="tech-full-name" formControlName="fullName" placeholder="Diego Salazar" />
-            @if (form.controls.fullName.touched && form.controls.fullName.invalid) {
-              <span class="field-error">{{ 'ui.theFullNameIsRequired' | translate }}</span>
-            }
-          </div>
-          <div class="field">
-            <label for="tech-accreditation">{{ 'ui.accreditationCode' | translate }}</label>
-            <input id="tech-accreditation" formControlName="accreditationCode" placeholder="TEC-2026-001" />
-            @if (form.controls.accreditationCode.touched && form.controls.accreditationCode.invalid) {
-              <span class="field-error">{{ 'ui.theAccreditationCodeIsRequired' | translate }}</span>
-            }
-          </div>
-          <div class="field">
-            <label for="tech-phone">{{ 'ui.phone' | translate }}</label>
-            <input id="tech-phone" formControlName="phone" placeholder="+51 944 111 000" />
-            @if (form.controls.phone.touched && form.controls.phone.invalid) {
-              <span class="field-error">{{ 'ui.thePhoneIsRequired' | translate }}</span>
-            }
-          </div>
-          <div class="field">
-            <label for="tech-email">{{ 'ui.email' | translate }}</label>
-            <input id="tech-email" type="email" formControlName="email" placeholder="technician@smartgn.pe" />
-            @if (form.controls.email.touched && form.controls.email.invalid) {
-              <span class="field-error">{{ 'ui.enterAValidEmail' | translate }}</span>
-            }
-          </div>
+          @if (error(); as message) {
+            <div class="alert alert-error" role="alert">{{ message | translate }}</div>
+          }
+          <form [formGroup]="form" (ngSubmit)="submit()">
+            <div class="field">
+              <label for="tech-full-name">{{ 'ui.fullName' | translate }}</label>
+              <input id="tech-full-name" formControlName="fullName" placeholder="Diego Salazar" />
+              @if (form.controls.fullName.touched && form.controls.fullName.invalid) {
+                <span class="field-error">{{ 'ui.theFullNameIsRequired' | translate }}</span>
+              }
+            </div>
+            <div class="field">
+              <label for="tech-accreditation">{{ 'ui.accreditationCode' | translate }}</label>
+              <input id="tech-accreditation" formControlName="accreditationCode" placeholder="TEC-2026-001" />
+              @if (form.controls.accreditationCode.touched && form.controls.accreditationCode.invalid) {
+                <span class="field-error">{{ 'ui.theAccreditationCodeIsRequired' | translate }}</span>
+              }
+            </div>
+            <div class="field">
+              <label for="tech-phone">{{ 'ui.phone' | translate }}</label>
+              <input id="tech-phone" formControlName="phone" placeholder="+51 944 111 000" />
+              @if (form.controls.phone.touched && form.controls.phone.invalid) {
+                <span class="field-error">{{ 'ui.thePhoneIsRequired' | translate }}</span>
+              }
+            </div>
+            <div class="field">
+              <label for="tech-email">{{ 'ui.email' | translate }}</label>
+              <input id="tech-email" type="email" formControlName="email" placeholder="technician@smartgn.pe" />
+              @if (form.controls.email.touched && form.controls.email.invalid) {
+                <span class="field-error">{{ 'ui.enterAValidEmail' | translate }}</span>
+              }
+            </div>
 
-          <div class="form-actions">
-            <button class="btn btn-secondary" type="button" (click)="cancelForm()">{{ 'ui.cancel' | translate }}</button>
-            <button class="btn btn-primary" type="submit" [disabled]="saving()">
-              {{ saving() ? ('ui.saving' | translate) : ('ui.registerTechnician' | translate) }}
-            </button>
-          </div>
-        </form>
-      </aside>
+            <div class="form-actions">
+              <button class="btn btn-secondary" type="button" (click)="cancelForm()"><mat-icon>close</mat-icon> {{ 'ui.cancel' | translate }}</button>
+              <button class="btn btn-primary" type="submit" [disabled]="saving()">
+                <mat-icon>engineering</mat-icon> {{ saving() ? ('ui.saving' | translate) : ('ui.registerTechnician' | translate) }}
+              </button>
+            </div>
+          </form>
+        </section>
+      </ng-template>
     }
   </div>
 </div>

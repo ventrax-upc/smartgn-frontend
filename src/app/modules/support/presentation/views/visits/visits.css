@@ -1,9 +1,5 @@
 @import '../../../../../shared/presentation/styles/page.css';
 
-.split.single {
-  grid-template-columns: 1fr;
-}
-
 .visit-list {
   list-style: none;
   margin: 0;
@@ -14,10 +10,6 @@
 }
 
 .visit-card {
-  border: 1px solid var(--smartgn-border);
-  border-radius: 12px;
-  padding: 14px;
-  background: var(--smartgn-surface-soft);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -57,17 +49,9 @@
   padding-top: 10px;
 }
 
-.visit-actions select {
+.visit-actions .smartgn-select {
   flex: 1;
   min-width: 190px;
-  min-height: 34px;
-  border: 1px solid var(--smartgn-border);
-  border-radius: 8px;
-  padding: 5px 9px;
-  font-family: inherit;
-  font-size: 13px;
-  background: var(--smartgn-input);
-  color: var(--smartgn-ink);
 }
 
 .diagnosis {
@@ -91,11 +75,4 @@
   font-size: 13px;
   line-height: 1.5;
   color: var(--smartgn-ink);
-}
-
-.diagnosis-form {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
 }
