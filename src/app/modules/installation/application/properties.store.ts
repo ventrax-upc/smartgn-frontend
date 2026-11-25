@@ -27,13 +27,14 @@ export class PropertiesStore {
   readonly activeItems = computed(() => this.itemsSignal().filter((property) => property.active));
   readonly count = computed(() => this.activeItems().length);
 
-  load(): void {
+  load(onLoaded?: (properties: Property[]) => void): void {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
     this.api.getAll().subscribe({
       next: (items) => {
         this.itemsSignal.set(items);
         this.loadingSignal.set(false);
+        onLoaded?.(items);
       },
       error: (err) => {
         this.errorSignal.set(this.messageFrom(err));

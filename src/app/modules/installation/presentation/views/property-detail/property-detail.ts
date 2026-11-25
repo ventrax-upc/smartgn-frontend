@@ -1,3 +1,5 @@
+import { FormDialog } from '../../../../../shared/presentation/components/form-dialog';
+import { EmptyState, LoadingState } from '../../../../../shared/presentation/components/view-state';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -10,7 +12,7 @@ import { SupplyPoint } from '../../../domain/model/supply-point.entity';
 
 @Component({
   selector: 'app-property-detail',
-  imports: [TranslatePipe, ReactiveFormsModule, RouterLink, MatIcon],
+  imports: [FormDialog, EmptyState, LoadingState, TranslatePipe, ReactiveFormsModule, RouterLink, MatIcon],
   templateUrl: './property-detail.html',
   styleUrl: './property-detail.css',
 })
@@ -26,6 +28,7 @@ export class PropertyDetailPage implements OnInit {
   protected readonly saving = this.pointsStore.saving;
   protected readonly error = this.pointsStore.error;
 
+  protected readonly showForm = signal(false);
   protected readonly editing = signal<SupplyPoint | null>(null);
   protected readonly success = signal<string | null>(null);
 
@@ -51,15 +54,18 @@ export class PropertyDetailPage implements OnInit {
     this.editing.set(null);
     this.form.reset({ serialNumber: '', locationName: '' });
     this.form.controls.serialNumber.enable();
+    this.showForm.set(true);
   }
 
   protected startEdit(point: SupplyPoint): void {
     this.editing.set(point);
     this.form.reset({ serialNumber: point.serialNumber, locationName: point.locationName });
     this.form.controls.serialNumber.disable();
+    this.showForm.set(true);
   }
 
   protected cancelEdit(): void {
+    this.showForm.set(false);
     this.editing.set(null);
     this.form.reset({ serialNumber: '', locationName: '' });
   }

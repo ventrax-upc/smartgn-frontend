@@ -53,5 +53,15 @@
 */
 .layout-content {
   flex: 1;
+  min-width: 0;
   padding: 24px;
+}
+@media (max-width: 720px) {
+  .layout-body {
+    flex-direction: column;
+  }
+
+  .layout-content {
+    padding: 16px;
+  }
 }

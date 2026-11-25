@@ -1,14 +1,5 @@
 @import '../../../../../shared/presentation/styles/page.css';
 
-.split.single {
-  grid-template-columns: 1fr;
-}
-
-.receipt-card {
-  border-color: #2d5a3a;
-  background: var(--smartgn-success-soft);
-}
-
 .credential-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

@@ -1,26 +1,5 @@
 @import '../../../../../shared/presentation/styles/page.css';
 
-.back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-bottom: 6px;
-  color: var(--smartgn-muted);
-  font-size: 12.5px;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.back-link mat-icon {
-  width: 16px;
-  height: 16px;
-  font-size: 16px;
-}
-
-.back-link:hover {
-  color: var(--smartgn-primary);
-}
-
 .thread {
   display: flex;
   flex-direction: column;
@@ -205,17 +184,9 @@
   align-items: stretch;
 }
 
-.inline-form select {
+.inline-form .smartgn-select {
   flex: 1;
   min-width: 160px;
-  min-height: 34px;
-  border: 1px solid var(--smartgn-border);
-  border-radius: 8px;
-  padding: 5px 9px;
-  font-family: inherit;
-  font-size: 13px;
-  background: var(--smartgn-input);
-  color: var(--smartgn-ink);
 }
 
 .rating-stars {
@@ -223,4 +194,21 @@
   letter-spacing: 2px;
   color: var(--smartgn-warning);
   margin-bottom: 4px;
+}
+
+
+#ticket-photo::file-selector-button {
+  margin-inline-end: 10px;
+  padding: 6px 10px;
+  border: 1px solid var(--smartgn-border);
+  border-radius: 8px;
+  background: var(--smartgn-surface-raised);
+  color: var(--smartgn-ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#ticket-photo::file-selector-button:hover {
+  background: var(--smartgn-hover);
 }

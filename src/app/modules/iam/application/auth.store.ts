@@ -1,3 +1,5 @@
+import { HttpErrorResponse } from '@angular/common/http';
+import { EMPTY, Observable, catchError, filter, finalize, map, of, shareReplay, throwError } from 'rxjs';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { AuthApi } from '../infrastructure/auth-api';
 import { ProfileApi } from '../infrastructure/profile-api';
@@ -10,7 +12,7 @@ import { Profile } from '../domain/model/profile.entity';
   profile between reloads; smartgn:accessToken is read by apiInterceptor.
 */
 const SESSION_KEY = 'smartgn:authUser';
-const TOKEN_KEY = 'smartgn:accessToken';
+export const TOKEN_KEY = 'smartgn:accessToken';
 
 interface StoredProfile {
   id: string;
@@ -37,6 +39,8 @@ interface StoredUser {
 export class AuthStore {
   private readonly authApi = inject(AuthApi);
   private readonly profileApi = inject(ProfileApi);
+  private renewal?: { token: string; request: Observable<string> };
+  private lastTokenWithoutExtension?: string;
 
   private readonly userSignal = signal<User | null>(this.restoreUser());
   readonly currentUser = this.userSignal.asReadonly();
@@ -49,6 +53,8 @@ export class AuthStore {
 
   private readonly errorSignal = signal<string | null>(null);
   readonly error = this.errorSignal.asReadonly();
+  private readonly sessionExpiredSignal = signal(false);
+  readonly sessionExpired = this.sessionExpiredSignal.asReadonly();
 
   readonly isAuthenticated = computed(() => this.userSignal() !== null);
   readonly isSuperAdmin = computed(() => this.userSignal()?.isSuperAdmin ?? false);
@@ -76,6 +82,7 @@ export class AuthStore {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
+    this.sessionExpiredSignal.set(false);
     this.authApi.signIn(email, password).subscribe({
       next: ({ user, token }) => {
         this.applySession(user, token);
@@ -92,7 +99,64 @@ export class AuthStore {
     });
   }
 
+  renewIfNeeded(token: string): Observable<string> {
+    if (this.renewal?.token === token) return this.renewal.request;
+    if (this.lastTokenWithoutExtension === token || !this.isNearExpiry(token)) return of(token);
+
+    const request = this.authApi.renewSession(token).pipe(
+      catchError((error: unknown) => {
+        if (localStorage.getItem(TOKEN_KEY) !== token) return EMPTY;
+        return error instanceof HttpErrorResponse && error.status === 401
+          ? throwError(() => error)
+          : of({ token });
+      }),
+      filter(() => localStorage.getItem(TOKEN_KEY) === token),
+      map(({ token: renewedToken }) => {
+        if (renewedToken !== token) {
+          if (this.jwtTimes(renewedToken)?.exp === this.jwtTimes(token)?.exp) {
+            this.lastTokenWithoutExtension = renewedToken;
+          }
+          localStorage.setItem(TOKEN_KEY, renewedToken);
+        }
+        return renewedToken;
+      }),
+      finalize(() => {
+        if (this.renewal?.token === token) this.renewal = undefined;
+      }),
+      shareReplay({ bufferSize: 1, refCount: false }),
+    );
+    this.renewal = { token, request };
+    return request;
+  }
+
+  private isNearExpiry(token: string): boolean {
+    const times = this.jwtTimes(token);
+    if (!times) return false;
+
+    const remaining = times.exp - Date.now() / 1000;
+    const threshold = Math.min(300, (times.exp - times.iat) / 10);
+    return remaining > 0 && remaining <= threshold;
+  }
+
+  private jwtTimes(token: string): { exp: number; iat: number } | null {
+    try {
+      const payload = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const { exp, iat } = JSON.parse(atob(payload));
+      return Number.isFinite(exp) && Number.isFinite(iat) ? { exp, iat } : null;
+    } catch {
+      return null;
+    }
+  }
+
+  expireSession(rejectedToken: string): boolean {
+    if (localStorage.getItem(TOKEN_KEY) !== rejectedToken) return false;
+    this.logout();
+    this.sessionExpiredSignal.set(true);
+    return true;
+  }
+
   logout(): void {
+    this.sessionExpiredSignal.set(false);
     localStorage.removeItem(SESSION_KEY);
     localStorage.removeItem(TOKEN_KEY);
     this.userSignal.set(null);

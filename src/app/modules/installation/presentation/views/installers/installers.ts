@@ -1,3 +1,6 @@
+import { FormDialog } from '../../../../../shared/presentation/components/form-dialog';
+import { EmptyState, LoadingState } from '../../../../../shared/presentation/components/view-state';
+import { pollWhileVisible } from '../../../../../shared/application/visible-polling';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -10,7 +13,7 @@ import { ConfirmDialog } from '../../../../../shared/presentation/components/con
 
 @Component({
   selector: 'app-installers',
-  imports: [TranslatePipe, ReactiveFormsModule, MatIcon],
+  imports: [FormDialog, EmptyState, LoadingState, TranslatePipe, ReactiveFormsModule, MatIcon],
   templateUrl: './installers.html',
   styleUrl: './installers.css',
 })
@@ -30,7 +33,7 @@ export class InstallersPage implements OnInit {
   protected readonly success = signal<string | null>(null);
 
   protected readonly formTitle = computed(() =>
-    this.editing() ? 'Edit installer' : 'Register an installer',
+    this.editing() ? 'ui.editInstaller' : 'ui.registerAnInstaller',
   );
 
   protected readonly form = new FormGroup({
@@ -43,11 +46,16 @@ export class InstallersPage implements OnInit {
     available: new FormControl(true),
   });
 
+  constructor() {
+    pollWhileVisible(null, () => this.reload());
+  }
+
   ngOnInit(): void {
     this.store.load();
   }
 
-  protected reload(): void {
+  private reload(): void {
+    if (this.loading() || this.showForm() || this.saving()) return;
     this.store.load();
   }
 

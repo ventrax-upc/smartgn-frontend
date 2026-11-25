@@ -1,0 +1,50 @@
+.secondary-form-overlay {
+  --mat-dialog-container-shape: 16px;
+}
+
+.secondary-form-dialog {
+  padding: 24px;
+  overflow-wrap: anywhere;
+}
+
+.secondary-form-dialog > *,
+.secondary-form-dialog > p.card-subtitle {
+  margin-block: 0;
+}
+
+.secondary-form-dialog > * + * {
+  margin-block-start: 14px;
+}
+
+.secondary-form-dialog > h2#secondary-form-title {
+  margin-block: 0;
+  font-size: 19px;
+  color: var(--smartgn-ink-strong);
+}
+
+.secondary-form-dialog > h2 + p.card-subtitle {
+  margin-block-start: 6px;
+}
+
+.secondary-form-dialog > form {
+  display: grid;
+  gap: 14px;
+}
+
+.secondary-form-dialog .form-actions {
+  flex-wrap: wrap;
+}
+
+.secondary-form-dialog > form > .form-actions {
+  margin-block-start: 2px;
+}
+
+.secondary-form-dialog > .form-actions {
+  margin-block-start: 16px;
+}
+
+@media (max-width: 480px) {
+  .secondary-form-dialog {
+    padding: 18px;
+  }
+}

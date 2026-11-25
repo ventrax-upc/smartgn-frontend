@@ -43,6 +43,7 @@ export class SubusersStore {
     payload: { email: string; firstName: string; lastName: string },
     callbacks?: { onSuccess?: (subuser: Subuser) => void; onError?: (message: string) => void },
   ): void {
+    this.errorSignal.set(null);
     this.savingSignal.set(true);
     this.api.create(payload).subscribe({
       next: (subuser) => {
@@ -52,7 +53,42 @@ export class SubusersStore {
       },
       error: (err) => {
         this.savingSignal.set(false);
-        callbacks?.onError?.(this.messageFrom(err));
+        const message = this.messageFrom(err);
+        this.errorSignal.set(message);
+        callbacks?.onError?.(message);
+      },
+    });
+  }
+
+  remove(subuserId: string, onSuccess: () => void): void {
+    if (this.savingSignal()) return;
+    this.errorSignal.set(null);
+    this.savingSignal.set(true);
+    this.api.remove(subuserId).subscribe({
+      next: () => {
+        this.itemsSignal.update((items) => items.filter((subuser) => subuser.id !== subuserId));
+        this.savingSignal.set(false);
+        onSuccess();
+      },
+      error: () => {
+        this.savingSignal.set(false);
+        this.errorSignal.set('ui.removeSubuserFailed');
+      },
+    });
+  }
+
+  resendInvitation(subuserId: string, onSuccess: () => void): void {
+    if (this.savingSignal()) return;
+    this.errorSignal.set(null);
+    this.savingSignal.set(true);
+    this.api.resendInvitation(subuserId).subscribe({
+      next: () => {
+        this.savingSignal.set(false);
+        onSuccess();
+      },
+      error: () => {
+        this.savingSignal.set(false);
+        this.errorSignal.set('ui.resendInvitationFailed');
       },
     });
   }
@@ -63,6 +99,7 @@ export class SubusersStore {
     permissions: MeterPermission[],
     callbacks?: { onSuccess?: () => void; onError?: (message: string) => void },
   ): void {
+    this.errorSignal.set(null);
     this.savingSignal.set(true);
     this.api.updateGrants(subuserId, meterId, permissions).subscribe({
       next: () => {
@@ -93,7 +130,9 @@ export class SubusersStore {
       },
       error: (err) => {
         this.savingSignal.set(false);
-        callbacks?.onError?.(this.messageFrom(err));
+        const message = this.messageFrom(err);
+        this.errorSignal.set(message);
+        callbacks?.onError?.(message);
       },
     });
   }

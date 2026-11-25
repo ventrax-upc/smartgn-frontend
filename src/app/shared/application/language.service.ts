@@ -4,11 +4,6 @@ import { TranslateService } from '@ngx-translate/core';
 
 export type AppLanguage = 'en' | 'es';
 
-export const APP_LANGUAGES: { code: AppLanguage; label: string }[] = [
-  { code: 'en', label: 'English' },
-  { code: 'es', label: 'Español' },
-];
-
 const STORAGE_KEY = 'smartgn-lang';
 
 /*
@@ -26,6 +21,10 @@ export class LanguageService {
 
   constructor() {
     this.apply(this.readInitial());
+  }
+
+  toggle(): void {
+    this.set(this.lang() === 'en' ? 'es' : 'en');
   }
 
   set(lang: AppLanguage): void {

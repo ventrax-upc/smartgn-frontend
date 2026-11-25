@@ -1,106 +1,135 @@
 <main class="analytics">
-  <header>
-    <h1>{{ 'ui.alertsAndNotifications' | translate }}</h1>
-    <p>{{ 'ui.reviewDetectedConditionsAndNotificationsForYour' | translate }}</p>
+  <header class="page-header">
+    <div class="page-heading">
+      <h1 class="page-title">{{ 'ui.alertsAndNotifications' | translate }}</h1>
+      <p class="page-subtitle">{{ 'ui.reviewDetectedConditionsAndNotificationsForYour' | translate }}</p>
+    </div>
   </header>
   <div class="actions">
-    <button
+    <button class="btn btn-secondary"
       [disabled]="busy()"
       [attr.aria-pressed]="mode() === 'alerts'"
       (click)="load('alerts', 0)"
     >
-      {{ 'ui.alerts' | translate }}
+      <mat-icon>notifications_active</mat-icon> {{ 'ui.alerts' | translate }}
     </button>
-    <button
+    <button class="btn btn-secondary"
       [disabled]="busy()"
       [attr.aria-pressed]="mode() === 'notices'"
       (click)="load('notices', 0)"
     >
-      {{ 'ui.notifications' | translate }}
+      <mat-icon>mail</mat-icon> {{ 'ui.notifications' | translate }}
     </button>
-    <button [disabled]="busy()" (click)="load(mode(), page())">{{ 'ui.refresh' | translate }}</button>
-    <a routerLink="/support/guides">{{ 'ui.safetyGuides' | translate }}</a>
   </div>
   @if (error()) {
-    <p class="message" role="alert">{{ error() | translate }}</p>
+    <p class="alert alert-error" role="alert">{{ error() | translate }}</p>
   }
-  @if (busy()) {
-    <p role="status">{{ 'ui.loading' | translate }}</p>
+  @if (loadingList()) {
+    <app-loading-state messageKey="ui.loading" />
   }
   @if (mode() === 'alerts') {
     <section class="stack" [attr.aria-label]="'ui.alerts' | translate">
       @for (alert of alerts(); track alert.id) {
-        <article class="panel">
-          <h2>{{ alert.ruleName }}</h2>
-          <p>
-            {{ ('alertSeverity.' + alert.severity) | translate }} · {{ ('alertStatus.' + alert.status) | translate }} ·
-            {{ alert.createdAt | date: 'medium' : undefined : lang() }}
-          </p>
-          <button
-            [disabled]="busy()"
-            [attr.aria-expanded]="selected()?.id === alert.id"
-            (click)="open(alert)"
-          >
-            {{ 'ui.viewDetails' | translate }}
-          </button>
+        <article class="card">
+          <div class="alert-header">
+            <div>
+              <h2>{{ alert.ruleName }}</h2>
+              <div class="alert-meta">
+                <span class="chip" [class.chip-amber]="alert.severity !== 'CRITICAL'" [class.chip-red]="alert.severity === 'CRITICAL'">{{ ('alertSeverity.' + alert.severity) | translate }}</span>
+                <span class="chip">{{ ('alertStatus.' + alert.status) | translate }}</span>
+                <time [attr.datetime]="alert.createdAt">{{ alert.createdAt | date: 'medium' : undefined : lang() }}</time>
+              </div>
+            </div>
+            <button class="btn btn-secondary" [disabled]="busy()" [attr.aria-expanded]="selected()?.id === alert.id" (click)="open(alert)">
+              <mat-icon>expand_more</mat-icon> {{ (selected()?.id === alert.id ? 'ui.hideDetails' : 'ui.viewDetails') | translate }}
+            </button>
+          </div>
           @if (selected()?.id === alert.id) {
-            <p>{{ alert.condition }}</p>
-            <p>
-              {{ alert.metric }} · {{ 'ui.reading' | translate }} {{ alert.measuredValue }} · {{ 'ui.threshold' | translate }} {{ alert.threshold }}
-            </p>
-            @if (alert.instructions) {
-              <p>{{ alert.instructions }}</p>
-            }
+            <div class="alert-detail">
+              <dl class="alert-facts">
+                <div><dt>{{ 'ui.metric' | translate }}</dt><dd>{{ (metricKeys[alert.metric] || alert.metric) | translate }}</dd></div>
+                <div><dt>{{ 'ui.reading' | translate }}</dt><dd>{{ alert.measuredValue | number: undefined : lang() }}</dd></div>
+                <div><dt>{{ 'ui.threshold' | translate }}</dt><dd>{{ alert.threshold | number: undefined : lang() }}</dd></div>
+              </dl>
+              @if (alert.condition) {
+                <h3>{{ 'ui.alertCondition' | translate }}</h3>
+                <p>{{ alert.condition }}</p>
+              }
+              @if (alert.instructions) {
+                <h3>{{ 'ui.alertInstructions' | translate }}</h3>
+                @if (instructionSteps(); as steps) {
+                  @if (steps.length > 1) {
+                    <ol>@for (step of steps; track $index) { <li>{{ step }}</li> }</ol>
+                  } @else {
+                    <p>{{ alert.instructions }}</p>
+                  }
+                }
+              }
             <div class="actions">
               @if (alert.status === 'OPEN') {
-                <button [disabled]="busy()" (click)="transition(alert, 'acknowledge')">
-                  {{ 'ui.acknowledge' | translate }}
+                <button class="btn btn-secondary" [disabled]="busy()" (click)="transition(alert, 'acknowledge')">
+                  <mat-icon>done</mat-icon> {{ 'ui.acknowledge' | translate }}
                 </button>
               }
               @if (alert.status === 'ACKNOWLEDGED') {
-                <button [disabled]="busy()" (click)="transition(alert, 'resolve')">{{ 'ui.resolve' | translate }}</button>
+                <button class="btn btn-secondary" [disabled]="busy()" (click)="transition(alert, 'resolve')"><mat-icon>task_alt</mat-icon> {{ 'ui.resolve' | translate }}</button>
               }
             </div>
             @if (deliveries().length) {
               <h3>{{ 'ui.relatedNotifications' | translate }}</h3>
               @for (notice of deliveries(); track notice.id) {
-                <p>{{ notice.subject }} · {{ ('deliveryChannel.' + notice.channel) | translate }} · {{ ('deliveryStatus.' + notice.status) | translate }}</p>
+                <div class="alert-delivery"><strong>{{ notice.subject }}</strong><span>{{ ('deliveryChannel.' + notice.channel) | translate }} · {{ ('deliveryStatus.' + notice.status) | translate }}</span></div>
               }
             }
+            </div>
           }
         </article>
       } @empty {
         @if (!busy() && !error()) {
-          <p>{{ 'ui.thereAreNoAlertsOnThisPage' | translate }}</p>
+          <app-empty-state icon="notifications_none" titleKey="ui.thereAreNoAlertsOnThisPage" />
         }
       }
     </section>
   } @else {
     <section class="stack" [attr.aria-label]="'ui.notifications' | translate">
       @for (notice of notices(); track notice.id) {
-        <article class="panel">
-          <h2>{{ notice.subject }}</h2>
-          <p>
-            {{ ('deliveryChannel.' + notice.channel) | translate }} · {{ ('deliveryStatus.' + notice.status) | translate }} ·
-            {{ notice.createdAt | date: 'medium' : undefined : lang() }}
-          </p>
-          <p>{{ notice.body }}</p>
+        <article class="card">
+          <div class="alert-header">
+            <div>
+              <h2>{{ notice.subject }}</h2>
+              <div class="alert-meta">
+                <span class="chip">{{ ('deliveryChannel.' + notice.channel) | translate }}</span>
+                <span class="chip">{{ ('deliveryStatus.' + notice.status) | translate }}</span>
+                <time [attr.datetime]="notice.createdAt">{{ notice.createdAt | date: 'medium' : undefined : lang() }}</time>
+              </div>
+            </div>
+            <button type="button" class="btn btn-secondary" [attr.aria-expanded]="selectedNotice() === notice.id"
+              (click)="selectedNotice.set(selectedNotice() === notice.id ? null : notice.id)">
+              <mat-icon>{{ selectedNotice() === notice.id ? 'expand_less' : 'expand_more' }}</mat-icon>
+              {{ (selectedNotice() === notice.id ? 'ui.hideDetails' : 'ui.viewDetails') | translate }}
+            </button>
+          </div>
+          @if (selectedNotice() === notice.id) {
+            <div class="alert-detail">
+              <p class="notice-message">{{ notice.body }}</p>
+            </div>
+          }
         </article>
       } @empty {
         @if (!busy() && !error()) {
-          <p>{{ 'ui.thereAreNoNotificationsOnThisPage' | translate }}</p>
+          <app-empty-state icon="mail_outline" titleKey="ui.thereAreNoNotificationsOnThisPage" />
         }
       }
     </section>
   }
   <nav class="actions" [attr.aria-label]="'ui.pagination' | translate">
-    <button [disabled]="busy() || page() === 0" (click)="load(mode(), page() - 1)">{{ 'ui.previous' | translate }}</button>
+    <button class="btn btn-secondary" [disabled]="busy() || page() === 0" (click)="load(mode(), page() - 1)"><mat-icon>chevron_left</mat-icon> {{ 'ui.previous' | translate }}</button>
     <span>{{ 'ui.page' | translate }} {{ page() + 1 }}</span>
-    <button
+    <button class="btn btn-secondary"
       [disabled]="busy() || (mode() === 'alerts' ? alerts().length : notices().length) < 20"
       (click)="load(mode(), page() + 1)"
     >
-      {{ 'ui.next' | translate }}
+      <mat-icon>chevron_right</mat-icon> {{ 'ui.next' | translate }}
     </button>
   </nav>
 </main>

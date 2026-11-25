@@ -1,11 +1,11 @@
 <div class="page">
-  <a class="back-link" routerLink="/properties">
+  <a class="back-link" routerLink="/installation/properties">
     <mat-icon>arrow_back</mat-icon>
     {{ 'ui.backToProperties' | translate }}
   </a>
 
   @if (propertyError(); as message) {
-    <div class="alert alert-error">{{ message | translate }}</div>
+    <div class="alert alert-error" role="alert">{{ message | translate }}</div>
   } @else if (property(); as current) {
     <header class="page-header">
       <div class="page-heading">
@@ -16,18 +16,21 @@
       <div class="header-actions">
         <span class="chip chip-green">{{ 'ui.active' | translate }}</span>
         <span class="chip mono">v{{ current.version }}</span>
+        <button class="btn btn-primary" type="button" (click)="startCreate()">
+          <mat-icon>add</mat-icon> {{ 'ui.addPoint' | translate }}
+        </button>
       </div>
     </header>
   }
 
   @if (success(); as message) {
-    <div class="alert alert-success">{{ message | translate }}</div>
+    <div class="alert alert-success" role="status">{{ message | translate }}</div>
   }
   @if (error(); as message) {
-    <div class="alert alert-error">{{ message | translate }}</div>
+    <div class="alert alert-error" role="alert">{{ message | translate }}</div>
   }
 
-  <div class="split">
+  <div>
     <section class="card">
       <div class="section-title">
         <h2>{{ 'ui.supplyPoints' | translate }}</h2>
@@ -38,24 +41,18 @@
       </p>
 
       @if (loading()) {
-        <div class="loading-row"><span class="spinner"></span>{{ 'ui.loadingSupplyPoints' | translate }}</div>
+        <app-loading-state messageKey="ui.loadingSupplyPoints" />
       } @else if (points().length === 0) {
-        <div class="empty">
-          <mat-icon>bolt</mat-icon>
-          <span class="empty-title">{{ 'ui.noSupplyPointsYet' | translate }}</span>
-          <span class="empty-text">
-            {{ 'ui.addTheMeterSerialNumberAndThe' | translate }}
-          </span>
-        </div>
+        <app-empty-state icon="bolt" titleKey="ui.noSupplyPointsYet" descriptionKey="ui.addTheMeterSerialNumberAndThe" />
       } @else {
         <div class="table-wrap">
           <table class="table">
             <thead>
               <tr>
-                <th>{{ 'ui.serialNumber' | translate }}</th>
-                <th>{{ 'ui.location' | translate }}</th>
-                <th>{{ 'ui.status' | translate }}</th>
-                <th></th>
+                <th scope="col">{{ 'ui.serialNumber' | translate }}</th>
+                <th scope="col">{{ 'ui.location' | translate }}</th>
+                <th scope="col">{{ 'ui.status' | translate }}</th>
+                <th scope="col">{{ 'ui.actions' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -65,12 +62,12 @@
                   <td>{{ point.locationName }}</td>
                   <td>
                     <span class="chip" [class.chip-green]="point.active" [class.chip-red]="!point.active">
-                      {{ point.active ? ('ui.active' | translate) : 'Inactive' }}
+                      {{ point.active ? ('ui.active' | translate) : ('ui.inactive' | translate) }}
                     </span>
                   </td>
                   <td>
                     <button class="btn btn-ghost btn-sm" type="button" (click)="startEdit(point)">
-                      {{ 'ui.editLocation' | translate }}
+                      <mat-icon>edit</mat-icon> {{ 'ui.editLocation' | translate }}
                     </button>
                   </td>
                 </tr>
@@ -81,36 +78,42 @@
       }
     </section>
 
-    <aside class="card">
-      <h2 class="card-title">{{ editing() ? 'Edit supply point' : 'Add a supply point' }}</h2>
-      <p class="card-subtitle">
-        @if (editing()) {
-          {{ 'ui.onlyTheDescriptiveLocationCanChangeThe' | translate }}
-        } @else {
-          {{ 'ui.registerTheMeterExactlyAsItAppears' | translate }}
-        }
-      </p>
+    @if (showForm()) {
+      <ng-template appFormDialog (dismissed)="cancelEdit()">
+        <section class="secondary-form-dialog">
+          <h2 id="secondary-form-title" class="card-title">{{ (editing() ? 'ui.editLocation' : 'ui.addASupplyPoint') | translate }}</h2>
+          <p class="card-subtitle">
+            @if (editing()) {
+              {{ 'ui.onlyTheDescriptiveLocationCanChangeThe' | translate }}
+            } @else {
+              {{ 'ui.registerTheMeterExactlyAsItAppears' | translate }}
+            }
+          </p>
 
-      <form [formGroup]="form" (ngSubmit)="submit()">
-        <div class="field">
-          <label for="point-serial">{{ 'ui.serialNumber' | translate }}</label>
-          <input id="point-serial" formControlName="serialNumber" placeholder="MTR-0005" />
-        </div>
-        <div class="field">
-          <label for="point-location">{{ 'ui.location' | translate }}</label>
-          <input id="point-location" formControlName="locationName" [placeholder]="'ui.mainKitchen' | translate" />
-        </div>
-
-        <div class="form-actions">
-          @if (editing()) {
-            <button class="btn btn-secondary" type="button" (click)="cancelEdit()">{{ 'ui.cancel' | translate }}</button>
+          @if (error(); as message) {
+            <div class="alert alert-error" role="alert">{{ message | translate }}</div>
           }
-          <button class="btn btn-primary" type="submit" [disabled]="saving() || !property()">
-            <mat-icon>{{ editing() ? 'save' : 'add' }}</mat-icon>
-            {{ saving() ? ('ui.saving' | translate) : editing() ? ('ui.saveChanges' | translate) : ('ui.addPoint' | translate) }}
-          </button>
-        </div>
-      </form>
-    </aside>
+          <form [formGroup]="form" (ngSubmit)="submit()">
+            <div class="field">
+              <label for="point-serial">{{ 'ui.serialNumber' | translate }}</label>
+              <input id="point-serial" formControlName="serialNumber" placeholder="MTR-0005" />
+            </div>
+            <div class="field">
+              <label for="point-location">{{ 'ui.location' | translate }}</label>
+              <input id="point-location" formControlName="locationName" [placeholder]="'ui.mainKitchen' | translate" />
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-secondary" type="button" (click)="cancelEdit()"><mat-icon>close</mat-icon> {{ 'ui.cancel' | translate }}</button>
+
+              <button class="btn btn-primary" type="submit" [disabled]="saving() || !property()">
+                <mat-icon>{{ editing() ? 'save' : 'add' }}</mat-icon>
+                {{ saving() ? ('ui.saving' | translate) : editing() ? ('ui.saveChanges' | translate) : ('ui.addPoint' | translate) }}
+              </button>
+            </div>
+          </form>
+        </section>
+      </ng-template>
+    }
   </div>
 </div>

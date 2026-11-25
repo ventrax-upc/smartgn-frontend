@@ -81,13 +81,14 @@ export class TicketsStore {
     'CLOSED',
   ];
 
-  load(): void {
+  load(onLoaded?: (tickets: Ticket[]) => void): void {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
     this.api.getTickets().subscribe({
       next: (items) => {
         this.itemsSignal.set(items);
         this.loadingSignal.set(false);
+        onLoaded?.(items);
       },
       error: (err) => {
         this.errorSignal.set(this.messageFrom(err));
@@ -96,7 +97,7 @@ export class TicketsStore {
     });
   }
 
-  loadTicket(id: string): void {
+  loadTicket(id: string, onLoaded?: (ticket: Ticket) => void): void {
     this.detailLoadingSignal.set(true);
     this.errorSignal.set(null);
     this.selectedSignal.set(null);
@@ -108,6 +109,7 @@ export class TicketsStore {
       next: (ticket) => {
         this.selectedSignal.set(ticket);
         this.detailLoadingSignal.set(false);
+        onLoaded?.(ticket);
         this.loadReplies(id);
         this.loadPhotos(id);
         this.loadRating(id);

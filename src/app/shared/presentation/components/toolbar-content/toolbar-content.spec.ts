@@ -1,3 +1,7 @@
+import { signal } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { provideTranslateService } from '@ngx-translate/core';
+import { AuthStore } from '../../../../modules/iam/application/auth.store';
 /*
   Import testing utilities from Angular.
 
@@ -37,6 +41,11 @@ describe('ToolbarContent', () => {
     */
     await TestBed.configureTestingModule({
       imports: [ToolbarContent],
+      providers: [
+        provideRouter([]),
+        provideTranslateService(),
+        { provide: AuthStore, useValue: { currentUser: signal(null), profile: signal(null), initials: signal('') } },
+      ],
     }).compileComponents();
 
     /*

@@ -21,7 +21,7 @@
 
 .confirm-dialog__content {
   padding-top: 8px !important;
-  min-width: 360px;
+  min-width: 0;
   max-width: 480px;
 }
 
@@ -33,5 +33,6 @@
 }
 
 .confirm-dialog__actions {
+  gap: 8px;
   padding: 12px !important;
 }

@@ -6,7 +6,7 @@ import { principalGuard } from './guards/principal.guard';
   Public IAM routes. SmartGN has no public sign-up: accounts are provisioned
   after a confirmed purchase and activated with a one-time token.
 */
-const PUBLIC_AUTH_ROUTES: Routes = [
+export const IAM_ROUTES: Routes = [
   {
     path: 'sign-in',
     canActivate: [guestGuard],
@@ -29,14 +29,6 @@ const PUBLIC_AUTH_ROUTES: Routes = [
     canActivate: [guestGuard],
     loadComponent: () =>
       import('./views/activate-password/activate-password').then((m) => m.ActivatePassword),
-  },
-];
-
-export const IAM_ROUTES: Routes = [
-  {
-    path: '',
-    loadComponent: () => import('./views/public-auth-layout').then((m) => m.PublicAuthLayout),
-    children: PUBLIC_AUTH_ROUTES,
   },
 ];
 

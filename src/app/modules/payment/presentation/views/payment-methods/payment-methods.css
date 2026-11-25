@@ -1,28 +1,15 @@
 @import '../../../../../shared/presentation/styles/page.css';
 
-.split.single {
-  grid-template-columns: 1fr;
-}
-
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, min(100%, 272px));
   gap: 14px;
 }
 
 .payment-card {
-  border: 1px solid var(--smartgn-border);
-  border-radius: 14px;
-  padding: 16px;
-  background: var(--smartgn-surface);
   display: flex;
   flex-direction: column;
   gap: 12px;
-}
-
-.payment-card.default {
-  border-color: #2d5a3a;
-  background: var(--smartgn-success-soft);
 }
 
 .payment-card-head {

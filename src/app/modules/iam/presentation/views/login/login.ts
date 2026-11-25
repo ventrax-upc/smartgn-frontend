@@ -1,3 +1,5 @@
+import { PasswordToggle } from '../../../../../shared/presentation/components/password-toggle';
+import { LanguageToggle } from '../../../../../shared/presentation/components/language-toggle/language-toggle';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -9,7 +11,7 @@ import { defaultRouteForUser } from '../../../application/default-route.util';
 
 @Component({
   selector: 'app-login',
-  imports: [TranslatePipe, ReactiveFormsModule, RouterLink, MatIcon],
+  imports: [PasswordToggle, LanguageToggle, TranslatePipe, ReactiveFormsModule, RouterLink, MatIcon],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
@@ -18,6 +20,7 @@ export class Login {
   private readonly router = inject(Router);
 
   protected readonly loading = this.authStore.loading;
+  protected readonly sessionExpired = this.authStore.sessionExpired;
   protected readonly error = this.authStore.error;
   protected readonly showDemoAccounts = environment.showDemoAccounts;
   protected readonly showPassword = signal(false);

@@ -1,3 +1,7 @@
+import { FormDialog } from '../../../../../shared/presentation/components/form-dialog';
+import { SmartgnSelect } from '../../../../../shared/presentation/components/smartgn-select';
+import { EmptyState, LoadingState } from '../../../../../shared/presentation/components/view-state';
+import { MatSelectModule } from '@angular/material/select';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -10,7 +14,7 @@ import { ConfirmDialog } from '../../../../../shared/presentation/components/con
 
 @Component({
   selector: 'app-properties',
-  imports: [ReactiveFormsModule, RouterLink, MatIcon, TranslatePipe],
+  imports: [FormDialog, SmartgnSelect, EmptyState, LoadingState, MatSelectModule, ReactiveFormsModule, RouterLink, MatIcon, TranslatePipe],
   templateUrl: './properties.html',
   styleUrl: './properties.css',
 })

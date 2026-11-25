@@ -1,7 +1,14 @@
 @use '@angular/material' as mat;
+@use './app/shared/presentation/styles/buttons.css';
+@use './app/shared/presentation/styles/cards.css';
+@use './app/shared/presentation/styles/form-dialog.css';
+@use './app/shared/presentation/styles/split-layout.css';
+@use './app/shared/presentation/styles/view-states.css';
+@use './app/shared/presentation/styles/tables.css';
 
 html {
-  height: 100%;
+  min-height: 100%;
+  background-color: var(--smartgn-canvas);
   color-scheme: dark;
   @include mat.theme(
     (
@@ -19,12 +26,12 @@ html {
 body {
   background-color: var(--smartgn-canvas);
   background-image: var(--smartgn-canvas-gradient);
-  background-attachment: fixed;
   background-size: cover;
+  background-repeat: no-repeat;
   color: var(--smartgn-ink);
   font: var(--mat-sys-body-medium);
   margin: 0;
-  min-height: 100%;
+  min-height: 100vh;
 }
 
 /*
@@ -69,9 +76,7 @@ body {
     radial-gradient(60% 45% at 50% 0%, rgba(31, 75, 44, 0.7), transparent 70%),
     radial-gradient(50% 45% at 60% 55%, rgba(35, 85, 70, 0.3), transparent 70%),
     linear-gradient(160deg, #09120e 0%, #0e1a14 100%);
-  --smartgn-glass: rgba(12, 24, 18, 0.72);
   --smartgn-glass-border: rgba(180, 215, 200, 0.1);
-  --smartgn-blur: 12px;
   --smartgn-accent-from: #1f4b2c;
   --smartgn-accent-to: #2d6a4f;
 }
@@ -127,30 +132,9 @@ html[data-theme='light'] {
     radial-gradient(60% 40% at 50% 0%, rgba(31, 75, 44, 0.22), transparent 70%),
     radial-gradient(55% 50% at 55% 50%, rgba(140, 185, 160, 0.45), transparent 72%),
     linear-gradient(160deg, #d3e0d8 0%, #e4ece7 100%);
-  --smartgn-glass: rgba(255, 255, 255, 0.72);
   --smartgn-glass-border: rgba(255, 255, 255, 0.8);
-  --smartgn-blur: 12px;
   --smartgn-accent-from: #1f4b2c;
   --smartgn-accent-to: #2d6a4f;
-}
-
-/*
-  Users who ask for reduced transparency (or browsers without backdrop-filter)
-  get solid surfaces, so text never depends on what is behind a card.
-*/
-@media (prefers-reduced-transparency: reduce) {
-  :root,
-  html[data-theme='light'] {
-    --smartgn-glass: var(--smartgn-surface);
-    --smartgn-blur: 0px;
-  }
-}
-
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  :root,
-  html[data-theme='light'] {
-    --smartgn-glass: var(--smartgn-surface);
-  }
 }
 
 .toolbar {
@@ -163,4 +147,115 @@ html[data-theme='light'] {
   @include mat.icon-overrides((
     color: var(--smartgn-muted),
   ));
+}
+
+.mat-mdc-dialog-container {
+  --mat-dialog-container-color: var(--smartgn-surface);
+  --mat-sys-primary: var(--smartgn-primary-strong);
+  --mat-sys-on-primary: #fff;
+  --mat-dialog-subhead-color: var(--smartgn-ink-strong);
+  --mat-dialog-supporting-text-color: var(--smartgn-muted);
+}
+
+.smartgn-select.mat-mdc-select {
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: 13.5px;
+  line-height: normal;
+  letter-spacing: normal;
+  --mat-select-enabled-trigger-text-color: var(--smartgn-ink);
+  --mat-select-enabled-arrow-color: var(--smartgn-muted);
+  --mat-select-focused-arrow-color: var(--smartgn-primary);
+}
+
+.smartgn-select .mat-mdc-select-trigger {
+  box-sizing: border-box;
+  height: 40px;
+  padding-inline: 11px;
+  border: 1px solid var(--smartgn-border);
+  border-radius: inherit;
+  background: var(--smartgn-input);
+}
+
+.smartgn-select:focus-visible,
+.smartgn-select[aria-expanded='true'] {
+  outline: 2px solid var(--smartgn-primary);
+  outline-offset: 2px;
+}
+
+.brand-accent {
+  color: var(--smartgn-primary-strong);
+}
+
+.smartgn-select-panel.mat-mdc-select-panel {
+  box-sizing: border-box;
+  padding: 6px;
+  max-height: min(20rem, 48dvh);
+  border: 1px solid var(--smartgn-border-strong);
+  border-radius: 12px;
+  background: var(--smartgn-surface-raised);
+  box-shadow: var(--smartgn-shadow);
+  --mat-option-label-text-color: var(--smartgn-ink);
+  --mat-option-selected-state-label-text-color: var(--smartgn-ink-strong);
+  --mat-option-selected-state-layer-color: var(--smartgn-primary-soft);
+  --mat-option-hover-state-layer-color: var(--smartgn-hover);
+  --mat-option-focus-state-layer-color: var(--smartgn-hover);
+  --mat-pseudo-checkbox-minimal-selected-checkmark-color: var(--smartgn-primary);
+}
+
+.smartgn-select-panel .mat-mdc-option {
+  min-height: 44px;
+  border-radius: 8px;
+}
+
+.smartgn-select-panel .mat-mdc-option.mat-mdc-option-active {
+  outline: 1px solid var(--smartgn-primary);
+  outline-offset: -2px;
+}
+
+.smartgn-account-menu.mat-mdc-menu-panel {
+  width: 260px;
+  max-width: calc(100vw - 24px);
+  margin-top: 6px;
+  border: 1px solid var(--smartgn-border-strong);
+  border-radius: 12px;
+  background: var(--smartgn-surface);
+  box-shadow: var(--smartgn-shadow);
+}
+
+.smartgn-account-menu .mat-mdc-menu-content {
+  padding: 8px;
+}
+
+.smartgn-account-menu .mat-mdc-menu-item {
+  min-height: 42px;
+  padding-inline: 11px;
+  border: 1px solid var(--smartgn-border);
+  border-radius: 9px;
+  background: var(--smartgn-surface-raised);
+  color: var(--smartgn-ink);
+}
+
+.smartgn-account-menu .mat-mdc-menu-item + .mat-mdc-menu-item {
+  margin-top: 4px;
+}
+
+.smartgn-account-menu .mat-mdc-menu-item .mat-icon {
+  margin-inline-end: 9px;
+}
+
+.smartgn-account-menu .mat-mdc-menu-item:hover,
+.smartgn-account-menu .mat-mdc-menu-item.cdk-keyboard-focused {
+  background: var(--smartgn-hover);
+  border-color: var(--smartgn-border-strong);
+}
+
+.smartgn-account-menu .mat-mdc-menu-item.cdk-keyboard-focused {
+  outline: 2px solid var(--smartgn-primary);
+  outline-offset: -2px;
+}
+
+.smartgn-account-menu .account-menu-logout.mat-mdc-menu-item,
+.smartgn-account-menu .account-menu-logout .mat-icon {
+  color: var(--smartgn-danger);
 }

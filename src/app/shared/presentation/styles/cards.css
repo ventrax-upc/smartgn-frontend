@@ -1,0 +1,8 @@
+.card,
+.stat-card {
+  background: var(--smartgn-surface);
+  border: 1px solid var(--smartgn-border);
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: var(--smartgn-shadow);
+}

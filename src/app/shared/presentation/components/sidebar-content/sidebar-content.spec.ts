@@ -1,3 +1,6 @@
+import { provideRouter } from '@angular/router';
+import { provideTranslateService } from '@ngx-translate/core';
+import { AuthStore } from '../../../../modules/iam/application/auth.store';
 /*
   Import testing utilities from Angular.
 
@@ -37,6 +40,11 @@ describe('SidebarContent', () => {
     */
     await TestBed.configureTestingModule({
       imports: [SidebarContent],
+      providers: [
+        provideRouter([]),
+        provideTranslateService(),
+        { provide: AuthStore, useValue: { isSuperAdmin: () => false, isDelegated: () => false } },
+      ],
     }).compileComponents();
 
     /*

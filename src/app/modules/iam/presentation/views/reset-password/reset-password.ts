@@ -1,3 +1,5 @@
+import { PasswordToggle } from '../../../../../shared/presentation/components/password-toggle';
+import { LanguageToggle } from '../../../../../shared/presentation/components/language-toggle/language-toggle';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -7,7 +9,7 @@ import { AuthStore } from '../../../application/auth.store';
 
 @Component({
   selector: 'app-reset-password',
-  imports: [TranslatePipe, ReactiveFormsModule, RouterLink, MatIcon],
+  imports: [PasswordToggle, LanguageToggle, TranslatePipe, ReactiveFormsModule, RouterLink, MatIcon],
   templateUrl: './reset-password.html',
   styleUrl: './reset-password.css',
 })

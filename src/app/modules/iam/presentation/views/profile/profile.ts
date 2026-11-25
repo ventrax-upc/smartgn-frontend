@@ -1,5 +1,5 @@
 import { TranslatePipe } from '@ngx-translate/core';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
@@ -18,23 +18,14 @@ export class ProfilePage implements OnInit {
 
   protected readonly user = this.authStore.currentUser;
   protected readonly profile = this.authStore.profile;
-  protected readonly initials = this.authStore.initials;
-  protected readonly displayName = this.authStore.displayName;
 
   protected readonly saving = signal(false);
   protected readonly success = signal<string | null>(null);
   protected readonly error = signal<string | null>(null);
 
-  protected readonly accessLabel = computed(() => {
-    const user = this.user();
-    if (!user) return '';
-    if (user.isSuperAdmin) return 'accountRole.SUPERADMIN';
-    return user.isDelegated ? 'accountRole.DELEGATED' : 'accountRole.PRINCIPAL';
-  });
-
   protected readonly form = new FormGroup({
-    firstName: new FormControl('', [Validators.required, Validators.maxLength(100)]),
-    lastName: new FormControl('', [Validators.required, Validators.maxLength(100)]),
+    firstName: new FormControl('', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(100)]),
+    lastName: new FormControl('', [Validators.required, Validators.pattern(/\S/), Validators.maxLength(100)]),
     phone: new FormControl('', [Validators.pattern(/^\+?[0-9 ()-]{7,20}$/)]),
     address: new FormControl('', [Validators.maxLength(255)]),
   });

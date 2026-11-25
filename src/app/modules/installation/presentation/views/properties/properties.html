@@ -24,259 +24,253 @@
   </header>
 
   @if (success(); as message) {
-    <div class="alert alert-success">
+    <div class="alert alert-success" role="status">
       {{ message | translate }}
     </div>
   }
 
   @if (error(); as message) {
-    <div class="alert alert-error">
+    <div class="alert alert-error" role="alert">
       {{ message | translate }}
     </div>
   }
 
-  @if (showForm()) {
+  <div>
     <section class="card">
-      <h2 class="card-title">
-        {{ formTitle() | translate }}
-      </h2>
+      <div class="section-title">
+        <h2>
+          {{ 'installation.properties.list.title' | translate }}
+        </h2>
 
-      <p class="card-subtitle">
-        {{ 'installation.properties.form.description' | translate }}
-      </p>
-
-      <form [formGroup]="form" (ngSubmit)="submit()">
-        <div class="form-grid">
-
-          <!-- Property name -->
-          <div class="field">
-            <label for="property-name">
-              {{ 'installation.properties.form.name' | translate }}
-            </label>
-
-            <input
-              id="property-name"
-              type="text"
-              formControlName="name"
-              [placeholder]="'installation.properties.form.namePlaceholder' | translate"
-            />
-
-            @if (form.controls.name.touched && form.controls.name.hasError('required')) {
-              <span class="field-error">
-                {{ 'installation.properties.validation.nameRequired' | translate }}
-              </span>
-            }
-
-            @if (form.controls.name.touched && form.controls.name.hasError('maxlength')) {
-              <span class="field-error">
-                {{ 'installation.properties.validation.nameMaxLength' | translate }}
-              </span>
-            }
-          </div>
-
-          <!-- Property type -->
-          <div class="field">
-            <label for="property-type">
-              {{ 'installation.properties.form.type' | translate }}
-            </label>
-
-            <select id="property-type" formControlName="propertyType">
-              <option value="HOUSE">
-                {{ 'installation.properties.types.HOUSE' | translate }}
-              </option>
-
-              <option value="COMMERCIAL">
-                {{ 'installation.properties.types.COMMERCIAL' | translate }}
-              </option>
-
-              <option value="BUILDING">
-                {{ 'installation.properties.types.BUILDING' | translate }}
-              </option>
-            </select>
-
-            @if (form.controls.propertyType.touched && form.controls.propertyType.hasError('required')) {
-              <span class="field-error">
-                {{ 'installation.properties.validation.typeRequired' | translate }}
-              </span>
-            }
-          </div>
-
-          <!-- Address -->
-          <div class="field full">
-            <label for="property-address">
-              {{ 'installation.properties.form.address' | translate }}
-            </label>
-
-            <input
-              id="property-address"
-              type="text"
-              formControlName="address"
-              [placeholder]="'installation.properties.form.addressPlaceholder' | translate"
-            />
-
-            @if (form.controls.address.touched && form.controls.address.hasError('required')) {
-              <span class="field-error">
-                {{ 'installation.properties.validation.addressRequired' | translate }}
-              </span>
-            }
-
-            @if (form.controls.address.touched && form.controls.address.hasError('maxlength')) {
-              <span class="field-error">
-                {{ 'installation.properties.validation.addressMaxLength' | translate }}
-              </span>
-            }
-          </div>
-
-        </div>
-
-        <div class="form-actions">
-          <button
-            class="btn btn-secondary"
-            type="button"
-            (click)="cancelForm()"
-          >
-            {{ 'installation.properties.actions.cancel' | translate }}
-          </button>
-
-          <button
-            class="btn btn-primary"
-            type="submit"
-            [disabled]="saving()"
-          >
-            <mat-icon>save</mat-icon>
-
-            {{
-              (saving()
-                  ? 'installation.properties.actions.saving'
-                  : 'installation.properties.actions.save'
-              ) | translate
-            }}
-          </button>
-        </div>
-      </form>
-    </section>
-  }
-
-  <section class="card">
-    <div class="section-title">
-      <h2>
-        {{ 'installation.properties.list.title' | translate }}
-      </h2>
-
-      <span class="chip">
-        {{ items().length }}
-        {{ 'installation.properties.list.active' | translate }}
-      </span>
-    </div>
-
-    @if (loading()) {
-      <div class="loading-row">
-        <span class="spinner"></span>
-        {{ 'installation.properties.list.loading' | translate }}
-      </div>
-    } @else if (items().length === 0) {
-      <div class="empty">
-        <mat-icon>home_work</mat-icon>
-
-        <span class="empty-title">
-          {{ 'installation.properties.list.emptyTitle' | translate }}
-        </span>
-
-        <span class="empty-text">
-          {{ 'installation.properties.list.emptyDescription' | translate }}
+        <span class="chip">
+          {{ items().length }}
+          {{ 'installation.properties.list.active' | translate }}
         </span>
       </div>
-    } @else {
-      <div class="table-wrap">
-        <table class="table">
-          <thead>
-          <tr>
-            <th>
-              {{ 'installation.properties.table.property' | translate }}
-            </th>
 
-            <th>
-              {{ 'installation.properties.table.type' | translate }}
-            </th>
+      @if (loading()) {
+        <app-loading-state messageKey="installation.properties.list.loading" />
+      } @else if (items().length === 0) {
+        <app-empty-state icon="home_work" titleKey="installation.properties.list.emptyTitle" descriptionKey="installation.properties.list.emptyDescription" />
+      } @else {
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+            <tr>
+              <th scope="col">
+                {{ 'installation.properties.table.property' | translate }}
+              </th>
 
-            <th>
-              {{ 'installation.properties.table.address' | translate }}
-            </th>
+              <th scope="col">
+                {{ 'installation.properties.table.type' | translate }}
+              </th>
 
-            <th>
-              {{ 'installation.properties.table.status' | translate }}
-            </th>
+              <th scope="col">
+                {{ 'installation.properties.table.address' | translate }}
+              </th>
 
-            <th></th>
-          </tr>
-          </thead>
+              <th scope="col">
+                {{ 'installation.properties.table.status' | translate }}
+              </th>
 
-          <tbody>
-            @for (property of items(); track property.id) {
-              <tr>
-                <td>
-                  <a
-                    class="cell-title property-link"
-                    [routerLink]="['/installation/properties', property.id]"
-                  >
-                    {{ property.name }}
-                  </a>
+              <th scope="col">{{ 'ui.actions' | translate }}</th>
+            </tr>
+            </thead>
 
-                  <div class="cell-muted mono">
-                    {{ property.id }}
-                  </div>
-                </td>
-
-                <td>
-                  <span class="chip chip-blue">
-                    {{
-                      ('installation.properties.types.' + property.propertyType)
-                        | translate
-                    }}
-                  </span>
-                </td>
-
-                <td class="cell-muted">
-                  {{ property.address }}
-                </td>
-
-                <td>
-                  <span class="chip chip-green">
-                    {{ 'installation.properties.status.active' | translate }}
-                  </span>
-                </td>
-
-                <td>
-                  <div class="row-actions">
+            <tbody>
+              @for (property of items(); track property.id) {
+                <tr>
+                  <td>
                     <a
-                      class="btn btn-secondary btn-sm"
+                      class="cell-title property-link"
                       [routerLink]="['/installation/properties', property.id]"
                     >
-                      {{ 'installation.properties.actions.supplyPoints' | translate }}
+                      {{ property.name }}
                     </a>
 
-                    <button
-                      class="btn btn-ghost btn-sm"
-                      type="button"
-                      (click)="startEdit(property)"
-                    >
-                      {{ 'installation.properties.actions.edit' | translate }}
-                    </button>
+                    <div class="cell-muted mono">
+                      {{ property.id }}
+                    </div>
+                  </td>
 
-                    <button
-                      class="btn btn-danger btn-sm"
-                      type="button"
-                      (click)="deactivate(property)"
-                    >
-                      {{ 'installation.properties.actions.deactivate' | translate }}
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+                  <td>
+                    <span class="chip chip-blue">
+                      {{
+                        ('installation.properties.types.' + property.propertyType)
+                          | translate
+                      }}
+                    </span>
+                  </td>
+
+                  <td class="cell-muted">
+                    {{ property.address }}
+                  </td>
+
+                  <td>
+                    <span class="chip chip-green">
+                      {{ 'installation.properties.status.active' | translate }}
+                    </span>
+                  </td>
+
+                  <td>
+                    <div class="row-actions">
+                      <a
+                        class="btn btn-secondary btn-sm"
+                        [routerLink]="['/installation/properties', property.id]"
+                      >
+                        <mat-icon>speed</mat-icon> {{ 'installation.properties.actions.supplyPoints' | translate }}
+                      </a>
+
+                      <button
+                        class="btn btn-ghost btn-sm"
+                        type="button"
+                        (click)="startEdit(property)"
+                      >
+                        <mat-icon>edit</mat-icon> {{ 'installation.properties.actions.edit' | translate }}
+                      </button>
+
+                      <button
+                        class="btn btn-danger btn-sm"
+                        type="button"
+                        (click)="deactivate(property)"
+                      >
+                        <mat-icon>block</mat-icon> {{ 'installation.properties.actions.deactivate' | translate }}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    @if (showForm()) {
+      <ng-template appFormDialog (dismissed)="cancelForm()">
+        <section class="secondary-form-dialog">
+          <h2 id="secondary-form-title" class="card-title">
+            {{ formTitle() | translate }}
+          </h2>
+
+          <p class="card-subtitle">
+            {{ 'installation.properties.form.description' | translate }}
+          </p>
+
+          @if (error(); as message) {
+            <div class="alert alert-error" role="alert">{{ message | translate }}</div>
+          }
+          <form [formGroup]="form" (ngSubmit)="submit()">
+            <div class="form-grid form-grid-single">
+
+              <!-- Property name -->
+              <div class="field">
+                <label for="property-name">
+                  {{ 'installation.properties.form.name' | translate }}
+                </label>
+
+                <input
+                  id="property-name"
+                  type="text"
+                  formControlName="name"
+                  [placeholder]="'installation.properties.form.namePlaceholder' | translate"
+                />
+
+                @if (form.controls.name.touched && form.controls.name.hasError('required')) {
+                  <span class="field-error">
+                    {{ 'installation.properties.validation.nameRequired' | translate }}
+                  </span>
+                }
+
+                @if (form.controls.name.touched && form.controls.name.hasError('maxlength')) {
+                  <span class="field-error">
+                    {{ 'installation.properties.validation.nameMaxLength' | translate }}
+                  </span>
+                }
+              </div>
+
+              <!-- Property type -->
+              <div class="field">
+                <label id="property-type-label">
+                  {{ 'installation.properties.form.type' | translate }}
+                </label>
+
+                <mat-select smartgnSelect id="property-type" aria-labelledby="property-type-label" formControlName="propertyType">
+                  <mat-option value="HOUSE">
+                    {{ 'installation.properties.types.HOUSE' | translate }}
+                  </mat-option>
+
+                  <mat-option value="COMMERCIAL">
+                    {{ 'installation.properties.types.COMMERCIAL' | translate }}
+                  </mat-option>
+
+                  <mat-option value="BUILDING">
+                    {{ 'installation.properties.types.BUILDING' | translate }}
+                  </mat-option>
+                </mat-select>
+
+                @if (form.controls.propertyType.touched && form.controls.propertyType.hasError('required')) {
+                  <span class="field-error">
+                    {{ 'installation.properties.validation.typeRequired' | translate }}
+                  </span>
+                }
+              </div>
+
+              <!-- Address -->
+              <div class="field full">
+                <label for="property-address">
+                  {{ 'installation.properties.form.address' | translate }}
+                </label>
+
+                <input
+                  id="property-address"
+                  type="text"
+                  formControlName="address"
+                  [placeholder]="'installation.properties.form.addressPlaceholder' | translate"
+                />
+
+                @if (form.controls.address.touched && form.controls.address.hasError('required')) {
+                  <span class="field-error">
+                    {{ 'installation.properties.validation.addressRequired' | translate }}
+                  </span>
+                }
+
+                @if (form.controls.address.touched && form.controls.address.hasError('maxlength')) {
+                  <span class="field-error">
+                    {{ 'installation.properties.validation.addressMaxLength' | translate }}
+                  </span>
+                }
+              </div>
+
+            </div>
+
+            <div class="form-actions">
+              <button
+                class="btn btn-secondary"
+                type="button"
+                (click)="cancelForm()"
+              >
+                <mat-icon>close</mat-icon> {{ 'installation.properties.actions.cancel' | translate }}
+              </button>
+
+              <button
+                class="btn btn-primary"
+                type="submit"
+                [disabled]="saving()"
+              >
+                <mat-icon>save</mat-icon>
+
+                {{
+                  (saving()
+                      ? 'installation.properties.actions.saving'
+                      : 'installation.properties.actions.save'
+                  ) | translate
+                }}
+              </button>
+            </div>
+          </form>
+        </section>
+      </ng-template>
     }
-  </section>
+  </div>
 </div>

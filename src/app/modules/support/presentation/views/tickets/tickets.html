@@ -8,10 +8,6 @@
       </p>
     </div>
     <div class="header-actions">
-      <button class="btn btn-secondary" type="button" (click)="reload()">
-        <mat-icon>refresh</mat-icon>
-        {{ 'ui.refresh' | translate }}
-      </button>
       @if (!isSuperAdmin()) {
         <button class="btn btn-primary" type="button" (click)="startCreate()">
           <mat-icon>add</mat-icon>
@@ -22,10 +18,10 @@
   </header>
 
   @if (success(); as message) {
-    <div class="alert alert-success">{{ message | translate }}</div>
+    <div class="alert alert-success" role="status">{{ message | translate }}</div>
   }
   @if (error(); as message) {
-    <div class="alert alert-error">{{ message | translate }}</div>
+    <div class="alert alert-error" role="alert">{{ message | translate }}</div>
   }
 
   <div class="grid grid-3">
@@ -46,40 +42,36 @@
     </article>
   </div>
 
-  <div class="split" [class.single]="!showForm()">
+  <div>
     <section class="card">
       <div class="section-title">
         <h2>{{ 'ui.supportQueue' | translate }}</h2>
         <div class="filter-row">
-          <label for="ticket-filter">{{ 'ui.status' | translate }}</label>
-          <select id="ticket-filter" (change)="filter($any($event.target).value)">
+          <label id="ticket-filter-label">{{ 'ui.status' | translate }}</label>
+          <mat-select smartgnSelect id="ticket-filter" aria-labelledby="ticket-filter-label" [value]="activeFilter()" (selectionChange)="filter($event.value)">
             @for (status of statuses; track status) {
-              <option [value]="status" [selected]="status === activeFilter()">
+              <mat-option [value]="status">
                 {{ status === 'ALL' ? ('ui.allStatuses' | translate) : (statusLabel(status) | translate) }}
-              </option>
+              </mat-option>
             }
-          </select>
+          </mat-select>
         </div>
       </div>
 
-      @if (loading()) {
-        <div class="loading-row"><span class="spinner"></span>{{ 'ui.loadingTickets' | translate }}</div>
+      @if (loading() && !items().length) {
+        <app-loading-state messageKey="ui.loadingTickets" />
       } @else if (items().length === 0) {
-        <div class="empty">
-          <mat-icon>support_agent</mat-icon>
-          <span class="empty-title">{{ 'ui.noTicketsForThisFilter' | translate }}</span>
-          <span class="empty-text">{{ 'ui.openATicketWhenAGuideDoes' | translate }}</span>
-        </div>
+        <app-empty-state icon="support_agent" titleKey="ui.noTicketsForThisFilter" descriptionKey="ui.openATicketWhenAGuideDoes" />
       } @else {
         <div class="table-wrap">
           <table class="table">
             <thead>
               <tr>
-                <th>{{ 'ui.subject' | translate }}</th>
-                <th>{{ 'ui.supplyPoint' | translate }}</th>
-                <th>{{ 'ui.status' | translate }}</th>
-                <th>{{ 'ui.opened' | translate }}</th>
-                <th></th>
+                <th scope="col">{{ 'ui.subject' | translate }}</th>
+                <th scope="col">{{ 'ui.supplyPoint' | translate }}</th>
+                <th scope="col">{{ 'ui.status' | translate }}</th>
+                <th scope="col">{{ 'ui.opened' | translate }}</th>
+                <th scope="col">{{ 'ui.actions' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -108,7 +100,7 @@
                   <td class="cell-muted">{{ ticket.createdAt | date: 'dd MMM yyyy' : undefined : lang() }}</td>
                   <td>
                     <a class="btn btn-ghost btn-sm" [routerLink]="['/support/tickets', ticket.id]">
-                      {{ 'ui.open' | translate }}
+                      <mat-icon>arrow_forward</mat-icon> {{ 'ui.open' | translate }}
                     </a>
                   </td>
                 </tr>
@@ -120,57 +112,59 @@
     </section>
 
     @if (showForm()) {
-      <aside class="card">
-        <div class="section-title">
-          <h2>{{ 'ui.openATicket' | translate }}</h2>
-          <button class="btn btn-ghost btn-sm" type="button" (click)="cancelForm()">{{ 'ui.close' | translate }}</button>
-        </div>
-        <p class="card-subtitle">
-          {{ 'ui.chooseTheAffectedSupplyPointAndDescribe' | translate }}
-        </p>
+      <ng-template appFormDialog (dismissed)="cancelForm()">
+        <section class="secondary-form-dialog">
+          <h2 id="secondary-form-title">{{ 'ui.openATicket' | translate }}</h2>
+          <p class="card-subtitle">
+            {{ 'ui.chooseTheAffectedSupplyPointAndDescribe' | translate }}
+          </p>
 
-        <form [formGroup]="form" (ngSubmit)="submit()">
-          <div class="field">
-            <label for="ticket-meter">{{ 'ui.supplyPoint' | translate }}</label>
-            <select id="ticket-meter" formControlName="meterId">
-              <option value="">{{ 'ui.selectASupplyPoint' | translate }}</option>
-              @for (meter of meters(); track meter.id) {
-                <option [value]="meter.id">
-                  {{ meter.displayName }} · {{ meter.propertyName }}
-                </option>
+          @if (error(); as message) {
+            <div class="alert alert-error" role="alert">{{ message | translate }}</div>
+          }
+          <form [formGroup]="form" (ngSubmit)="submit()">
+            <div class="field">
+              <label id="ticket-meter-label">{{ 'ui.supplyPoint' | translate }}</label>
+              <mat-select smartgnSelect id="ticket-meter" aria-labelledby="ticket-meter-label" formControlName="meterId">
+                <mat-option value="">{{ 'ui.selectASupplyPoint' | translate }}</mat-option>
+                @for (meter of meters(); track meter.id) {
+                  <mat-option [value]="meter.id">
+                    {{ meter.displayName }}@if (meter.propertyName) { {{ meter.displayName ? ' · ' : '' }}{{ meter.propertyName }} }
+                  </mat-option>
+                }
+              </mat-select>
+              @if (form.controls.meterId.touched && form.controls.meterId.invalid) {
+                <span class="field-error">{{ 'ui.selectTheAffectedSupplyPoint' | translate }}</span>
               }
-            </select>
-            @if (form.controls.meterId.touched && form.controls.meterId.invalid) {
-              <span class="field-error">{{ 'ui.selectTheAffectedSupplyPoint' | translate }}</span>
-            }
-          </div>
-          <div class="field">
-            <label for="ticket-subject">{{ 'ui.subject' | translate }}</label>
-            <input id="ticket-subject" formControlName="subject" [placeholder]="'ui.deviceOffline' | translate" />
-            @if (form.controls.subject.touched && form.controls.subject.invalid) {
-              <span class="field-error">{{ 'ui.aShortSubjectIsRequired' | translate }}</span>
-            }
-          </div>
-          <div class="field">
-            <label for="ticket-message">{{ 'ui.description' | translate }}</label>
-            <textarea
-              id="ticket-message"
-              formControlName="message"
-              [placeholder]="'ui.describeTheIssueWhenItStartedAnd' | translate"
-            ></textarea>
-            @if (form.controls.message.touched && form.controls.message.invalid) {
-              <span class="field-error">{{ 'ui.describeTheIssue' | translate }}</span>
-            }
-          </div>
+            </div>
+            <div class="field">
+              <label for="ticket-subject">{{ 'ui.subject' | translate }}</label>
+              <input id="ticket-subject" formControlName="subject" [placeholder]="'ui.deviceOffline' | translate" />
+              @if (form.controls.subject.touched && form.controls.subject.invalid) {
+                <span class="field-error">{{ 'ui.aShortSubjectIsRequired' | translate }}</span>
+              }
+            </div>
+            <div class="field">
+              <label for="ticket-message">{{ 'ui.description' | translate }}</label>
+              <textarea
+                id="ticket-message"
+                formControlName="message"
+                [placeholder]="'ui.describeTheIssueWhenItStartedAnd' | translate"
+              ></textarea>
+              @if (form.controls.message.touched && form.controls.message.invalid) {
+                <span class="field-error">{{ 'ui.describeTheIssue' | translate }}</span>
+              }
+            </div>
 
-          <div class="form-actions">
-            <button class="btn btn-secondary" type="button" (click)="cancelForm()">{{ 'ui.cancel' | translate }}</button>
-            <button class="btn btn-primary" type="submit" [disabled]="saving()">
-              {{ saving() ? ('ui.opening' | translate) : ('ui.openTicket' | translate) }}
-            </button>
-          </div>
-        </form>
-      </aside>
+            <div class="form-actions">
+              <button class="btn btn-secondary" type="button" (click)="cancelForm()"><mat-icon>close</mat-icon> {{ 'ui.cancel' | translate }}</button>
+              <button class="btn btn-primary" type="submit" [disabled]="saving()">
+                <mat-icon>confirmation_number</mat-icon> {{ saving() ? ('ui.opening' | translate) : ('ui.openTicket' | translate) }}
+              </button>
+            </div>
+          </form>
+        </section>
+      </ng-template>
     }
   </div>
 </div>

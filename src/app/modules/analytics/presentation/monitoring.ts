@@ -1,10 +1,15 @@
+import { SmartgnSelect } from '../../../shared/presentation/components/smartgn-select';
+import { LoadingState } from '../../../shared/presentation/components/view-state';
+import { MatSelectModule } from '@angular/material/select';
+import { MatIcon } from '@angular/material/icon';
 import { LanguageService } from '../../../shared/application/language.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { firstValueFrom, interval } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
+import { pollWhileVisible } from '../../../shared/application/visible-polling';
 import { MetersApi } from '../../installation/infrastructure/meters-api';
 import { Meter } from '../../installation/domain/model/meter.entity';
 import { AnalyticsApi, Consumption, Reading, Report } from '../infrastructure/analytics-api';
@@ -29,7 +34,7 @@ function dates(from: string, to: string): [string, string] {
 }
 
 @Component({
-  imports: [TranslatePipe, FormsModule, CurrencyPipe, DatePipe, DecimalPipe],
+  imports: [SmartgnSelect, LoadingState, MatSelectModule, MatIcon, TranslatePipe, FormsModule, CurrencyPipe, DatePipe, DecimalPipe],
   templateUrl: './monitoring.html',
   styleUrl: './analytics.css',
 })
@@ -38,6 +43,12 @@ export class MonitoringPage implements OnInit {
   private readonly api = inject(AnalyticsApi);
   private readonly metersApi = inject(MetersApi);
   private readonly destroyRef = inject(DestroyRef);
+
+  private livePending = false;
+
+  constructor() {
+    pollWhileVisible(1000, () => void this.updateLive());
+  }
 
   protected readonly meters = signal<Meter[]>([]);
   protected readonly mode = signal<'live' | 'history' | 'pro'>('live');
@@ -62,11 +73,6 @@ export class MonitoringPage implements OnInit {
   protected compareTo = '';
 
   async ngOnInit(): Promise<void> {
-    interval(30_000)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        if (this.mode() === 'live' && this.ids.length) void this.query();
-      });
     this.busy.set(true);
     try {
       this.meters.set(await firstValueFrom(this.metersApi.getAll()));
@@ -76,7 +82,7 @@ export class MonitoringPage implements OnInit {
     } finally {
       this.busy.set(false);
     }
-    if (this.ids.length) await this.query();
+    await this.updateLive();
   }
 
   protected select(mode: 'live' | 'history' | 'pro'): void {
@@ -93,27 +99,53 @@ export class MonitoringPage implements OnInit {
     this.clear();
   }
 
+  protected selectLiveMeter(id: string): void {
+    this.ids = [id];
+    this.reading.set(null);
+    this.error.set('');
+    void this.updateLive();
+  }
+
+  private async updateLive(): Promise<void> {
+    const meterId = this.ids[0];
+    if (this.mode() !== 'live' || !meterId || this.busy() || this.livePending) return;
+
+    this.livePending = true;
+    try {
+      const reading = await firstValueFrom(
+        this.api.live(meterId).pipe(takeUntilDestroyed(this.destroyRef)),
+        { defaultValue: null },
+      );
+      if (reading && this.mode() === 'live' && this.ids[0] === meterId) {
+        this.reading.set(reading);
+        this.error.set('');
+      }
+    } catch {
+      if (this.mode() === 'live' && this.ids[0] === meterId) {
+        this.error.set('ui.couldNotCompleteTheQueryTryAgain');
+      }
+    } finally {
+      this.livePending = false;
+    }
+  }
+
   protected async query(): Promise<void> {
-    if (!this.ids.length || this.busy()) return;
+    if (this.mode() === 'live' || !this.ids.length || this.busy()) return;
     this.busy.set(true);
     this.error.set('');
     try {
-      if (this.mode() === 'live') {
-        this.reading.set(await firstValueFrom(this.api.live(this.ids[0])));
+      this.clear();
+      const period = dates(this.from, this.to);
+      if (this.mode() === 'history') {
+        this.history.set(await firstValueFrom(this.api.consumption(this.ids, ...period)));
       } else {
-        this.clear();
-        const period = dates(this.from, this.to);
-        if (this.mode() === 'history') {
-          this.history.set(await firstValueFrom(this.api.consumption(this.ids, ...period)));
-        } else {
-          const previous = this.compare ? dates(this.compareFrom, this.compareTo) : null;
-          const [report, comparison] = await Promise.all([
-            firstValueFrom(this.api.report(this.ids, ...period)),
-            previous ? firstValueFrom(this.api.report(this.ids, ...previous)) : null,
-          ]);
-          this.report.set(report);
-          this.comparison.set(comparison);
-        }
+        const previous = this.compare ? dates(this.compareFrom, this.compareTo) : null;
+        const [report, comparison] = await Promise.all([
+          firstValueFrom(this.api.report(this.ids, ...period)),
+          previous ? firstValueFrom(this.api.report(this.ids, ...previous)) : null,
+        ]);
+        this.report.set(report);
+        this.comparison.set(comparison);
       }
     } catch (error) {
       this.clear();

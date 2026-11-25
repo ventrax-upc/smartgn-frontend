@@ -1,0 +1,22 @@
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(280px, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.split.single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.split > * {
+  min-width: 0;
+}
+
+.split aside.card form > .field + .field {
+  margin-block-start: 12px;
+}
+
+@media (max-width: 980px) {
+  .split { grid-template-columns: minmax(0, 1fr); }
+}

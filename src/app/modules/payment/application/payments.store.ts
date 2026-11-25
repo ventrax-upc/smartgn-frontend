@@ -85,14 +85,13 @@ export class PaymentsStore {
     });
   }
 
-  download(documentId: string, format: 'pdf' | 'xml' | 'cdr', number: string): void {
-    this.api.downloadDocument(documentId, format).subscribe({
+  download(documentId: string, filename: string): void {
+    this.api.downloadDocument(documentId, 'pdf').subscribe({
       next: (blob) => {
-        const extension = format === 'cdr' ? 'zip' : format;
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `${number}.${extension}`;
+        link.download = `${filename}.pdf`;
         link.click();
         URL.revokeObjectURL(url);
       },

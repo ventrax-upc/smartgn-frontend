@@ -7,7 +7,7 @@ import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatDialog } from '@angular/material/dialog';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthStore } from '../../../../modules/iam/application/auth.store';
-import { APP_LANGUAGES, LanguageService } from '../../../application/language.service';
+import { LanguageToggle } from '../language-toggle/language-toggle';
 import { ThemeService } from '../../../application/theme.service';
 import { ChangePasswordDialog } from '../../../../modules/iam/presentation/views/change-password-dialog/change-password-dialog';
 
@@ -23,6 +23,7 @@ import { ChangePasswordDialog } from '../../../../modules/iam/presentation/views
     MatMenuItem,
     MatMenuTrigger,
     TranslatePipe,
+    LanguageToggle,
   ],
   templateUrl: './toolbar-content.html',
   styleUrl: './toolbar-content.css',
@@ -32,14 +33,11 @@ export class ToolbarContent {
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly themeService = inject(ThemeService);
-  private readonly languageService = inject(LanguageService);
 
   protected readonly themeMode = this.themeService.mode;
-  protected readonly currentLang = this.languageService.lang;
-  protected readonly languages = APP_LANGUAGES;
 
   protected readonly currentUser = this.authStore.currentUser;
-  protected readonly displayName = this.authStore.displayName;
+  protected readonly profile = this.authStore.profile;
   protected readonly initials = this.authStore.initials;
 
   protected readonly roleKey = computed(() => {
@@ -51,16 +49,12 @@ export class ToolbarContent {
     this.themeService.toggle();
   }
 
-  protected setLanguage(code: 'en' | 'es'): void {
-    this.languageService.set(code);
-  }
-
   protected logout(): void {
     this.authStore.logout();
     this.router.navigate(['/sign-in']);
   }
 
   protected openChangePassword(): void {
-    this.dialog.open(ChangePasswordDialog, { width: '420px' });
+    this.dialog.open(ChangePasswordDialog, { width: '440px', maxWidth: 'calc(100vw - 2rem)' });
   }
 }

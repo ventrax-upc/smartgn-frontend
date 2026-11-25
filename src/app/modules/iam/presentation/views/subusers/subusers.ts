@@ -1,3 +1,10 @@
+import { FormDialog } from '../../../../../shared/presentation/components/form-dialog';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialog } from '../../../../../shared/presentation/components/confirm-dialog/confirm-dialog';
+import { SmartgnSelect } from '../../../../../shared/presentation/components/smartgn-select';
+import { EmptyState, LoadingState } from '../../../../../shared/presentation/components/view-state';
+import { MatSelectModule } from '@angular/material/select';
+import { pollWhileVisible } from '../../../../../shared/application/visible-polling';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -8,11 +15,12 @@ import { MetersStore } from '../../../../installation/application/meters.store';
 
 @Component({
   selector: 'app-subusers',
-  imports: [TranslatePipe, ReactiveFormsModule, MatIcon],
+  imports: [FormDialog, SmartgnSelect, EmptyState, LoadingState, MatSelectModule, TranslatePipe, ReactiveFormsModule, MatIcon],
   templateUrl: './subusers.html',
   styleUrl: './subusers.css',
 })
 export class SubusersPage implements OnInit {
+  private readonly dialog = inject(MatDialog);
   private readonly store = inject(SubusersStore);
   private readonly metersStore = inject(MetersStore);
 
@@ -24,6 +32,8 @@ export class SubusersPage implements OnInit {
   protected readonly activeCount = this.store.activeCount;
   protected readonly pendingCount = this.store.pendingCount;
   protected readonly meters = this.metersStore.items;
+
+  protected readonly openForm = signal<'invite' | 'grant' | null>(null);
 
   protected readonly success = signal<string | null>(null);
   protected readonly activationLink = signal<string | null>(null);
@@ -47,14 +57,33 @@ export class SubusersPage implements OnInit {
     lastName: new FormControl('', [Validators.required, Validators.maxLength(100)]),
   });
 
+  constructor() {
+    pollWhileVisible(null, () => this.reload());
+  }
+
   ngOnInit(): void {
     this.store.load();
     this.metersStore.load();
   }
 
-  protected reload(): void {
+  private reload(): void {
+    if (this.loading() || this.saving() || this.openForm() !== null) return;
     this.store.load();
     this.metersStore.load();
+  }
+
+  protected startInvite(): void {
+    this.form.reset({ email: '', firstName: '', lastName: '' });
+    this.openForm.set('invite');
+  }
+
+  protected startGrant(subuserId: string): void {
+    this.selectSubuser(subuserId);
+    this.openForm.set('grant');
+  }
+
+  protected closeForm(): void {
+    this.openForm.set(null);
   }
 
   protected submit(): void {
@@ -71,6 +100,7 @@ export class SubusersPage implements OnInit {
       },
       {
         onSuccess: (subuser) => {
+          this.closeForm();
           this.form.reset({ email: '', firstName: '', lastName: '' });
           this.success.set('ui.subuserInvitedShareTheActivationLinkPrivately');
           this.activationLink.set(
@@ -81,6 +111,31 @@ export class SubusersPage implements OnInit {
         },
       },
     );
+  }
+
+  protected removeSubuser(subuserId: string): void {
+    this.dialog.open(ConfirmDialog, {
+      data: {
+        titleKey: 'ui.removeSubuser',
+        messageKey: 'ui.confirmRemoveSubuser',
+        confirmKey: 'ui.removeSubuser',
+        iconName: 'person_remove',
+      },
+    }).afterClosed().subscribe((confirmed) => {
+      if (!confirmed) return;
+      this.success.set(null);
+      this.activationLink.set(null);
+      this.store.remove(subuserId, () => {
+        if (this.selectedSubuserId() === subuserId) this.selectSubuser('');
+        this.success.set('ui.subuserRemoved');
+      });
+    });
+  }
+
+  protected resendInvitation(subuserId: string): void {
+    this.success.set(null);
+    this.activationLink.set(null);
+    this.store.resendInvitation(subuserId, () => this.success.set('ui.invitationResent'));
   }
 
   protected selectSubuser(value: string): void {
@@ -112,7 +167,10 @@ export class SubusersPage implements OnInit {
     const meterId = this.selectedMeterId();
     if (!subuserId || !meterId) return;
     this.store.updateGrants(subuserId, meterId, this.selectedPermissions(), {
-      onSuccess: () => this.success.set('ui.accessGrantSaved'),
+      onSuccess: () => {
+        this.closeForm();
+        this.success.set('ui.accessGrantSaved');
+      },
     });
   }
 

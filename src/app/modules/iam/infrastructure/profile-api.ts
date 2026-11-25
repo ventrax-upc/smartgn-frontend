@@ -15,29 +15,38 @@ export class ProfileApi {
   getMine(): Observable<Profile> {
     return this.http.get<ProfileResource>(`${this.url}/me`).pipe(
       map((resource) => this.assembler.toEntityFromResource(resource)),
-      catchError((err) => throwError(() => this.toError(err, 'Could not load your profile.'))),
+      catchError((err) => throwError(() => this.toError(err, 'ui.couldNotLoadYourProfile'))),
     );
   }
 
   create(input: ProfileInputResource): Observable<Profile> {
-    return this.http.post<ProfileResource>(this.url, input).pipe(
+    return this.http.post<ProfileResource>(this.url, this.normalize(input)).pipe(
       map((resource) => this.assembler.toEntityFromResource(resource)),
-      catchError((err) => throwError(() => this.toError(err, 'Could not create your profile.'))),
+      catchError((err) => throwError(() => this.toError(err, 'ui.couldNotCreateYourProfile'))),
     );
   }
 
   updateMine(input: ProfileInputResource): Observable<Profile> {
-    return this.http.put<ProfileResource>(`${this.url}/me`, input).pipe(
+    return this.http.put<ProfileResource>(`${this.url}/me`, this.normalize(input)).pipe(
       map((resource) => this.assembler.toEntityFromResource(resource)),
-      catchError((err) => throwError(() => this.toError(err, 'Could not save your profile.'))),
+      catchError((err) => throwError(() => this.toError(err, 'ui.couldNotSaveYourProfile'))),
     );
+  }
+
+  private normalize(input: ProfileInputResource): ProfileInputResource {
+    return {
+      firstName: input.firstName.trim(),
+      lastName: input.lastName.trim(),
+      phone: input.phone?.trim() || undefined,
+      address: input.address?.trim() || undefined,
+    };
   }
 
   private toError(err: unknown, fallback: string): Error {
     const httpErr = err as
-      | { error?: { details?: string; message?: string }; message?: string; status?: number }
+      | { error?: { detail?: string; details?: string; message?: string }; message?: string; status?: number }
       | undefined;
-    const message = httpErr?.error?.details ?? httpErr?.error?.message ?? httpErr?.message ?? fallback;
+    const message = httpErr?.error?.detail ?? httpErr?.error?.details ?? httpErr?.error?.message ?? fallback;
     const error = new Error(message) as Error & { status?: number };
     error.status = httpErr?.status;
     return error;

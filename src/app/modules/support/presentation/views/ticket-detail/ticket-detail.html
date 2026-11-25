@@ -5,7 +5,7 @@
         <mat-icon>arrow_back</mat-icon>
         {{ 'ui.backToTickets' | translate }}
       </a>
-      <h1 class="page-title">{{ ticket()?.subject || 'Ticket' }}</h1>
+      <h1 class="page-title">{{ ticket()?.subject || ('ui.ticket' | translate) }}</h1>
       @if (ticket(); as current) {
         <p class="page-subtitle">
           {{ 'ui.opened' | translate }} {{ current.createdAt | date: 'dd MMM yyyy, HH:mm' : undefined : lang() }} · {{ 'ui.supplyPoint' | translate }}
@@ -28,14 +28,14 @@
   </header>
 
   @if (success(); as message) {
-    <div class="alert alert-success">{{ message | translate }}</div>
+    <div class="alert alert-success" role="status">{{ message | translate }}</div>
   }
   @if (error() || visitsStore.error(); as message) {
-    <div class="alert alert-error">{{ message | translate }}</div>
+    <div class="alert alert-error" role="alert">{{ message | translate }}</div>
   }
 
   @if (loading() && !ticket()) {
-    <div class="loading-row"><span class="spinner"></span>{{ 'ui.loadingTicket' | translate }}</div>
+    <app-loading-state messageKey="ui.loadingTicket" />
   } @else if (ticket(); as current) {
     <div class="split">
       <div class="thread">
@@ -124,18 +124,34 @@
           }
 
           @if (current.isOpen) {
-            <form class="message-form" (submit)="$event.preventDefault(); addPhoto(photoInput)">
-              <div class="field">
-                <label for="ticket-photo">{{ 'ui.photo' | translate }}</label>
-                <input #photoInput id="ticket-photo" type="file" accept="image/jpeg,image/png" required />
-              </div>
-              <div class="form-actions">
-                <button class="btn btn-secondary" type="submit" [disabled]="saving()">
-                  <mat-icon>add_photo_alternate</mat-icon>
-                  {{ 'ui.attachPhoto' | translate }}
-                </button>
-              </div>
-            </form>
+            <button class="btn btn-secondary" type="button" (click)="showPhotoForm.set(true)">
+              <mat-icon>add_photo_alternate</mat-icon> {{ 'ui.attachPhoto' | translate }}
+            </button>
+            @if (showPhotoForm()) {
+              <ng-template appFormDialog (dismissed)="showPhotoForm.set(false)">
+                <section class="secondary-form-dialog">
+                  <h2 id="secondary-form-title">{{ 'ui.attachPhoto' | translate }}</h2>
+                  @if (error(); as message) {
+                    <div class="alert alert-error" role="alert">{{ message | translate }}</div>
+                  }
+                  <form (submit)="$event.preventDefault(); addPhoto(photoInput)">
+                    <div class="field">
+                      <label for="ticket-photo">{{ 'ui.photo' | translate }}</label>
+                      <input #photoInput id="ticket-photo" type="file" accept="image/jpeg,image/png" required />
+                    </div>
+                    <div class="form-actions">
+                      <button class="btn btn-secondary" type="button" (click)="showPhotoForm.set(false)">
+                        <mat-icon>close</mat-icon> {{ 'ui.cancel' | translate }}
+                      </button>
+                      <button class="btn btn-primary" type="submit" [disabled]="saving()">
+                        <mat-icon>add_photo_alternate</mat-icon>
+                        {{ 'ui.attachPhoto' | translate }}
+                      </button>
+                    </div>
+                  </form>
+                </section>
+              </ng-template>
+            }
           }
         </section>
       </div>
@@ -162,7 +178,7 @@
             </div>
           </dl>
 
-          @if (current.status === 'RESOLVED') {
+          @if (isPrincipal() && current.status === 'RESOLVED') {
             <div class="divider"></div>
             <button class="btn btn-secondary" type="button" (click)="closeTicket()" [disabled]="saving()">
               <mat-icon>lock</mat-icon>
@@ -180,10 +196,18 @@
         <section class="card">
           <div class="section-title">
             <h2>{{ 'ui.technicianVisits' | translate }}</h2>
-            <span class="chip">{{ visits().length }}</span>
+            @if (visitAccess() === 'allowed') {
+              <span class="chip">{{ visits().length }}</span>
+            }
           </div>
 
-          @if (visits().length === 0) {
+          @if (visitAccess() === 'pending') {
+            <app-loading-state messageKey="ui.loadingVisits" />
+          } @else if (visitAccess() === 'denied') {
+            <p class="cell-muted">{{ 'ui.noVisitAccessForThisTicket' | translate }}</p>
+          } @else if (visitAccess() === 'unavailable') {
+            <p class="cell-muted">{{ 'ui.visitAccessUnavailable' | translate }}</p>
+          } @else if (visits().length === 0) {
             <p class="cell-muted">{{ 'ui.noVisitsRequestedForThisTicket' | translate }}</p>
           } @else {
             <ul class="visit-list">
@@ -234,24 +258,25 @@
                   @if (isSuperAdmin()) {
                     @if (visit.status === 'REQUESTED') {
                       <div class="inline-form">
-                        <select
+                        <mat-select smartgnSelect
+                          [aria-label]="'ui.technician' | translate"
                           [value]="technicianSelection()[visit.id] || ''"
-                          (change)="setTechnician(visit.id, $any($event.target).value)"
+                          (selectionChange)="setTechnician(visit.id, $event.value)"
                         >
-                          <option value="">{{ 'ui.selectATechnician' | translate }}</option>
+                          <mat-option value="">{{ 'ui.selectATechnician' | translate }}</mat-option>
                           @for (technician of technicians(); track technician.id) {
-                            <option [value]="technician.id">
+                            <mat-option [value]="technician.id">
                               {{ technician.fullName }} · {{ technician.accreditationCode }}
-                            </option>
+                            </mat-option>
                           }
-                        </select>
+                        </mat-select>
                         <button
                           class="btn btn-primary btn-sm"
                           type="button"
                           [disabled]="saving() || !technicianSelection()[visit.id]"
                           (click)="assignTechnician(visit)"
                         >
-                          {{ 'ui.assign' | translate }}
+                          <mat-icon>person_add</mat-icon> {{ 'ui.assign' | translate }}
                         </button>
                       </div>
                       @if (technicians().length === 0) {
@@ -261,42 +286,50 @@
 
                     @if (visit.status === 'ASSIGNED' || visit.status === 'SCHEDULED') {
                       <button type="button" class="btn btn-secondary" [disabled]="visitsStore.saving()" (click)="visitsStore.advanceVisit(visit)">
-                        {{ visit.status === 'ASSIGNED' ? ('ui.scheduleVisit' | translate) : ('ui.startVisit' | translate) }}
+                        <mat-icon>{{ visit.status === 'ASSIGNED' ? 'event_available' : 'play_arrow' }}</mat-icon> {{ visit.status === 'ASSIGNED' ? ('ui.scheduleVisit' | translate) : ('ui.startVisit' | translate) }}
                       </button>
                     }
                     @if (visit.status === 'IN_PROGRESS') {
                       @if (diagnosingVisitId() === visit.id) {
-                        <form class="inline-form column" [formGroup]="diagnosisForm" (ngSubmit)="completeVisit(visit)">
-                          <div class="field">
-                            <label [for]="'diagnosis-summary-' + visit.id">{{ 'ui.diagnosisSummary' | translate }}</label>
-                            <textarea
-                              [id]="'diagnosis-summary-' + visit.id"
-                              formControlName="summary"
-                              [placeholder]="'ui.whatWasFoundAndWhatWasFixed' | translate"
-                            ></textarea>
-                            @if (diagnosisForm.controls.summary.touched && diagnosisForm.controls.summary.invalid) {
-                              <span class="field-error">{{ 'ui.aSummaryIsRequired' | translate }}</span>
+                        <ng-template appFormDialog (dismissed)="cancelDiagnosis()">
+                          <section class="secondary-form-dialog">
+                            <h2 id="secondary-form-title">{{ 'ui.completeVisit' | translate }}</h2>
+                            @if (error(); as message) {
+                              <div class="alert alert-error" role="alert">{{ message | translate }}</div>
                             }
-                          </div>
-                          <div class="field">
-                            <label [for]="'diagnosis-cost-' + visit.id">{{ 'ui.finalCostPen' | translate }}</label>
-                            <input
-                              [id]="'diagnosis-cost-' + visit.id"
-                              type="number"
-                              min="0"
-                              step="0.01"
-                              formControlName="finalCost"
-                            />
-                          </div>
-                          <div class="form-actions">
-                            <button class="btn btn-secondary btn-sm" type="button" (click)="cancelDiagnosis()">
-                              {{ 'ui.cancel' | translate }}
-                            </button>
-                            <button class="btn btn-primary btn-sm" type="submit" [disabled]="saving()">
-                              {{ 'ui.completeVisit' | translate }}
-                            </button>
-                          </div>
-                        </form>
+                            <form [formGroup]="diagnosisForm" (ngSubmit)="completeVisit(visit)">
+                              <div class="field">
+                                <label [for]="'diagnosis-summary-' + visit.id">{{ 'ui.diagnosisSummary' | translate }}</label>
+                                <textarea
+                                  [id]="'diagnosis-summary-' + visit.id"
+                                  formControlName="summary"
+                                  [placeholder]="'ui.whatWasFoundAndWhatWasFixed' | translate"
+                                ></textarea>
+                                @if (diagnosisForm.controls.summary.touched && diagnosisForm.controls.summary.invalid) {
+                                  <span class="field-error">{{ 'ui.aSummaryIsRequired' | translate }}</span>
+                                }
+                              </div>
+                              <div class="field">
+                                <label [for]="'diagnosis-cost-' + visit.id">{{ 'ui.finalCostPen' | translate }}</label>
+                                <input
+                                  [id]="'diagnosis-cost-' + visit.id"
+                                  type="number"
+                                  min="0"
+                                  step="0.01"
+                                  formControlName="finalCost"
+                                />
+                              </div>
+                              <div class="form-actions">
+                                <button class="btn btn-secondary btn-sm" type="button" (click)="cancelDiagnosis()">
+                                  <mat-icon>close</mat-icon> {{ 'ui.cancel' | translate }}
+                                </button>
+                                <button class="btn btn-primary btn-sm" type="submit" [disabled]="saving()">
+                                  <mat-icon>task_alt</mat-icon> {{ 'ui.completeVisit' | translate }}
+                                </button>
+                              </div>
+                            </form>
+                          </section>
+                        </ng-template>
                       } @else {
                         <button class="btn btn-secondary btn-sm" type="button" (click)="startDiagnosis(visit.id)">
                           <mat-icon>fact_check</mat-icon>
@@ -310,31 +343,42 @@
             </ul>
           }
 
-          @if (!current.isClosed && !hasOpenVisit()) {
+          @if (visitAccess() === 'allowed' && !current.isClosed && !hasOpenVisit()) {
             <div class="divider"></div>
-            <h3 class="card-title">{{ 'ui.requestAVisit' | translate }}</h3>
-            <form [formGroup]="visitForm" (ngSubmit)="requestVisit()">
-              <div class="field">
-                <label for="visit-start">{{ 'ui.windowStart' | translate }}</label>
-                <input id="visit-start" type="datetime-local" formControlName="requestedWindowStart" />
-                @if (visitForm.controls.requestedWindowStart.touched && visitForm.controls.requestedWindowStart.invalid) {
-                  <span class="field-error">{{ 'ui.chooseTheStartOfTheWindow' | translate }}</span>
-                }
-              </div>
-              <div class="field">
-                <label for="visit-end">{{ 'ui.windowEnd' | translate }}</label>
-                <input id="visit-end" type="datetime-local" formControlName="requestedWindowEnd" />
-                @if (visitForm.controls.requestedWindowEnd.touched && visitForm.controls.requestedWindowEnd.invalid) {
-                  <span class="field-error">{{ 'ui.chooseTheEndOfTheWindow' | translate }}</span>
-                }
-              </div>
-              <div class="form-actions">
-                <button class="btn btn-primary" type="submit" [disabled]="saving()">
-                  <mat-icon>event</mat-icon>
-                  {{ 'ui.requestVisit' | translate }}
-                </button>
-              </div>
-            </form>
+            <button class="btn btn-secondary" type="button" (click)="showVisitForm.set(true)"><mat-icon>event</mat-icon> {{ 'ui.requestAVisit' | translate }}</button>
+            @if (showVisitForm()) {
+              <ng-template appFormDialog (dismissed)="showVisitForm.set(false)">
+                <section class="secondary-form-dialog">
+                  <h2 id="secondary-form-title">{{ 'ui.requestAVisit' | translate }}</h2>
+                  @if (error(); as message) {
+                    <div class="alert alert-error" role="alert">{{ message | translate }}</div>
+                  }
+                  <form [formGroup]="visitForm" (ngSubmit)="requestVisit()">
+                    <div class="field">
+                      <label for="visit-start">{{ 'ui.windowStart' | translate }}</label>
+                      <input id="visit-start" type="datetime-local" formControlName="requestedWindowStart" />
+                      @if (visitForm.controls.requestedWindowStart.touched && visitForm.controls.requestedWindowStart.invalid) {
+                        <span class="field-error">{{ 'ui.chooseTheStartOfTheWindow' | translate }}</span>
+                      }
+                    </div>
+                    <div class="field">
+                      <label for="visit-end">{{ 'ui.windowEnd' | translate }}</label>
+                      <input id="visit-end" type="datetime-local" formControlName="requestedWindowEnd" />
+                      @if (visitForm.controls.requestedWindowEnd.touched && visitForm.controls.requestedWindowEnd.invalid) {
+                        <span class="field-error">{{ 'ui.chooseTheEndOfTheWindow' | translate }}</span>
+                      }
+                    </div>
+                    <div class="form-actions">
+                      <button class="btn btn-secondary" type="button" (click)="showVisitForm.set(false)"><mat-icon>close</mat-icon> {{ 'ui.cancel' | translate }}</button>
+                      <button class="btn btn-primary" type="submit" [disabled]="saving()">
+                        <mat-icon>event</mat-icon>
+                        {{ 'ui.requestVisit' | translate }}
+                      </button>
+                    </div>
+                  </form>
+                </section>
+              </ng-template>
+            }
           }
         </section>
 
@@ -349,29 +393,40 @@
               <p class="message-body">{{ currentRating.comment }}</p>
             }
           </section>
-        } @else if (!isSuperAdmin() && current.canBeRated) {
+        } @else if (isPrincipal() && current.canBeRated) {
           <section class="card">
-            <h2 class="card-title">{{ 'ui.rateTheService' | translate }}</h2>
-            <form [formGroup]="ratingForm" (ngSubmit)="submitRating()">
-              <div class="field">
-                <label for="rating-score">{{ 'ui.score' | translate }}</label>
-                <select id="rating-score" formControlName="score">
-                  @for (score of [5, 4, 3, 2, 1]; track score) {
-                    <option [value]="score">{{ score }} / 5</option>
+            <button class="btn btn-secondary" type="button" (click)="showRatingForm.set(true)"><mat-icon>star</mat-icon> {{ 'ui.rateTheService' | translate }}</button>
+            @if (showRatingForm()) {
+              <ng-template appFormDialog (dismissed)="showRatingForm.set(false)">
+                <section class="secondary-form-dialog">
+                  <h2 id="secondary-form-title">{{ 'ui.rateTheService' | translate }}</h2>
+                  @if (error(); as message) {
+                    <div class="alert alert-error" role="alert">{{ message | translate }}</div>
                   }
-                </select>
-              </div>
-              <div class="field">
-                <label for="rating-comment">{{ 'ui.comment' | translate }}</label>
-                <textarea id="rating-comment" formControlName="comment" [placeholder]="'ui.optionalFeedback' | translate"></textarea>
-              </div>
-              <div class="form-actions">
-                <button class="btn btn-primary" type="submit" [disabled]="saving()">
-                  <mat-icon>star</mat-icon>
-                  {{ 'ui.submitRating' | translate }}
-                </button>
-              </div>
-            </form>
+                  <form [formGroup]="ratingForm" (ngSubmit)="submitRating()">
+                    <div class="field">
+                      <label id="rating-score-label">{{ 'ui.score' | translate }}</label>
+                      <mat-select smartgnSelect id="rating-score" aria-labelledby="rating-score-label" formControlName="score">
+                        @for (score of [5, 4, 3, 2, 1]; track score) {
+                          <mat-option [value]="score">{{ score }} / 5</mat-option>
+                        }
+                      </mat-select>
+                    </div>
+                    <div class="field">
+                      <label for="rating-comment">{{ 'ui.comment' | translate }}</label>
+                      <textarea id="rating-comment" formControlName="comment" [placeholder]="'ui.optionalFeedback' | translate"></textarea>
+                    </div>
+                    <div class="form-actions">
+                      <button class="btn btn-secondary" type="button" (click)="showRatingForm.set(false)"><mat-icon>close</mat-icon> {{ 'ui.cancel' | translate }}</button>
+                      <button class="btn btn-primary" type="submit" [disabled]="saving()">
+                        <mat-icon>star</mat-icon>
+                        {{ 'ui.submitRating' | translate }}
+                      </button>
+                    </div>
+                  </form>
+                </section>
+              </ng-template>
+            }
           </section>
         }
       </aside>

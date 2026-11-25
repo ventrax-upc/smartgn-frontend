@@ -1,7 +1,11 @@
+import { SmartgnSelect } from '../../../../../shared/presentation/components/smartgn-select';
+import { EmptyState, LoadingState } from '../../../../../shared/presentation/components/view-state';
+import { MatSelectModule } from '@angular/material/select';
+import { pollWhileVisible } from '../../../../../shared/application/visible-polling';
 import { LanguageService } from '../../../../../shared/application/language.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, formatDate } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 import { PaymentsStore } from '../../../application/payments.store';
@@ -10,7 +14,7 @@ import { PaymentOrder } from '../../../domain/model/payment-order.entity';
 
 @Component({
   selector: 'app-payments',
-  imports: [TranslatePipe, CurrencyPipe, DatePipe, RouterLink, MatIcon],
+  imports: [SmartgnSelect, EmptyState, LoadingState, MatSelectModule, TranslatePipe, CurrencyPipe, DatePipe, RouterLink, MatIcon],
   templateUrl: './payments.html',
   styleUrl: './payments.css',
 })
@@ -30,12 +34,17 @@ export class PaymentsPage implements OnInit {
   protected readonly selection = signal<Record<string, string>>({});
   protected readonly success = signal<string | null>(null);
 
+  constructor() {
+    pollWhileVisible(10000, () => this.reload());
+  }
+
   ngOnInit(): void {
     this.store.load();
     this.methodsStore.load();
   }
 
-  protected reload(): void {
+  private reload(): void {
+    if (this.loading() || this.saving() || this.methodsStore.loading()) return;
     this.store.load();
     this.methodsStore.load();
   }
@@ -61,10 +70,10 @@ export class PaymentsPage implements OnInit {
     }
   }
 
-  protected download(order: PaymentOrder, documentId: string, format: 'pdf' | 'xml' | 'cdr'): void {
-    const document = order.documents.find((item) => item.id === documentId);
-    if (!document) return;
-    this.store.download(document.id, format, document.number);
+  protected download(order: PaymentOrder, documentId: string, title: string | null, index: number): void {
+    const date = formatDate(order.createdAt, 'yyyy-MM-dd', 'en-US');
+    const documentSuffix = order.documents.length > 1 ? ` - ${index + 1}` : '';
+    this.store.download(documentId, `${title?.trim() || 'Order'} - ${date}${documentSuffix}`);
   }
 
   protected reasonLabel(order: PaymentOrder): string {

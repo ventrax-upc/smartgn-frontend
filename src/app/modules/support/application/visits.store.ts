@@ -1,5 +1,6 @@
+import { MetersApi } from '../../installation/infrastructure/meters-api';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { forkJoin } from 'rxjs';
+import { finalize, from, map, mergeMap, of, switchMap, tap, toArray } from 'rxjs';
 import { TechniciansStore } from './technicians.store';
 import { TechnicianAssignment } from '../domain/model/technician-assignment.entity';
 import { Ticket } from '../domain/model/ticket.entity';
@@ -19,6 +20,7 @@ interface StoreCallbacks<T> {
 */
 @Injectable({ providedIn: 'root' })
 export class VisitsStore {
+  private readonly metersApi = inject(MetersApi);
   private readonly api = inject(SupportApi);
   private readonly techniciansStore = inject(TechniciansStore);
 
@@ -50,36 +52,38 @@ export class VisitsStore {
     () => this.itemsSignal().filter((visit) => visit.status === 'COMPLETED').length,
   );
 
-  load(): void {
+  eligibleTickets(tickets: Ticket[]) {
+    if (!tickets.length) return of(tickets);
+    return this.metersApi.getAll().pipe(
+      map((meters) => {
+        const allowedMeterIds = new Set(meters.filter((meter) => meter.has('USE_VISITS')).map((meter) => meter.id));
+        return tickets.filter((ticket) => allowedMeterIds.has(ticket.meterId));
+      }),
+    );
+  }
+
+  load(tickets?: Ticket[], includeDiagnoses = true, delegated = false): void {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
-    this.api.getTickets().subscribe({
-      next: (tickets) => {
-        this.ticketsSignal.set(tickets);
-        if (tickets.length === 0) {
-          this.itemsSignal.set([]);
-          this.loadingSignal.set(false);
-          return;
-        }
-
-        forkJoin(tickets.map((ticket) => this.api.getVisits(ticket.id))).subscribe({
-          next: (groups) => {
-            const visits = groups.flat();
-            this.itemsSignal.set(visits);
-            this.loadingSignal.set(false);
-            this.loadCompletedDiagnoses(visits);
-          },
-          error: (err) => {
-            this.errorSignal.set(this.messageFrom(err));
-            this.loadingSignal.set(false);
-          },
-        });
+    const ticketList = tickets ? of(tickets) : this.api.getTickets();
+    ticketList.pipe(
+      switchMap((items) => delegated ? this.eligibleTickets(items) : of(items)),
+      tap((items) => this.ticketsSignal.set(items)),
+      switchMap((items) => from(items).pipe(
+        mergeMap((ticket, index) => this.api.getVisits(ticket.id).pipe(
+          map((visits) => ({ index, visits })),
+        ), 4),
+        toArray(),
+        map((groups) => groups.sort((a, b) => a.index - b.index).flatMap((group) => group.visits)),
+      )),
+      finalize(() => this.loadingSignal.set(false)),
+    ).subscribe({
+      next: (visits) => {
+        this.itemsSignal.set(visits);
+        if (includeDiagnoses) this.loadCompletedDiagnoses(visits);
       },
-      error: (err) => {
-        this.errorSignal.set(this.messageFrom(err));
-        this.loadingSignal.set(false);
-      },
+      error: (err) => this.errorSignal.set(this.messageFrom(err)),
     });
   }
 

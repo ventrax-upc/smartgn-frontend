@@ -1,11 +1,5 @@
 @import '../../../../../shared/presentation/styles/page.css';
 
-.side-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
 .activation {
   display: flex;
   align-items: center;

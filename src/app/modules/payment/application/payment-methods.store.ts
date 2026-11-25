@@ -42,6 +42,7 @@ export class PaymentMethodsStore {
     input: PaymentMethodInputResource,
     callbacks?: { onSuccess?: () => void; onError?: (message: string) => void },
   ): void {
+    this.errorSignal.set(null);
     this.savingSignal.set(true);
     this.api.createPaymentMethod(input).subscribe({
       next: () => {
@@ -50,8 +51,10 @@ export class PaymentMethodsStore {
         callbacks?.onSuccess?.();
       },
       error: (err) => {
+        const message = this.messageFrom(err);
+        this.errorSignal.set(message);
         this.savingSignal.set(false);
-        callbacks?.onError?.(this.messageFrom(err));
+        callbacks?.onError?.(message);
       },
     });
   }
