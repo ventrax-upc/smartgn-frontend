@@ -1,0 +1,19 @@
+<div class="page">
+  <header class="page-header">
+    <div class="page-heading">
+      <a class="back-link" routerLink="/account/profile">
+        <mat-icon aria-hidden="true">arrow_back</mat-icon>
+        {{ 'legal.backToProfile' | translate }}
+      </a>
+      <h1 class="page-title">{{ documentKey + '.title' | translate }}</h1>
+    </div>
+  </header>
+  <article class="card legal-document">
+    @for (section of sections; track section) {
+      <section>
+        <h2 class="card-title">{{ documentKey + '.sections.' + section + '.title' | translate }}</h2>
+        <p>{{ documentKey + '.sections.' + section + '.body' | translate }}</p>
+      </section>
+    }
+  </article>
+</div>

@@ -47,6 +47,16 @@ export const IAM_ACCOUNT_ROUTES: Routes = [
         loadComponent: () => import('./views/profile/profile').then((m) => m.ProfilePage),
       },
       {
+        path: 'profile/privacy-policy',
+        data: { document: 'privacy' },
+        loadComponent: () => import('./views/profile/profile-legal').then((m) => m.ProfileLegalPage),
+      },
+      {
+        path: 'profile/terms-and-conditions',
+        data: { document: 'terms' },
+        loadComponent: () => import('./views/profile/profile-legal').then((m) => m.ProfileLegalPage),
+      },
+      {
         path: 'subusers',
         canActivate: [principalGuard],
         loadComponent: () =>

@@ -1,1 +1,19 @@
 @import '../../../../../shared/presentation/styles/page.css';
+
+.profile-legal {
+  margin-top: 1rem;
+}
+
+.profile-legal .header-actions {
+  flex-wrap: wrap;
+}
+
+.legal-document {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.legal-document p {
+  margin: 0.4rem 0 0;
+  line-height: 1.65;
+}

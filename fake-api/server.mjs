@@ -13,7 +13,7 @@ import cors from 'cors';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { randomUUID } from 'node:crypto';
+import { randomInt, randomUUID } from 'node:crypto';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DB_FILE = join(__dirname, 'db.json');
@@ -205,6 +205,34 @@ app.post('/api/v1/auth/forgot-password', (req, res) => {
     // Exposed only by the demo server, never by the real backend.
     demoResetToken: resetToken,
   });
+});
+
+const recoveryCodes = new Map();
+
+app.post('/api/v1/auth/recovery-codes', (req, res) => {
+  const email = String(req.body?.email ?? '').trim().toLowerCase();
+  const user = db.users.find(u => u.email.toLowerCase() === email);
+  if (!user) return fail(res, 404, 'EMAIL_NOT_REGISTERED', 'Email is not registered');
+  if (user.status !== 'ACTIVE') return fail(res, 409, 'INACTIVE_ACCOUNT', 'Account is inactive');
+  const challengeId = randomUUID();
+  const code = String(randomInt(1_000_000)).padStart(6, '0');
+  recoveryCodes.set(user.id, { challengeId, code, expiresAt: Date.now() + 600_000, attempts: 0 });
+  console.log('Mock password recovery code:', code);
+  res.status(202).json({ challengeId });
+});
+
+app.post('/api/v1/auth/recovery-codes/verify', (req, res) => {
+  const entry = [...recoveryCodes].find(([, challenge]) => challenge.challengeId === req.body?.challengeId);
+  if (!entry || entry[1].expiresAt <= Date.now() || ++entry[1].attempts > 5
+    || req.body?.code !== entry[1].code) {
+    return fail(res, 422, 'INVALID_CODE', 'Incorrect or expired code');
+  }
+  const [accountId] = entry;
+  const user = db.users.find(u => u.id === accountId);
+  recoveryCodes.delete(accountId);
+  user.resetToken = randomUUID();
+  persist();
+  res.json({ token: user.resetToken });
 });
 
 app.post('/api/v1/auth/reset-password', (req, res) => {

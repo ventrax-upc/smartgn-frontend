@@ -33,6 +33,8 @@ services:
     image: "${SMARTGN_DOCKERHUB_NAMESPACE:?Set SMARTGN_DOCKERHUB_NAMESPACE}/smartgn:${SMARTGN_IMAGE_TAG:?Set SMARTGN_IMAGE_TAG}-billing"
     build: !reset null
     ports: !reset []
+    environment:
+      LOCAL_BROWSER_CHECKOUT_ENABLED: "false"
     restart: unless-stopped
   alerting:
     image: "${SMARTGN_DOCKERHUB_NAMESPACE:?Set SMARTGN_DOCKERHUB_NAMESPACE}/smartgn:${SMARTGN_IMAGE_TAG:?Set SMARTGN_IMAGE_TAG}-alerting"
@@ -52,7 +54,10 @@ services:
   api-gateway:
     image: "${SMARTGN_DOCKERHUB_NAMESPACE:?Set SMARTGN_DOCKERHUB_NAMESPACE}/smartgn:${SMARTGN_IMAGE_TAG:?Set SMARTGN_IMAGE_TAG}-api-gateway"
     build: !reset null
-    ports: !reset []
+    ports: !override
+      - "${SMARTGN_GATEWAY_BIND:-127.0.0.1}:8000:8000"
+    restart: unless-stopped
+  telemetry-postgres:
     restart: unless-stopped
   postgres:
     restart: unless-stopped

@@ -256,6 +256,18 @@
     }
   },
   "ui": {
+    "recoveryEmailInstructions": "Enter the email registered with SmartGN.",
+    "recoverySendCode": "Send code",
+    "recoveryCodeInstructions": "Check your inbox and enter the six-digit code.",
+    "recoveryCodeLabel": "Six-digit code",
+    "recoveryVerifyCode": "Verify code",
+    "recoveryRequestAnotherCode": "Request another code",
+    "recoveryPasswordInstructions": "Enter and confirm your new password.",
+    "recoverySaveAndSignIn": "Save and sign in",
+    "recoveryEmailNotRegistered": "This email is not registered.",
+    "recoveryAccountInactive": "This account is inactive. Activate it before resetting the password.",
+    "recoveryCodeInvalid": "The code is incorrect or expired.",
+    "recoverySingleUseCode": "Single-use recovery codes",
     "inactive": "Inactive",
     "editInstaller": "Edit installer",
     "registerAnInstaller": "Register an installer",
@@ -872,5 +884,51 @@
     "USE_REPORTS": "Reports",
     "USE_TICKETS": "Tickets",
     "USE_VISITS": "Visits"
+  },
+  "legal": {
+    "heading": "Legal documents",
+    "backToProfile": "Back to profile",
+    "privacy": {
+      "title": "Privacy Policy",
+      "sections": {
+        "0": {
+          "title": "Data we process",
+          "body": "SmartGN by Ventrax uses your email, name, phone number and installation address to verify your email and arrange service. After activation, SmartGN also processes account details, meter readings, alerts, requests and payment and billing records. Meter readings may reveal consumption patterns."
+        },
+        "1": {
+          "title": "How we use and share data",
+          "body": "We use this information to manage purchases, installation, monitoring, support, account security and billing. Payment card entry is handled by the payment provider. Hosting, email, payment and authorized installation providers may receive the data needed to perform their work. Authorized delegates can see the meter information and features granted by the account holder."
+        },
+        "2": {
+          "title": "Retention and your rights",
+          "body": "We keep records for the time needed to provide the service and meet applicable billing, legal and security obligations. Under Peru’s Personal Data Protection Law, you may request access, rectification, cancellation or opposition, as applicable. Contact Ventrax through Support in your SmartGN account to submit a request."
+        },
+        "3": {
+          "title": "Embedded video",
+          "body": "If the team video is enabled, playing it may contact YouTube and send technical information such as your IP address to Google. YouTube applies its own privacy rules."
+        }
+      }
+    },
+    "terms": {
+      "title": "Terms & Conditions",
+      "sections": {
+        "0": {
+          "title": "Service and account",
+          "body": "SmartGN provides gas meter monitoring, alerts and support. Keep your credentials private and manage delegate permissions carefully. SmartGN alerts are informational. Follow the gas provider’s emergency instructions if you suspect a leak."
+        },
+        "1": {
+          "title": "Purchase and installation",
+          "body": "Review the amount shown before paying. A successful payment enables the installation request and starts account activation. Installation depends on technical feasibility and appointment coordination. Sandbox transactions use test credentials and do not charge real money."
+        },
+        "2": {
+          "title": "Support, cancellations and consumer rights",
+          "body": "Use SmartGN Support to ask about installation, payment, cancellation or a refund. Applicable Peruvian consumer rights and remedies apply to your purchase."
+        },
+        "3": {
+          "title": "Changes",
+          "body": "When these terms change, SmartGN will publish the revised version. Changes to ongoing services are subject to applicable notice and consumer protection requirements."
+        }
+      }
+    }
   }
 }

@@ -10,6 +10,8 @@ The SPA sends requests to the SmartGN API Gateway through `/api/v1`. English is 
 
 ## Run locally
 
+The [integrated startup guide](https://github.com/ventrax-upc/smartgn-api-gateway/blob/develop/README.md#start-all-13-repositories-locally) covers all 13 repositories. The commands below describe this component.
+
 Use Docker with Compose and PowerShell 7. These commands assume the `SmartGN` backend workspace and `smartgn-frontend` are siblings. Run them from the frontend repository:
 
 ```powershell
@@ -22,6 +24,34 @@ docker compose --env-file "$gateway/.local/integrated.env" -f "$gateway/compose.
 This reuses the existing backend images and volumes. If the backend images are missing, run `pwsh -File "$gateway/scripts/start-integrated.ps1"` first. Open [SmartGN](http://localhost:4200) or check [frontend health](http://localhost:4200/healthz).
 
 For Angular development, use Node.js 22 and run `npm ci`, then `npm start` with the integrated Gateway available on port 8000. Stop the Docker frontend or pass `--port 4201` with `npm start -- --port 4201` if port 4200 is occupied. For offline UI development, `npm run dev` starts Angular and the Express mock API on port 3000. Stop the Angular dev server before switching modes. Use the integrated stack to validate backend behavior.
+
+### Password recovery
+
+Open **Forgot password?** on the sign-in page. Request a code for a
+registered active account, verify it, and enter the new password twice.
+After saving, the SPA signs in with the new password.
+
+Integrated Compose sends the code to the local delivery fixture. Use the
+same email address when the command prompts you. The offline mock API
+prints its own test code in the mock server terminal.
+
+```powershell
+$email = Read-Host 'Email entered in SmartGN'
+@'
+import json
+import os
+import sys
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
+
+url = "http://localhost:8091/fixtures/messages?" + urlencode({"email": sys.argv[1].strip().lower()})
+request = Request(url, headers={"Authorization": "Bearer " + os.environ["FIXTURE_ADMIN_TOKEN"]})
+with urlopen(request) as response:
+    messages = json.load(response)
+print(next((message["code"] for message in reversed(messages)
+            if message["purpose"] == "RECOVERY_CODE"), "No recovery code found."))
+'@ | docker exec -i smartgn-dev-delivery-1 python - $email
+```
 
 ## Configuration
 
@@ -45,28 +75,34 @@ npm test -- --watch=false
 
 Use the integrated Gateway and a provisioned account to verify sign-in, consumption, Pro reports and alerts. Use the language selector to check both interface languages and reload the page to verify persistence.
 
-## Deployment
+## Deploy the SPA with the backend on AWS
 
-Keep the verified images local until deployment is scheduled. For an EC2 integration deployment, publish all 12 application images to Docker Hub under the shared tag pattern `<namespace>/smartgn:<release>-<service>`. For example, the frontend image ends in `-frontend`. Build for the target host architecture and use a new release tag for each cut.
+Use the [Gateway AWS guide](https://github.com/ventrax-upc/smartgn-api-gateway/blob/develop/README.md#deploy-the-backend-and-spa-on-aws)
+to publish the 12 images and start the shared stack on EC2. The image for
+this repository is `<namespace>/smartgn:<release>-frontend`. The registry
+overlay uses it with `compose.frontend.yml` and the Gateway's base Compose.
 
-On EC2, install Docker with Compose and PowerShell 7. Keep the backend repositories in the same layout used locally so Compose can mount the initialization files. Sign in to Docker Hub if the registry repository is private. From the frontend repository, set the namespace and release tag and run:
+Set the following in the Gateway deployment environment file before running
+Compose. The browser uses relative `/api/v1` URLs, so the image can be reused
+between environments.
 
-```bash
-export SMARTGN_DOCKERHUB_NAMESPACE=your-namespace
-export SMARTGN_IMAGE_TAG=your-release
-gateway=../SmartGN/smartgn-api-gateway
-umask 077
-pwsh -File "$gateway/scripts/start-integrated.ps1" -PrepareOnly
-compose=(docker compose --env-file "$gateway/.local/integrated.env" -f "$gateway/compose.integration.yml" -f compose.frontend.yml -f compose.registry.yml)
-"${compose[@]}" config --quiet
-"${compose[@]}" pull
-"${compose[@]}" up -d --no-build --wait --wait-timeout 300
-curl --fail http://127.0.0.1:4200/healthz
-```
+| Variable | Deployment value |
+| --- | --- |
+| `SMARTGN_DOCKERHUB_NAMESPACE`, `SMARTGN_IMAGE_TAG` | Namespace and release shared by the 12 images. |
+| `SMARTGN_PUBLIC_ORIGIN` | Public SPA HTTPS origin, e.g. `https://app.smartgn.example`. Compose appends the activation and reset paths for IAM. |
+| `SMARTGN_GATEWAY_UPSTREAM` | Private Gateway `host:port`, normally `api-gateway:8000` on Compose. |
+| `SMARTGN_DNS_RESOLVER` | Container DNS resolver, normally `127.0.0.11` on Compose. |
+| `SMARTGN_FRONTEND_BIND`, `SMARTGN_FRONTEND_PORT` | EC2 private IPv4 and host port, normally `4200`. The ALB target group uses this port and `/healthz`. |
+| `ACTIVATION_LINK_BASE_URL`, `PASSWORD_RESET_LINK_BASE_URL` | Optional IAM overrides. Use complete HTTPS URLs ending in `/activate-password` and `/reset-password`. |
+| `CORS_ORIGINS` | Gateway allowlist containing the deployed SPA and Landing origins. |
 
-For remote access, terminate TLS at the entry point and set `SMARTGN_PUBLIC_ORIGIN` and `CORS_ORIGINS` to the public HTTPS origin. If the load balancer runs outside the host, bind the frontend with `SMARTGN_FRONTEND_BIND=0.0.0.0` and restrict access to the load balancer. Preserve the Compose volumes and Gateway `.local` files across updates.
+Verify `https://<spa-host>/healthz`, a direct navigation to `/activate-password`
+and authenticated requests under `/api/v1`. Then use a test account to verify
+the activation and recovery emails point to the deployed SPA.
 
-This Compose setup uses test delivery, simulated notifications and local billing. Production requires verified providers, production secrets and certificates, backups, and client IP handling for Gateway rate limiting behind Nginx.
+Frontend CI runs lint, tests and the production build, then checks the
+container for health, Angular deep-link routing and API proxying. Releases
+are published through the Gateway deployment procedure.
 
 ## Repository layout
 
@@ -75,6 +111,10 @@ This Compose setup uses test delivery, simulated notifications and local billing
 - `public/i18n` contains the English and Spanish translation catalogs.
 - `fake-api` contains the Express mock API and fixtures.
 - `Dockerfile`, `nginx.conf` and `compose.*.yml` define the container build and runtime.
+
+## Acceptance scenarios
+
+See the [Gherkin acceptance scenarios](docs/acceptance/scenarios.gherkin). These are acceptance specifications. Use the verification commands above to run the automated checks.
 
 ## License
 

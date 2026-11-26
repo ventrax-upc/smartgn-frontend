@@ -1,5 +1,6 @@
 import { TranslatePipe } from '@ngx-translate/core';
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
@@ -8,7 +9,7 @@ import { ChangePasswordDialog } from '../change-password-dialog/change-password-
 
 @Component({
   selector: 'app-profile',
-  imports: [TranslatePipe, ReactiveFormsModule, MatIcon],
+  imports: [TranslatePipe, ReactiveFormsModule, MatIcon, RouterLink],
   templateUrl: './profile.html',
   styleUrl: './profile.css',
 })

@@ -73,6 +73,18 @@ export class AuthApi {
       );
   }
 
+  requestRecoveryCode(email: string): Observable<{ challengeId: string }> {
+    return this.http.post<{ challengeId: string }>(`${this.baseUrl}/recovery-codes`, {
+      email: email.trim().toLowerCase(),
+    });
+  }
+
+  verifyRecoveryCode(challengeId: string, code: string): Observable<{ token: string }> {
+    return this.http.post<{ token: string }>(`${this.baseUrl}/recovery-codes/verify`, {
+      challengeId, code,
+    });
+  }
+
   activatePassword(activationToken: string, newPassword: string): Observable<void> {
     return this.http
       .post<void>(`${this.baseUrl}/activate-password`, {
