@@ -10,6 +10,8 @@ import { AuthStore, TOKEN_KEY } from '../../modules/iam/application/auth.store';
 const PUBLIC_AUTH_PATHS = new Set([
   '/auth/sign-in',
   '/auth/forgot-password',
+  '/auth/recovery-codes',
+  '/auth/recovery-codes/verify',
   '/auth/reset-password',
   '/auth/activate-password',
 ].map((path) => environment.apiUrl + path));

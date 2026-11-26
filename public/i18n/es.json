@@ -256,6 +256,18 @@
     }
   },
   "ui": {
+    "recoveryEmailInstructions": "Ingresa el correo registrado en SmartGN.",
+    "recoverySendCode": "Enviar código",
+    "recoveryCodeInstructions": "Revisa tu correo e ingresa el código de seis dígitos.",
+    "recoveryCodeLabel": "Código de seis dígitos",
+    "recoveryVerifyCode": "Verificar código",
+    "recoveryRequestAnotherCode": "Solicitar otro código",
+    "recoveryPasswordInstructions": "Ingresa y confirma tu nueva contraseña.",
+    "recoverySaveAndSignIn": "Guardar e iniciar sesión",
+    "recoveryEmailNotRegistered": "Este correo no está registrado.",
+    "recoveryAccountInactive": "La cuenta está inactiva. Actívala antes de restablecer la contraseña.",
+    "recoveryCodeInvalid": "El código es incorrecto o ha vencido.",
+    "recoverySingleUseCode": "Códigos de recuperación de un solo uso",
     "inactive": "Inactivo",
     "editInstaller": "Editar instalador",
     "registerAnInstaller": "Registrar instalador",
@@ -872,5 +884,51 @@
     "USE_REPORTS": "Reportes",
     "USE_TICKETS": "Tickets",
     "USE_VISITS": "Visitas"
+  },
+  "legal": {
+    "heading": "Documentos legales",
+    "backToProfile": "Volver al perfil",
+    "privacy": {
+      "title": "Política de privacidad",
+      "sections": {
+        "0": {
+          "title": "Datos que tratamos",
+          "body": "SmartGN de Ventrax utiliza tu correo, nombre, teléfono y dirección de instalación para verificar tu correo y coordinar el servicio. Tras la activación también trata datos de cuenta, lecturas del medidor, alertas, solicitudes y registros de pago y facturación. Las lecturas pueden revelar patrones de consumo."
+        },
+        "1": {
+          "title": "Uso y destinatarios de los datos",
+          "body": "Usamos estos datos para gestionar compras, instalación, monitoreo, soporte, seguridad y facturación. El proveedor de pagos gestiona el ingreso de la tarjeta. Los proveedores de alojamiento, correo, pagos e instalación autorizada reciben los datos que necesitan para prestar su servicio. Los usuarios delegados acceden a los medidores y funciones que les autoriza el titular."
+        },
+        "2": {
+          "title": "Conservación y tus derechos",
+          "body": "Conservamos los registros durante el tiempo necesario para prestar el servicio y cumplir obligaciones de facturación, legales y de seguridad. Según la Ley de Protección de Datos Personales del Perú, puedes solicitar acceso, rectificación, cancelación u oposición, según corresponda. Contacta con Ventrax desde Soporte en tu cuenta SmartGN."
+        },
+        "3": {
+          "title": "Video de YouTube",
+          "body": "Si se habilita el video del equipo, al reproducirlo el navegador puede conectarse a YouTube y enviar a Google datos técnicos como tu dirección IP. YouTube aplica sus propias reglas de privacidad."
+        }
+      }
+    },
+    "terms": {
+      "title": "Términos y condiciones",
+      "sections": {
+        "0": {
+          "title": "Servicio y cuenta",
+          "body": "SmartGN ofrece monitoreo de medidores de gas, alertas y soporte. Protege tus credenciales y administra con cuidado los permisos delegados. Las alertas de SmartGN son informativas. Si sospechas una fuga, sigue las instrucciones de emergencia de tu proveedor de gas."
+        },
+        "1": {
+          "title": "Compra e instalación",
+          "body": "Revisa el importe mostrado antes de pagar. Cuando se confirma el pago, se habilita la solicitud de instalación y se inicia la activación de la cuenta. La instalación está sujeta a evaluación técnica y coordinación de cita. Las transacciones en Sandbox usan credenciales de prueba y no generan cargos reales."
+        },
+        "2": {
+          "title": "Soporte, cancelaciones y derechos del consumidor",
+          "body": "Usa Soporte de SmartGN para consultas sobre instalación, pagos, cancelaciones o devoluciones. A tu compra se aplican los derechos y mecanismos de protección al consumidor previstos en la normativa peruana."
+        },
+        "3": {
+          "title": "Cambios",
+          "body": "SmartGN publicará la versión actualizada cuando cambien estas condiciones. Los cambios a servicios en curso están sujetos a las obligaciones de información y protección al consumidor aplicables."
+        }
+      }
+    }
   }
 }
